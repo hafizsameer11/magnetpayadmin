@@ -109,6 +109,9 @@ export type Integration = {
 };
 
 // ===== Mocks =====
+/** Placeholder only — real webhook secrets live in server env, never in source. */
+const MOCK_SIGNING_SECRET = "••••••••••••••••";
+
 export const WEBHOOKS: WebhookEndpoint[] = [
   {
     id: "wh_01HX9",
@@ -118,7 +121,7 @@ export const WEBHOOKS: WebhookEndpoint[] = [
     status: "active",
     successRate: 99.4,
     lastDelivery: "12s ago",
-    signingSecret: "whsec_4f8a9c2e1b6d7a3f5e9c8b1d2a4f6e7c",
+    signingSecret: MOCK_SIGNING_SECRET,
     createdAt: "2025-09-12",
     deliveries: [
       { id: "d_001", event: "order.paid", status: "200", attempts: 1, duration: 142, at: "12s ago" },
@@ -136,7 +139,7 @@ export const WEBHOOKS: WebhookEndpoint[] = [
     status: "active",
     successRate: 100,
     lastDelivery: "3s ago",
-    signingSecret: "whsec_8b3e7a1f9c4d6e2b5a8f1c3d7e9b2a4f",
+    signingSecret: MOCK_SIGNING_SECRET,
     createdAt: "2025-08-01",
     deliveries: [],
   },
@@ -148,7 +151,7 @@ export const WEBHOOKS: WebhookEndpoint[] = [
     status: "failing",
     successRate: 73.2,
     lastDelivery: "2m ago",
-    signingSecret: "whsec_2a5f8b1c4d7e9a3b6f2c5e8d1a4b7c9e",
+    signingSecret: MOCK_SIGNING_SECRET,
     createdAt: "2025-10-22",
     deliveries: [],
   },
@@ -160,7 +163,7 @@ export const WEBHOOKS: WebhookEndpoint[] = [
     status: "paused",
     successRate: 96.8,
     lastDelivery: "3h ago",
-    signingSecret: "whsec_7c2d5a8f1e4b9c3d6a2f5e8b1c4d7a9f",
+    signingSecret: MOCK_SIGNING_SECRET,
     createdAt: "2025-07-14",
     deliveries: [],
   },

@@ -257,7 +257,7 @@ export const CARRIERS: CarrierConfig[] = [
     credentials: [
       { label: "API Key", value: "mex_live_••••••••8821", masked: true },
       { label: "Account Number", value: "ME-NG-44120" },
-      { label: "Webhook secret", value: "whsec_••••••••2240", masked: true },
+      { label: "Webhook secret", value: "••••••••••••••••", masked: true },
     ],
     rateCard: [
       { lane: "CN → NG", service: "Air Express", baseNGN: 12000, perKgNGN: 2400, minKg: 0.5 },
