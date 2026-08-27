@@ -4,7 +4,7 @@ import { AdminShell, T } from "@/components/admin/AdminShell";
 import { fetchAdminAudit } from "@/lib/api";
 import { Loader2 } from "lucide-react";
 
-export const Route = createFileRoute("/admin/gdpr/")({
+export const Route = createFileRoute("/admin/gdpr")({
   head: () => ({ meta: [{ title: "Gdpr — MagnetPay Admin" }] }),
   component: Page,
 });

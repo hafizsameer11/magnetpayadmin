@@ -1,48 +1,91 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { AdminShell, T } from "@/components/admin/AdminShell";
-import { LISTINGS, Card } from "@/components/admin/Catalog";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
+import { AdminShell, AdminCard, T } from "@/components/admin/AdminShell";
+import { fetchAdminAudit, fetchAdminProducts } from "@/lib/api";
 
 export const Route = createFileRoute("/admin/listings/$id/history")({
   head: () => ({ meta: [{ title: "Listing history — MagnetPay Admin" }] }),
   component: Page,
 });
 
-const EVENTS = [
-  { who: "Adaeze K. (admin)", at: "2026-06-28 14:22", action: "Approved listing", note: "Compliance docs verified.", tone: "success" as const },
-  { who: "Shenzhen TopMax", at: "2026-06-28 09:11", action: "Price updated", note: "CNY 92 → CNY 86", tone: "info" as const },
-  { who: "System", at: "2026-06-27 22:30", action: "Auto-flagged", note: "Keyword match: 'fake' — cleared on review.", tone: "warn" as const },
-  { who: "Shenzhen TopMax", at: "2026-06-27 18:00", action: "Stock updated", note: "1180 → 1240 units", tone: "info" as const },
-  { who: "Tobi A. (mod)", at: "2026-06-26 11:45", action: "Edited title", note: "Added 'NG plug' for clarity.", tone: "info" as const },
-  { who: "Shenzhen TopMax", at: "2026-06-25 08:02", action: "Listing created", note: "Submitted for review.", tone: "info" as const },
-];
+function str(v: unknown, fallback = "—") {
+  if (v == null) return fallback;
+  return String(v);
+}
 
 function Page() {
   const { id } = Route.useParams();
-  const l = LISTINGS.find((x) => x.id === id) ?? LISTINGS[0];
+  const [title, setTitle] = useState(id);
+  const [events, setEvents] = useState<{ action: string; at: string; note: string }[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    void (async () => {
+      setLoading(true);
+      try {
+        const [products, audit] = await Promise.all([fetchAdminProducts(), fetchAdminAudit()]);
+        const product = products.find((p) => str((p as Record<string, unknown>).id) === id) as Record<string, unknown> | undefined;
+        if (product) setTitle(str(product.title, id));
+
+        setEvents(
+          audit
+            .filter((a) => a.entity === "Product" && a.entityId === id)
+            .map((a) => ({
+              action: a.action,
+              at: new Date(a.createdAt).toLocaleString(),
+              note: a.entityId ?? "",
+            })),
+        );
+      } catch {
+        setEvents([]);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [id]);
+
   return (
     <AdminShell
-      title={`History · ${l.title}`}
-      breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Listings", to: "/admin/listings" }, { label: l.id, to: "/admin/listings/$id" as never }, { label: "History" }]}
+      title={`History · ${title}`}
+      breadcrumbs={[
+        { label: "Admin", to: "/admin" },
+        { label: "Listings", to: "/admin/listings" },
+        { label: id.slice(0, 8), to: `/admin/listings/${id}` as never },
+        { label: "History" },
+      ]}
     >
-      <Card>
-        <div className="relative pl-5">
-          <div className="absolute left-1.5 top-2 bottom-2 w-px" style={{ background: T.border }} />
-          {EVENTS.map((e, i) => {
-            const tone = e.tone === "success" ? T.success : e.tone === "warn" ? T.warn : T.info;
-            return (
-              <div key={i} className="relative py-3" style={{ borderBottom: i < EVENTS.length - 1 ? `1px solid ${T.border}` : "none" }}>
-                <span className="absolute -left-[18px] top-4 size-2 rounded-full ring-4" style={{ background: tone, boxShadow: `0 0 0 4px ${T.surface}` }} />
+      {loading ? (
+        <div className="py-16 grid place-items-center" style={{ color: T.muted }}>
+          <Loader2 className="size-5 animate-spin" />
+        </div>
+      ) : events.length === 0 ? (
+        <AdminCard>
+          <p className="text-[13px] font-semibold" style={{ color: T.ink }}>No audit history</p>
+          <p className="mt-1 text-[12px]" style={{ color: T.sub }}>
+            Moderation and edit events will appear here when recorded in the audit log.
+          </p>
+          <Link to="/admin/listings/$id" params={{ id }} className="inline-block mt-4 text-[12px] font-semibold" style={{ color: T.navy }}>
+            Back to listing
+          </Link>
+        </AdminCard>
+      ) : (
+        <AdminCard>
+          <div className="relative pl-5">
+            <div className="absolute left-1.5 top-2 bottom-2 w-px" style={{ background: T.border }} />
+            {events.map((e, i) => (
+              <div key={i} className="relative py-3" style={{ borderBottom: i < events.length - 1 ? `1px solid ${T.border}` : "none" }}>
+                <span className="absolute -left-[18px] top-4 size-2 rounded-full ring-4" style={{ background: T.info, boxShadow: `0 0 0 4px ${T.surface}` }} />
                 <div className="flex items-center justify-between">
                   <p className="text-[12.5px] font-semibold" style={{ color: T.ink }}>{e.action}</p>
                   <span className="text-[10.5px] tabular-nums" style={{ color: T.muted, fontFamily: "'JetBrains Mono', monospace" }}>{e.at}</span>
                 </div>
-                <p className="mt-0.5 text-[11.5px]" style={{ color: T.sub }}>{e.note}</p>
-                <p className="mt-0.5 text-[10.5px]" style={{ color: T.muted }}>by {e.who}</p>
+                {e.note ? <p className="mt-0.5 text-[11.5px]" style={{ color: T.sub }}>{e.note}</p> : null}
               </div>
-            );
-          })}
-        </div>
-      </Card>
+            ))}
+          </div>
+        </AdminCard>
+      )}
     </AdminShell>
   );
 }

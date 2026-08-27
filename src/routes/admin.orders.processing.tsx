@@ -1,7 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { StatusPage } from "@/components/admin/Orders";
+import { OrderStatusPage } from "@/components/admin/OrderStatusPage";
 
 export const Route = createFileRoute("/admin/orders/processing")({
-  head: () => ({ meta: [{ title: "Processing — MagnetPay Admin" }] }),
-  component: () => <StatusPage status="processing" title="Processing" description="Paid and funded into escrow — seller is preparing the shipment." />,
+  head: () => ({ meta: [{ title: "Processing orders — MagnetPay Admin" }] }),
+  component: () => (
+    <OrderStatusPage
+      status="processing"
+      title="Processing"
+      description="Paid orders being prepared for shipment."
+    />
+  ),
 });

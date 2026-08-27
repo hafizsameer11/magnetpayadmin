@@ -4,7 +4,7 @@ import { AdminShell, T } from "@/components/admin/AdminShell";
 import { fetchAdminAnnouncements } from "@/lib/api";
 import { Loader2 } from "lucide-react";
 
-export const Route = createFileRoute("/admin/sms-templates/")({
+export const Route = createFileRoute("/admin/sms-templates")({
   head: () => ({ meta: [{ title: "Sms-templates — MagnetPay Admin" }] }),
   component: Page,
 });

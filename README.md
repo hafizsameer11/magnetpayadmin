@@ -70,9 +70,11 @@ Never commit `.env` — only `.env.example`.
 
 ## API integration
 
-All admin routes use `src/lib/api.ts` against `/admin/*` on the backend. Screens show live data or empty states from the API (no demo fixtures on wired routes).
+Wired screens use `src/lib/api.ts` against `/admin/*` on the backend. They show **live data or honest empty states** — no hardcoded demo fixtures.
 
-Key areas: dashboard KPIs, users, KYC/KYB queues, wallets, transactions, withdrawals, orders, listings, escrow, shipments, FX, audit, chats.
+The sidebar lists **~22 production-ready areas** (users, KYC/KYB, orders, wallets, escrow, etc.). Additional route files exist as placeholders for future backend APIs; they are not linked in the nav.
+
+Key areas: dashboard, users, KYC/KYB, wallets, transactions, deposits, withdrawals, orders, listings, escrow, disputes, shipments, FX, fees, ledger, audit, chats, announcements.
 
 ## Project layout
 

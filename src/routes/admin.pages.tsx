@@ -4,7 +4,7 @@ import { AdminShell, T } from "@/components/admin/AdminShell";
 import { fetchAdminAnnouncements } from "@/lib/api";
 import { Loader2 } from "lucide-react";
 
-export const Route = createFileRoute("/admin/pages/")({
+export const Route = createFileRoute("/admin/pages")({
   head: () => ({ meta: [{ title: "Pages — MagnetPay Admin" }] }),
   component: Page,
 });

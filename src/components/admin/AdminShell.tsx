@@ -2,7 +2,7 @@ import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard, Users, ShieldCheck, Store, ShoppingBag, Wallet,
   Coins, Lock, Gavel, Truck, MessageSquare, AlertTriangle, FileText,
-  BarChart3, Settings, Search, Bell, ChevronRight,
+  Settings, Search, Bell, ChevronRight,
   User, KeyRound, Building2, Languages, Moon, LifeBuoy, LogOut, Check,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
@@ -42,21 +42,26 @@ type NavItem = { label: string; to: string; I: typeof Users };
 
 const NAV: NavItem[] = [
   { label: "Overview", to: "/admin", I: LayoutDashboard },
-  { label: "People", to: "/admin/users", I: Users },
-  { label: "KYC / KYB", to: "/admin/kyc", I: ShieldCheck },
+  { label: "Users", to: "/admin/users", I: Users },
+  { label: "KYC", to: "/admin/kyc", I: ShieldCheck },
+  { label: "KYB", to: "/admin/kyb", I: Building2 },
   { label: "Sellers", to: "/admin/sellers", I: Store },
   { label: "Listings", to: "/admin/listings", I: ShoppingBag },
   { label: "Orders", to: "/admin/orders", I: ShoppingBag },
   { label: "Wallets", to: "/admin/wallets", I: Wallet },
+  { label: "Transactions", to: "/admin/transactions", I: Wallet },
+  { label: "Deposits", to: "/admin/deposits", I: Wallet },
+  { label: "Withdrawals", to: "/admin/withdrawals", I: Wallet },
   { label: "FX", to: "/admin/fx/rates", I: Coins },
   { label: "Escrow", to: "/admin/escrow", I: Lock },
   { label: "Disputes", to: "/admin/disputes", I: Gavel },
-  { label: "Logistics", to: "/admin/shipments", I: Truck },
-  { label: "Support", to: "/admin/tickets", I: MessageSquare },
-  { label: "Compliance", to: "/admin/aml", I: AlertTriangle },
-  { label: "Content", to: "/admin/pages", I: FileText },
-  { label: "Analytics", to: "/admin/analytics/overview", I: BarChart3 },
-  { label: "Settings", to: "/admin/settings/general", I: Settings },
+  { label: "Shipments", to: "/admin/shipments", I: Truck },
+  { label: "Chats", to: "/admin/chats", I: MessageSquare },
+  { label: "AML", to: "/admin/aml", I: AlertTriangle },
+  { label: "Announcements", to: "/admin/announcements", I: FileText },
+  { label: "Fees", to: "/admin/fees", I: Settings },
+  { label: "Ledger", to: "/admin/ledger", I: FileText },
+  { label: "Audit", to: "/admin/audit", I: FileText },
 ];
 
 export function AdminShell({
@@ -256,18 +261,18 @@ export function AdminShell({
                     Account
                   </DropdownMenuLabel>
                   <DropdownMenuItem asChild className="text-[12.5px] gap-2 cursor-pointer">
-                    <Link to="/admin/me">
-                      <User className="size-3.5" strokeWidth={2.2} /> My profile
+                    <Link to="/admin/users">
+                      <User className="size-3.5" strokeWidth={2.2} /> Staff users
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild className="text-[12.5px] gap-2 cursor-pointer">
-                    <Link to="/admin/security">
-                      <KeyRound className="size-3.5" strokeWidth={2.2} /> Security & 2FA
+                    <Link to="/admin/audit">
+                      <KeyRound className="size-3.5" strokeWidth={2.2} /> Audit log
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild className="text-[12.5px] gap-2 cursor-pointer">
-                    <Link to="/admin/settings/general">
-                      <Settings className="size-3.5" strokeWidth={2.2} /> Admin settings
+                    <Link to="/admin/fees">
+                      <Settings className="size-3.5" strokeWidth={2.2} /> Fees & limits
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator style={{ background: T.border }} />
@@ -275,8 +280,8 @@ export function AdminShell({
                     Workspace
                   </DropdownMenuLabel>
                   <DropdownMenuItem asChild className="text-[12.5px] gap-2 cursor-pointer">
-                    <Link to="/admin/workspaces">
-                      <Building2 className="size-3.5" strokeWidth={2.2} /> Switch workspace
+                    <Link to="/admin/health">
+                      <Building2 className="size-3.5" strokeWidth={2.2} /> System health
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSub>
@@ -321,8 +326,8 @@ export function AdminShell({
                   </DropdownMenuSub>
                   <DropdownMenuSeparator style={{ background: T.border }} />
                   <DropdownMenuItem asChild className="text-[12.5px] gap-2 cursor-pointer">
-                    <Link to="/admin/help">
-                      <LifeBuoy className="size-3.5" strokeWidth={2.2} /> Help & docs
+                    <Link to="/admin/audit">
+                      <LifeBuoy className="size-3.5" strokeWidth={2.2} /> Help & audit
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem
@@ -357,6 +362,14 @@ export function AdminShell({
         <Toaster position="top-right" />
       </div>
     </>
+  );
+}
+
+export function AdminCard({ children }: { children: ReactNode }) {
+  return (
+    <div className="rounded-xl p-4" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
+      {children}
+    </div>
   );
 }
 

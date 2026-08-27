@@ -4,7 +4,7 @@ import { AdminShell, T } from "@/components/admin/AdminShell";
 import { fetchAdminAudit } from "@/lib/api";
 import { Loader2 } from "lucide-react";
 
-export const Route = createFileRoute("/admin/blocklist/")({
+export const Route = createFileRoute("/admin/blocklist")({
   head: () => ({ meta: [{ title: "Blocklist — MagnetPay Admin" }] }),
   component: Page,
 });

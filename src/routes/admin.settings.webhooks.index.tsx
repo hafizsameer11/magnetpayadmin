@@ -4,7 +4,7 @@ import { AdminShell, T } from "@/components/admin/AdminShell";
 import { fetchAdminFees } from "@/lib/api";
 import { Loader2 } from "lucide-react";
 
-export const Route = createFileRoute("/admin/settings/webhooks")({
+export const Route = createFileRoute("/admin/settings/webhooks/")({
   head: () => ({ meta: [{ title: "Settings Webhooks Index — MagnetPay Admin" }] }),
   component: Page,
 });

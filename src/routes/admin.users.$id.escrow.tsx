@@ -1,7 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Lock, Gavel, CheckCircle2, Clock } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
-import { UserHeader, getAdminUser, Pill } from "@/components/admin/UserProfile";
+import { UserHeader, Pill } from "@/components/admin/UserProfile";
+import { fetchAdminEscrows, fetchAdminUser, fmtMoney, type AdminEscrow, type AdminUser } from "@/lib/api";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/users/$id/escrow")({
   head: () => ({ meta: [{ title: "User escrow — MagnetPay Admin" }] }),
@@ -10,24 +13,62 @@ export const Route = createFileRoute("/admin/users/$id/escrow")({
 
 type Tone = "success" | "warn" | "danger" | "info" | "neutral";
 
+function toneFor(status: string): Tone {
+  const s = status.toUpperCase();
+  if (s === "RELEASED" || s === "RESOLVED" || s === "COMPLETED") return "success";
+  if (s === "DISPUTED") return "danger";
+  if (s === "FUNDED" || s === "ACTIVE" || s === "IN_PROGRESS") return "warn";
+  return "info";
+}
+
 function UserEscrow() {
   const { id } = Route.useParams();
-  const u = getAdminUser(id);
+  const [user, setUser] = useState<AdminUser | null>(null);
+  const [rows, setRows] = useState<AdminEscrow[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const contracts: { id: string; counter: string; role: "Buyer" | "Seller"; ms: string; amt: number; status: string; tone: Tone; dueIn: string }[] = [
-    { id: "E-90412", counter: "Guangzhou Huayi Co.", role: "Buyer",  ms: "3/4 milestones", amt: 8_420,  status: "Released",  tone: "success", dueIn: "—" },
-    { id: "E-90388", counter: "Foshan Ceramics",     role: "Buyer",  ms: "Awaiting QC",     amt: 3_200,  status: "Disputed",  tone: "danger",  dueIn: "Action req." },
-    { id: "E-90370", counter: "Shenzhen Lumen",      role: "Buyer",  ms: "2/3 milestones", amt: 12_800, status: "In progress", tone: "info",  dueIn: "5d" },
-    { id: "E-90341", counter: "Yiwu Trade Group",    role: "Buyer",  ms: "1/3 milestones", amt: 2_100,  status: "Funded",    tone: "warn",    dueIn: "12d" },
-    { id: "E-90312", counter: "Hangzhou Silk Co.",   role: "Buyer",  ms: "Complete",        amt: 6_420,  status: "Released",  tone: "success", dueIn: "—" },
-  ];
+  useEffect(() => {
+    void (async () => {
+      setLoading(true);
+      try {
+        const [u, escrows] = await Promise.all([fetchAdminUser(id), fetchAdminEscrows()]);
+        setUser(u);
+        setRows(
+          escrows.filter(
+            (e) =>
+              e.buyer?.id === id ||
+              e.seller?.id === id ||
+              (e as AdminEscrow & { buyerId?: string; sellerId?: string }).buyerId === id ||
+              (e as AdminEscrow & { buyerId?: string; sellerId?: string }).sellerId === id,
+          ),
+        );
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "Failed to load");
+        setUser(null);
+        setRows([]);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [id]);
 
-  const summary = [
-    { I: Lock,         label: "Held value",      val: "$15,720", tone: T.navy },
-    { I: Clock,        label: "Open",            val: "3",       tone: T.info },
-    { I: Gavel,        label: "In dispute",      val: "1",       tone: T.danger },
-    { I: CheckCircle2, label: "Released (30d)",  val: "$14,840", tone: T.success },
-  ];
+  if (loading) {
+    return (
+      <AdminShell title="Escrow" breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Users", to: "/admin/users" }, { label: id }]}>
+        <div className="py-16 grid place-items-center" style={{ color: T.muted }}>
+          <Loader2 className="size-5 animate-spin" />
+        </div>
+      </AdminShell>
+    );
+  }
+
+  if (!user) {
+    return (
+      <AdminShell title="Escrow" breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Users", to: "/admin/users" }, { label: id }]}>
+        <p className="text-[13px]" style={{ color: T.muted }}>User not found.</p>
+      </AdminShell>
+    );
+  }
 
   return (
     <AdminShell
@@ -35,47 +76,57 @@ function UserEscrow() {
       breadcrumbs={[
         { label: "Admin", to: "/admin" },
         { label: "Users", to: "/admin/users" },
-        { label: u.name, to: `/admin/users/${u.id}` },
+        { label: user.name, to: `/admin/users/${user.id}` },
         { label: "Escrow" },
       ]}
     >
-      <UserHeader user={u} />
+      <UserHeader user={user} />
 
-      <div className="mt-5 grid grid-cols-2 md:grid-cols-4 gap-3">
-        {summary.map((s) => (
+      <div className="mt-5 grid grid-cols-2 md:grid-cols-3 gap-3">
+        {[
+          { label: "Contracts", val: rows.length },
+          { label: "Open", val: rows.filter((e) => !["RELEASED", "RESOLVED", "REFUNDED"].includes(e.status.toUpperCase())).length },
+          { label: "Disputed", val: rows.filter((e) => e.status.toUpperCase() === "DISPUTED" || (e.disputes?.length ?? 0) > 0).length },
+        ].map((s) => (
           <div key={s.label} className="rounded-xl p-3.5" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
-            <div className="flex items-center gap-2">
-              <div className="size-7 rounded-md grid place-items-center" style={{ background: `${s.tone}14`, color: s.tone }}>
-                <s.I className="size-3.5" strokeWidth={2.4} />
-              </div>
-              <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em]" style={{ color: T.muted }}>{s.label}</p>
-            </div>
-            <p className="mt-2 text-[20px] font-bold tabular-nums leading-none" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{s.val}</p>
+            <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em]" style={{ color: T.muted }}>{s.label}</p>
+            <p className="mt-2 text-[20px] font-bold tabular-nums" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{s.val}</p>
           </div>
         ))}
       </div>
 
       <div className="mt-4 rounded-xl overflow-hidden" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
-        <div className="grid items-center px-4 h-9 text-[10px] font-bold uppercase tracking-[0.14em]"
-          style={{ color: T.muted, background: T.bg, borderBottom: `1px solid ${T.border}`, gridTemplateColumns: "1fr 2fr 0.7fr 1.4fr 1fr 1.2fr 0.8fr" }}>
-          <span>Contract</span><span>Counterparty</span><span>Role</span><span>Milestones</span><span className="text-right">Amount</span><span>Status</span><span>Due in</span>
+        <div
+          className="grid items-center px-4 h-9 text-[10px] font-bold uppercase tracking-[0.14em]"
+          style={{ color: T.muted, background: T.bg, borderBottom: `1px solid ${T.border}`, gridTemplateColumns: "1fr 2fr 1fr 1fr 1fr" }}
+        >
+          <span>Contract</span><span>Title</span><span className="text-right">Amount</span><span>Status</span><span>Created</span>
         </div>
-        {contracts.map((c, i) => (
-          <div key={c.id} className="grid items-center px-4 h-[52px] text-[12px] hover:bg-[rgba(14,59,46,0.02)]"
-            style={{ gridTemplateColumns: "1fr 2fr 0.7fr 1.4fr 1fr 1.2fr 0.8fr", borderBottom: i < contracts.length - 1 ? `1px solid ${T.border}` : "none" }}>
-            <Link to="/admin/escrow/$id" params={{ id: c.id }} className="font-semibold tabular-nums" style={{ color: T.navy, fontFamily: "'JetBrains Mono', monospace" }}>
-              {c.id}
-            </Link>
-            <span style={{ color: T.ink }}>{c.counter}</span>
-            <span><Pill tone="neutral">{c.role}</Pill></span>
-            <span style={{ color: T.sub }}>{c.ms}</span>
-            <span className="text-right tabular-nums font-bold" style={{ color: T.ink, fontFamily: "'JetBrains Mono', monospace" }}>
-              ${c.amt.toLocaleString()}
-            </span>
-            <span><Pill tone={c.tone}>{c.status}</Pill></span>
-            <span className="tabular-nums" style={{ color: c.dueIn === "Action req." ? T.danger : T.sub, fontFamily: "'JetBrains Mono', monospace" }}>{c.dueIn}</span>
-          </div>
-        ))}
+        {rows.map((c, i) => {
+          const counter = c.buyer?.id === id ? c.seller?.name : c.buyer?.name;
+          return (
+            <div
+              key={c.id}
+              className="grid items-center px-4 h-[52px] text-[12px]"
+              style={{ gridTemplateColumns: "1fr 2fr 1fr 1fr 1fr", borderBottom: i < rows.length - 1 ? `1px solid ${T.border}` : "none" }}
+            >
+              <Link to="/admin/escrow/$id" params={{ id: c.id }} className="font-semibold tabular-nums" style={{ color: T.navy, fontFamily: "'JetBrains Mono', monospace" }}>
+                {c.id.slice(0, 8)}
+              </Link>
+              <span className="truncate" style={{ color: T.ink }}>{c.title ?? counter ?? "—"}</span>
+              <span className="text-right tabular-nums font-bold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                {fmtMoney(c.currency, c.amountMinor)}
+              </span>
+              <Pill tone={toneFor(c.status)}>{c.status}</Pill>
+              <span className="tabular-nums text-[11px]" style={{ color: T.sub, fontFamily: "'JetBrains Mono', monospace" }}>
+                {new Date(c.createdAt).toLocaleDateString()}
+              </span>
+            </div>
+          );
+        })}
+        {!rows.length ? (
+          <p className="p-6 text-center text-[12px]" style={{ color: T.muted }}>No escrow contracts for this user.</p>
+        ) : null}
       </div>
     </AdminShell>
   );

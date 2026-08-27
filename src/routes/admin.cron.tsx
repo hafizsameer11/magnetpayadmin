@@ -4,7 +4,7 @@ import { AdminShell, T } from "@/components/admin/AdminShell";
 import { fetchAdminConversations } from "@/lib/api";
 import { Loader2 } from "lucide-react";
 
-export const Route = createFileRoute("/admin/cron/")({
+export const Route = createFileRoute("/admin/cron")({
   head: () => ({ meta: [{ title: "Cron — MagnetPay Admin" }] }),
   component: Page,
 });
