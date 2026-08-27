@@ -6,7 +6,7 @@ import { Pill } from "@/components/admin/UserProfile";
 import { decideKyb, fetchAdminKybById, type AdminKybRow } from "@/lib/api";
 import { toast } from "sonner";
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://127.0.0.1:4000";
+const API_URL = import.meta.env.VITE_API_URL ?? "https://magnetpay.amctraders.online";
 
 export const Route = createFileRoute("/admin/kyb/$id")({
   head: () => ({ meta: [{ title: "KYB case — MagnetPay Admin" }] }),

@@ -24,7 +24,7 @@ Open the URL Vite prints (usually `http://localhost:5173`).
 
 | Variable | Description |
 |----------|-------------|
-| `VITE_API_URL` | Backend base URL, e.g. `http://127.0.0.1:4000` |
+| `VITE_API_URL` | Backend base URL. Local: `http://127.0.0.1:4000`. Production: `https://magnetpay.amctraders.online` |
 
 ## Admin login (after API seed)
 
@@ -46,8 +46,10 @@ npm run build
 Set build env:
 
 ```
-VITE_API_URL=https://api.yourdomain.com
+VITE_API_URL=https://magnetpay.amctraders.online
 ```
+
+**Live API:** [magnetpay.amctraders.online/health](https://magnetpay.amctraders.online/health)
 
 Point your host at `dist/` and enable SPA fallback to `index.html` for client routes.
 
@@ -55,7 +57,7 @@ Point your host at `dist/` and enable SPA fallback to `index.html` for client ro
 
 1. Import repo `hafizsameer11/magnetpayadmin`
 2. Framework: Vite
-3. Environment: `VITE_API_URL=https://api.yourdomain.com`
+3. Environment: `VITE_API_URL=https://magnetpay.amctraders.online`
 4. Deploy
 
 ## Git workflow
