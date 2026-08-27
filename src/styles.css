@@ -1,0 +1,221 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * MagnetPay design system — "Hub" (v8) direction.
+ * Warm cream canvas, deep forest navy ink, terracotta high-stakes accent.
+ * Inter for UI, JetBrains Mono for all numerals (currency, counts, IDs, time).
+ *
+ * Tokens are exposed two ways:
+ *  1. CSS vars under :root  (--mp-* namespace) — use in inline style or arbitrary classes.
+ *  2. Tailwind theme tokens under @theme inline — generates bg-mp-navy, text-mp-accent, etc.
+ *
+ * Legacy shadcn tokens (--background, --primary, …) are kept intact so the ui/* primitives
+ * keep working. New MagnetPay surfaces should use the mp-* tokens.
+ */
+
+:root {
+  /* Surfaces */
+  --mp-bg: #F6F1E7;          /* warm cream canvas */
+  --mp-surface: #FFFFFF;     /* card */
+  --mp-surface-2: #FBF7EE;   /* subtle alt surface */
+  --mp-border: #E7DFCE;      /* hairline */
+  --mp-border-strong: #D8CFB8;
+
+  /* Ink */
+  --mp-ink: #1B1A17;         /* primary text */
+  --mp-sub: #5B5749;         /* secondary text */
+  --mp-muted: #8A8472;       /* tertiary / labels */
+
+  /* Brand */
+  --mp-navy: #0E3B2E;        /* deep forest — primary brand */
+  --mp-navy-2: #14513E;      /* hero gradient stop */
+  --mp-accent: #C2410C;      /* terracotta — high-stakes / "now" */
+
+  /* Status (semantic) */
+  --mp-success: #0F766E;     /* teal — done / verified / released */
+  --mp-warn: #B45309;        /* amber — pending / in-flight */
+  --mp-danger: #B91C1C;      /* oxblood — dispute / held / error */
+  --mp-info: #1D4ED8;        /* cobalt — FX / informational */
+
+  /* On-dark accents (used over --mp-navy hero) */
+  --mp-on-navy: #FFFFFF;
+  --mp-on-navy-sub: #C8C2B0;
+  --mp-on-navy-accent: #FDBA74; /* amber-300 — progress / "in transit" */
+
+  /* Typography */
+  --mp-font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --mp-font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* Radii */
+  --mp-radius-sm: 8px;
+  --mp-radius-md: 12px;
+  --mp-radius-lg: 16px;
+  --mp-radius-xl: 20px;
+  --mp-radius-2xl: 24px;
+  --mp-radius-pill: 9999px;
+
+  /* Shadows */
+  --mp-shadow-card: 0 1px 0 0 rgba(27,26,23,0.02), 0 1px 2px -1px rgba(27,26,23,0.04);
+  --mp-shadow-hero: 0 18px 40px -22px rgba(14,59,46,0.55);
+}
+
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+
+  /* MagnetPay Hub tokens — exposed as Tailwind utilities (bg-mp-navy, text-mp-accent, …) */
+  --color-mp-bg: var(--mp-bg);
+  --color-mp-surface: var(--mp-surface);
+  --color-mp-surface-2: var(--mp-surface-2);
+  --color-mp-border: var(--mp-border);
+  --color-mp-border-strong: var(--mp-border-strong);
+  --color-mp-ink: var(--mp-ink);
+  --color-mp-sub: var(--mp-sub);
+  --color-mp-muted: var(--mp-muted);
+  --color-mp-navy: var(--mp-navy);
+  --color-mp-navy-2: var(--mp-navy-2);
+  --color-mp-accent: var(--mp-accent);
+  --color-mp-success: var(--mp-success);
+  --color-mp-warn: var(--mp-warn);
+  --color-mp-danger: var(--mp-danger);
+  --color-mp-info: var(--mp-info);
+  --color-mp-on-navy: var(--mp-on-navy);
+  --color-mp-on-navy-sub: var(--mp-on-navy-sub);
+  --color-mp-on-navy-accent: var(--mp-on-navy-accent);
+
+  --font-display: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  @keyframes reveal {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+:root {
+  --radius: 0.75rem;
+  --background: hsl(30 40% 98%);
+  --foreground: hsl(220 25% 12%);
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(220 25% 12%);
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(220 25% 12%);
+  --primary: hsl(12 90% 66%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(200 80% 45%);
+  --secondary-foreground: hsl(0 0% 100%);
+  --muted: hsl(220 10% 45%);
+  --muted-foreground: hsl(220 10% 35%);
+  --accent: hsl(30 40% 95%);
+  --accent-foreground: hsl(220 25% 12%);
+  --destructive: hsl(0 75% 55%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --success: hsl(150 60% 40%);
+  --success-foreground: hsl(0 0% 100%);
+  --border: hsl(220 25% 12% / 0.06);
+  --input: hsl(220 25% 12% / 0.08);
+  --ring: hsl(12 90% 66%);
+}
+
+.dark {
+  --background: hsl(220 25% 8%);
+  --foreground: hsl(30 40% 98%);
+  --card: hsl(220 25% 12%);
+  --card-foreground: hsl(30 40% 98%);
+  --popover: hsl(220 25% 12%);
+  --popover-foreground: hsl(30 40% 98%);
+  --primary: hsl(12 90% 66%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(200 80% 55%);
+  --secondary-foreground: hsl(0 0% 100%);
+  --muted: hsl(220 10% 60%);
+  --muted-foreground: hsl(220 10% 70%);
+  --accent: hsl(220 25% 16%);
+  --accent-foreground: hsl(30 40% 98%);
+  --destructive: hsl(0 75% 60%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --success: hsl(150 60% 50%);
+  --success-foreground: hsl(0 0% 100%);
+  --border: hsl(0 0% 100% / 0.08);
+  --input: hsl(0 0% 100% / 0.12);
+  --ring: hsl(12 90% 66%);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html,
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-display);
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* Hide scrollbars globally (kept outside @layer so utilities can't override). */
+html,
+body,
+* {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+  background: transparent !important;
+}
+
+
+
+/* Admin: every button is clickable. */
+button:not(:disabled) {
+  cursor: pointer;
+}
