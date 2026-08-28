@@ -130,17 +130,64 @@ export type AdminEscrow = {
   seller?: { id: string; name: string; phone: string };
 };
 
+export type AdminShipmentDocument = {
+  id: string;
+  kind: string;
+  name: string;
+  url: string;
+  createdAt: string;
+};
+
+export type ShipmentCostLine = { label: string; amountMinor: number | string };
+
 export type AdminShipment = {
   id: string;
+  ref?: string;
+  route?: string;
   status: string;
   mode?: string;
   createdAt: string;
   user?: { id: string; name: string; phone: string };
   events?: { id?: string; status?: string; message?: string; createdAt?: string; [k: string]: unknown }[];
-  documents?: unknown[];
-  hold?: unknown;
-  settlement?: unknown;
+  documents?: AdminShipmentDocument[];
+  hold?: { lockedMinor?: string | number; currency?: string } | null;
+  settlement?: {
+    finalMinor?: string | number;
+    cashbackMinor?: string | number;
+    topUpMinor?: string | number;
+    currency?: string;
+    breakdown?: ShipmentCostLine[] | null;
+    notes?: string | null;
+  } | null;
   quote?: unknown;
+};
+
+export type AdminFreightPricing = {
+  id: string;
+  airBaseMinor: number;
+  seaBaseMinor: number;
+  expressBaseMinor: number;
+  consolidatedBaseMinor: number;
+  cbmMultiplier: number;
+  weightMultiplier: number;
+  updatedAt: string;
+};
+
+export type AdminLogisticsPartner = {
+  id: string;
+  name: string;
+  code: string;
+  kind: "FREIGHT_FORWARDER" | "WAREHOUSE" | "CUSTOMS_BROKER" | "LAST_MILE";
+  modes: string[];
+  active: boolean;
+  rating?: number | null;
+  serviceLabel?: string | null;
+  contactName?: string | null;
+  contactPhone?: string | null;
+  contactEmail?: string | null;
+  notes?: string | null;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type AdminDispute = {
@@ -318,6 +365,78 @@ export async function fetchAdminShipments() {
 }
 export async function fetchAdminShipment(id: string) {
   return api<AdminShipment>(`/admin/shipments/${id}`);
+}
+export async function advanceAdminShipment(
+  id: string,
+  body: { status?: string; message?: string; skipPodCheck?: boolean } = {},
+) {
+  return api<AdminShipment>(`/admin/shipments/${id}/advance`, { method: "POST", body: JSON.stringify(body) });
+}
+export function resolveApiFileUrl(url: string) {
+  if (!url) return url;
+  if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:")) return url;
+  const base = API_URL.replace(/\/$/, "");
+  return `${base}${url.startsWith("/") ? url : `/${url}`}`;
+}
+
+export async function uploadAdminFile(filename: string, contentBase64: string, mimeType?: string) {
+  return api<{ url: string; name: string; mimeType?: string }>("/uploads", {
+    method: "POST",
+    body: JSON.stringify({ filename, contentBase64, mimeType }),
+  });
+}
+
+export async function fetchAdminShipmentDocumentKinds() {
+  return api<string[]>("/admin/logistics/document-kinds");
+}
+
+export async function addAdminShipmentDocument(
+  shipmentId: string,
+  body: { kind: string; name: string; url: string; note?: string },
+) {
+  return api<AdminShipmentDocument>(`/admin/shipments/${shipmentId}/documents`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+export async function deleteAdminShipmentDocument(shipmentId: string, docId: string) {
+  return api<{ ok: boolean }>(`/admin/shipments/${shipmentId}/documents/${docId}`, { method: "DELETE" });
+}
+
+export async function settleAdminShipment(
+  id: string,
+  payload: { finalMinor?: number; breakdown?: ShipmentCostLine[]; notes?: string },
+) {
+  return api<{ shipment: AdminShipment; settlement: NonNullable<AdminShipment["settlement"]> }>(
+    `/admin/shipments/${id}/settle`,
+    { method: "POST", body: JSON.stringify(payload) },
+  );
+}
+
+export async function fetchAdminFreightPricing() {
+  return api<AdminFreightPricing>("/admin/logistics/pricing");
+}
+export async function putAdminFreightPricing(body: Omit<AdminFreightPricing, "id" | "updatedAt">) {
+  return api<AdminFreightPricing>("/admin/logistics/pricing", { method: "PUT", body: JSON.stringify(body) });
+}
+export async function previewAdminFreightQuote(body: { cbm: number; weightKg: number; mode: string }) {
+  return api<{ estimatedMinor: string | number; formula: string }>("/admin/logistics/pricing/preview", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+export async function fetchAdminLogisticsPartners() {
+  return api<AdminLogisticsPartner[]>("/admin/logistics/partners");
+}
+export async function fetchAdminLogisticsPartner(id: string) {
+  return api<AdminLogisticsPartner>(`/admin/logistics/partners/${id}`);
+}
+export async function createAdminLogisticsPartner(body: Partial<AdminLogisticsPartner> & { name: string; code: string; modes: string[] }) {
+  return api<AdminLogisticsPartner>("/admin/logistics/partners", { method: "POST", body: JSON.stringify(body) });
+}
+export async function patchAdminLogisticsPartner(id: string, body: Partial<AdminLogisticsPartner>) {
+  return api<AdminLogisticsPartner>(`/admin/logistics/partners/${id}`, { method: "PATCH", body: JSON.stringify(body) });
 }
 
 // —— Market ——

@@ -56,6 +56,8 @@ const NAV: NavItem[] = [
   { label: "Escrow", to: "/admin/escrow", I: Lock },
   { label: "Disputes", to: "/admin/disputes", I: Gavel },
   { label: "Shipments", to: "/admin/shipments", I: Truck },
+  { label: "Freight pricing", to: "/admin/logistics/pricing", I: Truck },
+  { label: "Logistics partners", to: "/admin/logistics/partners", I: Truck },
   { label: "Chats", to: "/admin/chats", I: MessageSquare },
   { label: "AML", to: "/admin/aml", I: AlertTriangle },
   { label: "Announcements", to: "/admin/announcements", I: FileText },

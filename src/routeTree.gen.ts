@@ -175,6 +175,7 @@ import { Route as AdminKycIdRouteImport } from './routes/admin.kyc.$id'
 import { Route as AdminListingsIndexRouteImport } from './routes/admin.listings.index'
 import { Route as AdminListingsPendingRouteImport } from './routes/admin.listings.pending'
 import { Route as AdminListingsReportedRouteImport } from './routes/admin.listings.reported'
+import { Route as AdminLogisticsPricingRouteImport } from './routes/admin.logistics.pricing'
 import { Route as AdminOrdersIndexRouteImport } from './routes/admin.orders.index'
 import { Route as AdminOrdersCancelledRouteImport } from './routes/admin.orders.cancelled'
 import { Route as AdminOrdersDeliveredRouteImport } from './routes/admin.orders.delivered'
@@ -264,6 +265,8 @@ import { Route as AdminFxOrdersIdRouteImport } from './routes/admin.fx.orders.$i
 import { Route as AdminListingsIdIndexRouteImport } from './routes/admin.listings.$id.index'
 import { Route as AdminListingsIdEditRouteImport } from './routes/admin.listings.$id.edit'
 import { Route as AdminListingsIdHistoryRouteImport } from './routes/admin.listings.$id.history'
+import { Route as AdminLogisticsPartnersIndexRouteImport } from './routes/admin.logistics.partners.index'
+import { Route as AdminLogisticsPartnersIdRouteImport } from './routes/admin.logistics.partners.$id'
 import { Route as AdminOrdersIdIndexRouteImport } from './routes/admin.orders.$id.index'
 import { Route as AdminOrdersIdCancelRouteImport } from './routes/admin.orders.$id.cancel'
 import { Route as AdminOrdersIdNotesRouteImport } from './routes/admin.orders.$id.notes'
@@ -1135,6 +1138,11 @@ const AdminListingsReportedRoute = AdminListingsReportedRouteImport.update({
   path: '/admin/listings/reported',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminLogisticsPricingRoute = AdminLogisticsPricingRouteImport.update({
+  id: '/admin/logistics/pricing',
+  path: '/admin/logistics/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminOrdersIndexRoute = AdminOrdersIndexRouteImport.update({
   id: '/admin/orders/',
   path: '/admin/orders/',
@@ -1585,6 +1593,18 @@ const AdminListingsIdHistoryRoute = AdminListingsIdHistoryRouteImport.update({
   path: '/admin/listings/$id/history',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminLogisticsPartnersIndexRoute =
+  AdminLogisticsPartnersIndexRouteImport.update({
+    id: '/admin/logistics/partners/',
+    path: '/admin/logistics/partners/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AdminLogisticsPartnersIdRoute =
+  AdminLogisticsPartnersIdRouteImport.update({
+    id: '/admin/logistics/partners/$id',
+    path: '/admin/logistics/partners/$id',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AdminOrdersIdIndexRoute = AdminOrdersIdIndexRouteImport.update({
   id: '/admin/orders/$id/',
   path: '/admin/orders/$id/',
@@ -1938,6 +1958,7 @@ export interface FileRoutesByFullPath {
   '/admin/kyc/$id': typeof AdminKycIdRoute
   '/admin/listings/pending': typeof AdminListingsPendingRoute
   '/admin/listings/reported': typeof AdminListingsReportedRoute
+  '/admin/logistics/pricing': typeof AdminLogisticsPricingRoute
   '/admin/orders/cancelled': typeof AdminOrdersCancelledRoute
   '/admin/orders/delivered': typeof AdminOrdersDeliveredRoute
   '/admin/orders/exceptions': typeof AdminOrdersExceptionsRoute
@@ -2041,6 +2062,7 @@ export interface FileRoutesByFullPath {
   '/admin/fx/orders/$id': typeof AdminFxOrdersIdRoute
   '/admin/listings/$id/edit': typeof AdminListingsIdEditRoute
   '/admin/listings/$id/history': typeof AdminListingsIdHistoryRoute
+  '/admin/logistics/partners/$id': typeof AdminLogisticsPartnersIdRoute
   '/admin/orders/$id/cancel': typeof AdminOrdersIdCancelRoute
   '/admin/orders/$id/notes': typeof AdminOrdersIdNotesRoute
   '/admin/orders/$id/refund': typeof AdminOrdersIdRefundRoute
@@ -2074,6 +2096,7 @@ export interface FileRoutesByFullPath {
   '/admin/disputes/$id/': typeof AdminDisputesIdIndexRoute
   '/admin/fx/orders/': typeof AdminFxOrdersIndexRoute
   '/admin/listings/$id/': typeof AdminListingsIdIndexRoute
+  '/admin/logistics/partners/': typeof AdminLogisticsPartnersIndexRoute
   '/admin/orders/$id/': typeof AdminOrdersIdIndexRoute
   '/admin/settings/webhooks/': typeof AdminSettingsWebhooksIndexRoute
   '/admin/users/$id/': typeof AdminUsersIdIndexRoute
@@ -2234,6 +2257,7 @@ export interface FileRoutesByTo {
   '/admin/kyc/$id': typeof AdminKycIdRoute
   '/admin/listings/pending': typeof AdminListingsPendingRoute
   '/admin/listings/reported': typeof AdminListingsReportedRoute
+  '/admin/logistics/pricing': typeof AdminLogisticsPricingRoute
   '/admin/orders/cancelled': typeof AdminOrdersCancelledRoute
   '/admin/orders/delivered': typeof AdminOrdersDeliveredRoute
   '/admin/orders/exceptions': typeof AdminOrdersExceptionsRoute
@@ -2336,6 +2360,7 @@ export interface FileRoutesByTo {
   '/admin/fx/orders/$id': typeof AdminFxOrdersIdRoute
   '/admin/listings/$id/edit': typeof AdminListingsIdEditRoute
   '/admin/listings/$id/history': typeof AdminListingsIdHistoryRoute
+  '/admin/logistics/partners/$id': typeof AdminLogisticsPartnersIdRoute
   '/admin/orders/$id/cancel': typeof AdminOrdersIdCancelRoute
   '/admin/orders/$id/notes': typeof AdminOrdersIdNotesRoute
   '/admin/orders/$id/refund': typeof AdminOrdersIdRefundRoute
@@ -2369,6 +2394,7 @@ export interface FileRoutesByTo {
   '/admin/disputes/$id': typeof AdminDisputesIdIndexRoute
   '/admin/fx/orders': typeof AdminFxOrdersIndexRoute
   '/admin/listings/$id': typeof AdminListingsIdIndexRoute
+  '/admin/logistics/partners': typeof AdminLogisticsPartnersIndexRoute
   '/admin/orders/$id': typeof AdminOrdersIdIndexRoute
   '/admin/settings/webhooks': typeof AdminSettingsWebhooksIndexRoute
   '/admin/users/$id': typeof AdminUsersIdIndexRoute
@@ -2530,6 +2556,7 @@ export interface FileRoutesById {
   '/admin/kyc/$id': typeof AdminKycIdRoute
   '/admin/listings/pending': typeof AdminListingsPendingRoute
   '/admin/listings/reported': typeof AdminListingsReportedRoute
+  '/admin/logistics/pricing': typeof AdminLogisticsPricingRoute
   '/admin/orders/cancelled': typeof AdminOrdersCancelledRoute
   '/admin/orders/delivered': typeof AdminOrdersDeliveredRoute
   '/admin/orders/exceptions': typeof AdminOrdersExceptionsRoute
@@ -2633,6 +2660,7 @@ export interface FileRoutesById {
   '/admin/fx/orders/$id': typeof AdminFxOrdersIdRoute
   '/admin/listings/$id/edit': typeof AdminListingsIdEditRoute
   '/admin/listings/$id/history': typeof AdminListingsIdHistoryRoute
+  '/admin/logistics/partners/$id': typeof AdminLogisticsPartnersIdRoute
   '/admin/orders/$id/cancel': typeof AdminOrdersIdCancelRoute
   '/admin/orders/$id/notes': typeof AdminOrdersIdNotesRoute
   '/admin/orders/$id/refund': typeof AdminOrdersIdRefundRoute
@@ -2666,6 +2694,7 @@ export interface FileRoutesById {
   '/admin/disputes/$id/': typeof AdminDisputesIdIndexRoute
   '/admin/fx/orders/': typeof AdminFxOrdersIndexRoute
   '/admin/listings/$id/': typeof AdminListingsIdIndexRoute
+  '/admin/logistics/partners/': typeof AdminLogisticsPartnersIndexRoute
   '/admin/orders/$id/': typeof AdminOrdersIdIndexRoute
   '/admin/settings/webhooks/': typeof AdminSettingsWebhooksIndexRoute
   '/admin/users/$id/': typeof AdminUsersIdIndexRoute
@@ -2828,6 +2857,7 @@ export interface FileRouteTypes {
     | '/admin/kyc/$id'
     | '/admin/listings/pending'
     | '/admin/listings/reported'
+    | '/admin/logistics/pricing'
     | '/admin/orders/cancelled'
     | '/admin/orders/delivered'
     | '/admin/orders/exceptions'
@@ -2931,6 +2961,7 @@ export interface FileRouteTypes {
     | '/admin/fx/orders/$id'
     | '/admin/listings/$id/edit'
     | '/admin/listings/$id/history'
+    | '/admin/logistics/partners/$id'
     | '/admin/orders/$id/cancel'
     | '/admin/orders/$id/notes'
     | '/admin/orders/$id/refund'
@@ -2964,6 +2995,7 @@ export interface FileRouteTypes {
     | '/admin/disputes/$id/'
     | '/admin/fx/orders/'
     | '/admin/listings/$id/'
+    | '/admin/logistics/partners/'
     | '/admin/orders/$id/'
     | '/admin/settings/webhooks/'
     | '/admin/users/$id/'
@@ -3124,6 +3156,7 @@ export interface FileRouteTypes {
     | '/admin/kyc/$id'
     | '/admin/listings/pending'
     | '/admin/listings/reported'
+    | '/admin/logistics/pricing'
     | '/admin/orders/cancelled'
     | '/admin/orders/delivered'
     | '/admin/orders/exceptions'
@@ -3226,6 +3259,7 @@ export interface FileRouteTypes {
     | '/admin/fx/orders/$id'
     | '/admin/listings/$id/edit'
     | '/admin/listings/$id/history'
+    | '/admin/logistics/partners/$id'
     | '/admin/orders/$id/cancel'
     | '/admin/orders/$id/notes'
     | '/admin/orders/$id/refund'
@@ -3259,6 +3293,7 @@ export interface FileRouteTypes {
     | '/admin/disputes/$id'
     | '/admin/fx/orders'
     | '/admin/listings/$id'
+    | '/admin/logistics/partners'
     | '/admin/orders/$id'
     | '/admin/settings/webhooks'
     | '/admin/users/$id'
@@ -3419,6 +3454,7 @@ export interface FileRouteTypes {
     | '/admin/kyc/$id'
     | '/admin/listings/pending'
     | '/admin/listings/reported'
+    | '/admin/logistics/pricing'
     | '/admin/orders/cancelled'
     | '/admin/orders/delivered'
     | '/admin/orders/exceptions'
@@ -3522,6 +3558,7 @@ export interface FileRouteTypes {
     | '/admin/fx/orders/$id'
     | '/admin/listings/$id/edit'
     | '/admin/listings/$id/history'
+    | '/admin/logistics/partners/$id'
     | '/admin/orders/$id/cancel'
     | '/admin/orders/$id/notes'
     | '/admin/orders/$id/refund'
@@ -3555,6 +3592,7 @@ export interface FileRouteTypes {
     | '/admin/disputes/$id/'
     | '/admin/fx/orders/'
     | '/admin/listings/$id/'
+    | '/admin/logistics/partners/'
     | '/admin/orders/$id/'
     | '/admin/settings/webhooks/'
     | '/admin/users/$id/'
@@ -3712,6 +3750,7 @@ export interface RootRouteChildren {
   AdminKycIdRoute: typeof AdminKycIdRoute
   AdminListingsPendingRoute: typeof AdminListingsPendingRoute
   AdminListingsReportedRoute: typeof AdminListingsReportedRoute
+  AdminLogisticsPricingRoute: typeof AdminLogisticsPricingRoute
   AdminOrdersCancelledRoute: typeof AdminOrdersCancelledRoute
   AdminOrdersDeliveredRoute: typeof AdminOrdersDeliveredRoute
   AdminOrdersExceptionsRoute: typeof AdminOrdersExceptionsRoute
@@ -3809,6 +3848,7 @@ export interface RootRouteChildren {
   AdminFxOrdersIdRoute: typeof AdminFxOrdersIdRoute
   AdminListingsIdEditRoute: typeof AdminListingsIdEditRoute
   AdminListingsIdHistoryRoute: typeof AdminListingsIdHistoryRoute
+  AdminLogisticsPartnersIdRoute: typeof AdminLogisticsPartnersIdRoute
   AdminOrdersIdCancelRoute: typeof AdminOrdersIdCancelRoute
   AdminOrdersIdNotesRoute: typeof AdminOrdersIdNotesRoute
   AdminOrdersIdRefundRoute: typeof AdminOrdersIdRefundRoute
@@ -3832,6 +3872,7 @@ export interface RootRouteChildren {
   AdminDisputesIdIndexRoute: typeof AdminDisputesIdIndexRoute
   AdminFxOrdersIndexRoute: typeof AdminFxOrdersIndexRoute
   AdminListingsIdIndexRoute: typeof AdminListingsIdIndexRoute
+  AdminLogisticsPartnersIndexRoute: typeof AdminLogisticsPartnersIndexRoute
   AdminOrdersIdIndexRoute: typeof AdminOrdersIdIndexRoute
   AdminSettingsWebhooksIndexRoute: typeof AdminSettingsWebhooksIndexRoute
   AdminUsersIdIndexRoute: typeof AdminUsersIdIndexRoute
@@ -5004,6 +5045,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminListingsReportedRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/logistics/pricing': {
+      id: '/admin/logistics/pricing'
+      path: '/admin/logistics/pricing'
+      fullPath: '/admin/logistics/pricing'
+      preLoaderRoute: typeof AdminLogisticsPricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/orders/': {
       id: '/admin/orders/'
       path: '/admin/orders'
@@ -5627,6 +5675,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminListingsIdHistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/logistics/partners/': {
+      id: '/admin/logistics/partners/'
+      path: '/admin/logistics/partners'
+      fullPath: '/admin/logistics/partners/'
+      preLoaderRoute: typeof AdminLogisticsPartnersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/logistics/partners/$id': {
+      id: '/admin/logistics/partners/$id'
+      path: '/admin/logistics/partners/$id'
+      fullPath: '/admin/logistics/partners/$id'
+      preLoaderRoute: typeof AdminLogisticsPartnersIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/orders/$id/': {
       id: '/admin/orders/$id/'
       path: '/admin/orders/$id'
@@ -6190,6 +6252,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminKycIdRoute: AdminKycIdRoute,
   AdminListingsPendingRoute: AdminListingsPendingRoute,
   AdminListingsReportedRoute: AdminListingsReportedRoute,
+  AdminLogisticsPricingRoute: AdminLogisticsPricingRoute,
   AdminOrdersCancelledRoute: AdminOrdersCancelledRoute,
   AdminOrdersDeliveredRoute: AdminOrdersDeliveredRoute,
   AdminOrdersExceptionsRoute: AdminOrdersExceptionsRoute,
@@ -6287,6 +6350,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminFxOrdersIdRoute: AdminFxOrdersIdRoute,
   AdminListingsIdEditRoute: AdminListingsIdEditRoute,
   AdminListingsIdHistoryRoute: AdminListingsIdHistoryRoute,
+  AdminLogisticsPartnersIdRoute: AdminLogisticsPartnersIdRoute,
   AdminOrdersIdCancelRoute: AdminOrdersIdCancelRoute,
   AdminOrdersIdNotesRoute: AdminOrdersIdNotesRoute,
   AdminOrdersIdRefundRoute: AdminOrdersIdRefundRoute,
@@ -6310,6 +6374,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminDisputesIdIndexRoute: AdminDisputesIdIndexRoute,
   AdminFxOrdersIndexRoute: AdminFxOrdersIndexRoute,
   AdminListingsIdIndexRoute: AdminListingsIdIndexRoute,
+  AdminLogisticsPartnersIndexRoute: AdminLogisticsPartnersIndexRoute,
   AdminOrdersIdIndexRoute: AdminOrdersIdIndexRoute,
   AdminSettingsWebhooksIndexRoute: AdminSettingsWebhooksIndexRoute,
   AdminUsersIdIndexRoute: AdminUsersIdIndexRoute,
