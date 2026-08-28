@@ -30,11 +30,23 @@ export async function api<T>(path: string, opts: RequestInit & { auth?: boolean 
     const token = getAccessToken();
     if (token) headers.Authorization = `Bearer ${token}`;
   }
-  const res = await fetch(`${API_URL}${path}`, { ...opts, headers });
-  const json = await res.json().catch(() => ({}));
+  let res: Response;
+  try {
+    res = await fetch(`${API_URL}${path}`, { ...opts, headers });
+  } catch {
+    throw new Error(`Could not reach MagnetPay API at ${API_URL}`);
+  }
+  let json: unknown = {};
+  try {
+    json = await res.json();
+  } catch {
+    if (!res.ok) {
+      throw new Error(res.status === 401 ? "Sign in required" : res.statusText || "Request failed");
+    }
+  }
   if (!res.ok) {
     const err = (json as { error?: { message: string } }).error ?? {
-      message: res.statusText || "Request failed",
+      message: res.status === 401 ? "Sign in required" : res.statusText || "Request failed",
     };
     throw Object.assign(new Error(err.message), err);
   }
@@ -160,6 +172,7 @@ export type AdminShipment = {
     notes?: string | null;
   } | null;
   quote?: unknown;
+  marketOrder?: { id: string; status: string; tracking?: string | null; supplier?: string; escrowId?: string | null } | null;
 };
 
 export type AdminFreightPricing = {
@@ -383,9 +396,16 @@ export async function fetchAdminShipment(id: string) {
 }
 export async function advanceAdminShipment(
   id: string,
-  body: { status?: string; message?: string; skipPodCheck?: boolean } = {},
+  body: { status?: string; message?: string; skipSellerShipCheck?: boolean } = {},
 ) {
   return api<AdminShipment>(`/admin/shipments/${id}/advance`, { method: "POST", body: JSON.stringify(body) });
+}
+
+export async function markAdminOrderShipped(
+  orderId: string,
+  body: { tracking?: string; carrier?: string; note?: string } = {},
+) {
+  return api(`/admin/orders/${orderId}/mark-shipped`, { method: "POST", body: JSON.stringify(body) });
 }
 export function resolveApiFileUrl(url: string) {
   if (!url) return url;
@@ -475,6 +495,60 @@ export async function cancelAdminOrder(id: string) {
 export async function fetchAdminProducts() {
   return api<unknown[]>("/admin/products");
 }
+
+export type AdminProduct = {
+  id: string;
+  title: string;
+  description?: string | null;
+  priceMinor: string | number;
+  currency: string;
+  imageUrl?: string | null;
+  moq?: string;
+  rating?: number;
+  stock?: number | null;
+  active: boolean;
+  cbmPerUnit?: number | null;
+  weightKgPerUnit?: number | null;
+  originHub?: string | null;
+  leadTimeMin?: number | null;
+  leadTimeMax?: number | null;
+  packagingType?: string | null;
+  defaultIncoterm?: string | null;
+  variantAxes?: unknown;
+  pricingTiers?: unknown;
+  createdAt: string;
+  store?: {
+    id: string;
+    name: string;
+    verified?: boolean;
+    user?: { id: string; name: string; phone: string; email?: string | null };
+  };
+  category?: { id: string; name: string; slug?: string } | null;
+  media?: { id: string; url: string; sortOrder: number }[];
+  variants?: {
+    id: string;
+    sku?: string | null;
+    options?: unknown;
+    priceMinor: string | number;
+    stock?: number | null;
+    imageUrl?: string | null;
+    active: boolean;
+  }[];
+  reviews?: {
+    id: string;
+    rating: number;
+    comment?: string | null;
+    body?: string | null;
+    createdAt: string;
+    user?: { id: string; name: string };
+  }[];
+  _count?: { orderItems: number; reviews: number };
+};
+
+export async function fetchAdminProduct(id: string) {
+  return api<AdminProduct>(`/admin/products/${id}`);
+}
+
 export async function moderateProduct(id: string, status: "APPROVED" | "HIDDEN" | "REJECTED") {
   return api(`/admin/products/${id}/moderate`, { method: "POST", body: JSON.stringify({ status }) });
 }

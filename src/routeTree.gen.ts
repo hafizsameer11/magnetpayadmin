@@ -10,32 +10,6 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AddressRouteImport } from './routes/address'
-import { Route as BankRouteImport } from './routes/bank'
-import { Route as DepositRouteImport } from './routes/deposit'
-import { Route as FxRouteImport } from './routes/fx'
-import { Route as HomeRouteImport } from './routes/home'
-import { Route as KybRouteImport } from './routes/kyb'
-import { Route as KybDocsRouteImport } from './routes/kyb-docs'
-import { Route as KycStatusRouteImport } from './routes/kyc-status'
-import { Route as Kyc1RouteImport } from './routes/kyc1'
-import { Route as Kyc2RouteImport } from './routes/kyc2'
-import { Route as LegalRouteImport } from './routes/legal'
-import { Route as LocaleRouteImport } from './routes/locale'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as NotificationsRouteImport } from './routes/notifications'
-import { Route as OtpRouteImport } from './routes/otp'
-import { Route as PasscodeRouteImport } from './routes/passcode'
-import { Route as PermissionsRouteImport } from './routes/permissions'
-import { Route as ProfileRouteImport } from './routes/profile'
-import { Route as RoleRouteImport } from './routes/role'
-import { Route as SignupRouteImport } from './routes/signup'
-import { Route as SplashRouteImport } from './routes/splash'
-import { Route as StatementsRouteImport } from './routes/statements'
-import { Route as SystemRouteImport } from './routes/system'
-import { Route as UsersRouteImport } from './routes/users'
-import { Route as WelcomeRouteImport } from './routes/welcome'
-import { Route as WithdrawRouteImport } from './routes/withdraw'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as Admin2faRouteImport } from './routes/admin.2fa'
 import { Route as AdminAllowlistRouteImport } from './routes/admin.allowlist'
@@ -84,47 +58,6 @@ import { Route as AdminTeamRouteImport } from './routes/admin.team'
 import { Route as AdminVelocityRouteImport } from './routes/admin.velocity'
 import { Route as AdminWorkspacesRouteImport } from './routes/admin.workspaces'
 import { Route as AdminZonesRouteImport } from './routes/admin.zones'
-import { Route as ClaimTokenRouteImport } from './routes/claim.$token'
-import { Route as CurrencyCodeRouteImport } from './routes/currency.$code'
-import { Route as DepositMethodRouteImport } from './routes/deposit.method'
-import { Route as DepositStatusRouteImport } from './routes/deposit.status'
-import { Route as DepositVirtualRouteImport } from './routes/deposit.virtual'
-import { Route as EscrowIndexRouteImport } from './routes/escrow.index'
-import { Route as EscrowIdRouteImport } from './routes/escrow.$id'
-import { Route as FxConfirmRouteImport } from './routes/fx.confirm'
-import { Route as HelpIndexRouteImport } from './routes/help.index'
-import { Route as HelpTicketRouteImport } from './routes/help.ticket'
-import { Route as LogisticsIndexRouteImport } from './routes/logistics.index'
-import { Route as MarketIndexRouteImport } from './routes/market.index'
-import { Route as MarketCartRouteImport } from './routes/market.cart'
-import { Route as MarketOrdersRouteImport } from './routes/market.orders'
-import { Route as MarketRfqRouteImport } from './routes/market.rfq'
-import { Route as MarketSampleRouteImport } from './routes/market.sample'
-import { Route as MarketSearchRouteImport } from './routes/market.search'
-import { Route as MeIndexRouteImport } from './routes/me.index'
-import { Route as MeEditRouteImport } from './routes/me.edit'
-import { Route as MeWishlistRouteImport } from './routes/me.wishlist'
-import { Route as MessagesIndexRouteImport } from './routes/messages.index'
-import { Route as MessagesIdRouteImport } from './routes/messages.$id'
-import { Route as RecipientsIndexRouteImport } from './routes/recipients.index'
-import { Route as RecipientsNewRouteImport } from './routes/recipients.new'
-import { Route as SellerIndexRouteImport } from './routes/seller.index'
-import { Route as SellerCatalogRouteImport } from './routes/seller.catalog'
-import { Route as SellerPerformanceRouteImport } from './routes/seller.performance'
-import { Route as SellerQuotesRouteImport } from './routes/seller.quotes'
-import { Route as SellerTemplatesRouteImport } from './routes/seller.templates'
-import { Route as SendIndexRouteImport } from './routes/send.index'
-import { Route as SendAmountRouteImport } from './routes/send.amount'
-import { Route as SendAuthRouteImport } from './routes/send.auth'
-import { Route as SendDetailsRouteImport } from './routes/send.details'
-import { Route as SendReviewRouteImport } from './routes/send.review'
-import { Route as SendStatusRouteImport } from './routes/send.status'
-import { Route as SendSuccessRouteImport } from './routes/send.success'
-import { Route as SettingsAccountRouteImport } from './routes/settings.account'
-import { Route as SettingsLocaleRouteImport } from './routes/settings.locale'
-import { Route as SettingsNotificationsRouteImport } from './routes/settings.notifications'
-import { Route as SettingsSecurityRouteImport } from './routes/settings.security'
-import { Route as TxIdRouteImport } from './routes/tx.$id'
 import { Route as AdminAmlIndexRouteImport } from './routes/admin.aml.index'
 import { Route as AdminAmlIdRouteImport } from './routes/admin.aml.$id'
 import { Route as AdminAnalyticsCohortsRouteImport } from './routes/admin.analytics.cohorts'
@@ -220,44 +153,6 @@ import { Route as AdminWarehousesIndexRouteImport } from './routes/admin.warehou
 import { Route as AdminWarehousesIdRouteImport } from './routes/admin.warehouses.$id'
 import { Route as AdminWithdrawalsIndexRouteImport } from './routes/admin.withdrawals.index'
 import { Route as AdminWithdrawalsIdRouteImport } from './routes/admin.withdrawals.$id'
-import { Route as ClaimTokenDoneRouteImport } from './routes/claim.$token.done'
-import { Route as ClaimTokenSignupRouteImport } from './routes/claim.$token.signup'
-import { Route as EscrowIdDisputeRouteImport } from './routes/escrow.$id.dispute'
-import { Route as EscrowIdReleaseRouteImport } from './routes/escrow.$id.release'
-import { Route as EscrowInviteIdRouteImport } from './routes/escrow.invite.$id'
-import { Route as EscrowNewIndexRouteImport } from './routes/escrow.new.index'
-import { Route as EscrowNewDoneRouteImport } from './routes/escrow.new.done'
-import { Route as EscrowNewFeesRouteImport } from './routes/escrow.new.fees'
-import { Route as EscrowNewFundRouteImport } from './routes/escrow.new.fund'
-import { Route as EscrowNewInspectionRouteImport } from './routes/escrow.new.inspection'
-import { Route as EscrowNewMilestonesRouteImport } from './routes/escrow.new.milestones'
-import { Route as EscrowNewReviewRouteImport } from './routes/escrow.new.review'
-import { Route as EscrowNewTermsRouteImport } from './routes/escrow.new.terms'
-import { Route as EscrowSellerIdRouteImport } from './routes/escrow.seller.$id'
-import { Route as LogisticsBookingIndexRouteImport } from './routes/logistics.booking.index'
-import { Route as LogisticsBookingConfirmationRouteImport } from './routes/logistics.booking.confirmation'
-import { Route as LogisticsBookingDocsRouteImport } from './routes/logistics.booking.docs'
-import { Route as LogisticsQuoteIndexRouteImport } from './routes/logistics.quote.index'
-import { Route as LogisticsQuoteCompareRouteImport } from './routes/logistics.quote.compare'
-import { Route as LogisticsShipmentsIndexRouteImport } from './routes/logistics.shipments.index'
-import { Route as MarketCategorySlugRouteImport } from './routes/market.category.$slug'
-import { Route as MarketCheckoutPayRouteImport } from './routes/market.checkout.pay'
-import { Route as MarketCheckoutReviewRouteImport } from './routes/market.checkout.review'
-import { Route as MarketCheckoutShippingRouteImport } from './routes/market.checkout.shipping'
-import { Route as MarketOrderIdRouteImport } from './routes/market.order.$id'
-import { Route as MarketProductIdRouteImport } from './routes/market.product.$id'
-import { Route as MarketQuoteIdRouteImport } from './routes/market.quote.$id'
-import { Route as MarketRfqInboxRouteImport } from './routes/market.rfq.inbox'
-import { Route as MarketSupplierIdRouteImport } from './routes/market.supplier.$id'
-import { Route as SellerOrdersIndexRouteImport } from './routes/seller.orders.index'
-import { Route as SellerPayoutsIndexRouteImport } from './routes/seller.payouts.index'
-import { Route as SellerPayoutsIdRouteImport } from './routes/seller.payouts.$id'
-import { Route as SellerRfqIndexRouteImport } from './routes/seller.rfq.index'
-import { Route as SellerSettingsTaxRouteImport } from './routes/seller.settings.tax'
-import { Route as SellerSettingsTeamRouteImport } from './routes/seller.settings.team'
-import { Route as SellerStorefrontIndexRouteImport } from './routes/seller.storefront.index'
-import { Route as SellerStorefrontPreviewRouteImport } from './routes/seller.storefront.preview'
-import { Route as TxIdReceiptRouteImport } from './routes/tx.$id.receipt'
 import { Route as AdminDisputesIdIndexRouteImport } from './routes/admin.disputes.$id.index'
 import { Route as AdminDisputesIdEvidenceRouteImport } from './routes/admin.disputes.$id.evidence'
 import { Route as AdminDisputesIdRulingRouteImport } from './routes/admin.disputes.$id.ruling'
@@ -280,167 +175,10 @@ import { Route as AdminUsersIdNotesRouteImport } from './routes/admin.users.$id.
 import { Route as AdminUsersIdOrdersRouteImport } from './routes/admin.users.$id.orders'
 import { Route as AdminUsersIdTicketsRouteImport } from './routes/admin.users.$id.tickets'
 import { Route as AdminUsersIdWalletRouteImport } from './routes/admin.users.$id.wallet'
-import { Route as EscrowIdDisputeOutcomeRouteImport } from './routes/escrow.$id.dispute.outcome'
-import { Route as EscrowIdDisputeThreadRouteImport } from './routes/escrow.$id.dispute.thread'
-import { Route as EscrowIdMilestoneMsRouteImport } from './routes/escrow.$id.milestone.$ms'
-import { Route as EscrowInviteIdCounterRouteImport } from './routes/escrow.invite.$id.counter'
-import { Route as EscrowSellerIdDisputeRouteImport } from './routes/escrow.seller.$id.dispute'
-import { Route as LogisticsShipmentsIdIndexRouteImport } from './routes/logistics.shipments.$id.index'
-import { Route as LogisticsShipmentsIdClaimRouteImport } from './routes/logistics.shipments.$id.claim'
-import { Route as LogisticsShipmentsIdCustomsRouteImport } from './routes/logistics.shipments.$id.customs'
-import { Route as LogisticsShipmentsIdPodRouteImport } from './routes/logistics.shipments.$id.pod'
-import { Route as MarketOrderIdIndexRouteImport } from './routes/market.order.$id.index'
-import { Route as MarketOrderIdConfirmedRouteImport } from './routes/market.order.$id.confirmed'
-import { Route as MarketOrderIdDisputeRouteImport } from './routes/market.order.$id.dispute'
-import { Route as MarketOrderIdEscrowRouteImport } from './routes/market.order.$id.escrow'
-import { Route as MarketOrderIdReleaseRouteImport } from './routes/market.order.$id.release'
-import { Route as MarketOrderIdReviewRouteImport } from './routes/market.order.$id.review'
-import { Route as SellerOrdersIdIndexRouteImport } from './routes/seller.orders.$id.index'
-import { Route as SellerOrdersIdDispatchRouteImport } from './routes/seller.orders.$id.dispatch'
-import { Route as SellerOrdersIdDocsRouteImport } from './routes/seller.orders.$id.docs'
-import { Route as SellerOrdersIdProformaRouteImport } from './routes/seller.orders.$id.proforma'
-import { Route as SellerProductsIdEditRouteImport } from './routes/seller.products.$id.edit'
-import { Route as SellerProductsNewIndexRouteImport } from './routes/seller.products.new.index'
-import { Route as SellerProductsNewMediaRouteImport } from './routes/seller.products.new.media'
-import { Route as SellerProductsNewPricingRouteImport } from './routes/seller.products.new.pricing'
-import { Route as SellerProductsNewShippingRouteImport } from './routes/seller.products.new.shipping'
-import { Route as SellerRfqIdQuoteRouteImport } from './routes/seller.rfq.$id.quote'
-import { Route as EscrowSellerIdEvidenceMsRouteImport } from './routes/escrow.seller.$id.evidence.$ms'
-import { Route as EscrowSellerIdRequestMsRouteImport } from './routes/escrow.seller.$id.request.$ms'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AddressRoute = AddressRouteImport.update({
-  id: '/address',
-  path: '/address',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BankRoute = BankRouteImport.update({
-  id: '/bank',
-  path: '/bank',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DepositRoute = DepositRouteImport.update({
-  id: '/deposit',
-  path: '/deposit',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FxRoute = FxRouteImport.update({
-  id: '/fx',
-  path: '/fx',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HomeRoute = HomeRouteImport.update({
-  id: '/home',
-  path: '/home',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const KybRoute = KybRouteImport.update({
-  id: '/kyb',
-  path: '/kyb',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const KybDocsRoute = KybDocsRouteImport.update({
-  id: '/kyb-docs',
-  path: '/kyb-docs',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const KycStatusRoute = KycStatusRouteImport.update({
-  id: '/kyc-status',
-  path: '/kyc-status',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const Kyc1Route = Kyc1RouteImport.update({
-  id: '/kyc1',
-  path: '/kyc1',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const Kyc2Route = Kyc2RouteImport.update({
-  id: '/kyc2',
-  path: '/kyc2',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LegalRoute = LegalRouteImport.update({
-  id: '/legal',
-  path: '/legal',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LocaleRoute = LocaleRouteImport.update({
-  id: '/locale',
-  path: '/locale',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const NotificationsRoute = NotificationsRouteImport.update({
-  id: '/notifications',
-  path: '/notifications',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OtpRoute = OtpRouteImport.update({
-  id: '/otp',
-  path: '/otp',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PasscodeRoute = PasscodeRouteImport.update({
-  id: '/passcode',
-  path: '/passcode',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PermissionsRoute = PermissionsRouteImport.update({
-  id: '/permissions',
-  path: '/permissions',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProfileRoute = ProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RoleRoute = RoleRouteImport.update({
-  id: '/role',
-  path: '/role',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SignupRoute = SignupRouteImport.update({
-  id: '/signup',
-  path: '/signup',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SplashRoute = SplashRouteImport.update({
-  id: '/splash',
-  path: '/splash',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StatementsRoute = StatementsRouteImport.update({
-  id: '/statements',
-  path: '/statements',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SystemRoute = SystemRouteImport.update({
-  id: '/system',
-  path: '/system',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const UsersRoute = UsersRouteImport.update({
-  id: '/users',
-  path: '/users',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const WelcomeRoute = WelcomeRouteImport.update({
-  id: '/welcome',
-  path: '/welcome',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const WithdrawRoute = WithdrawRouteImport.update({
-  id: '/withdraw',
-  path: '/withdraw',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -681,211 +419,6 @@ const AdminWorkspacesRoute = AdminWorkspacesRouteImport.update({
 const AdminZonesRoute = AdminZonesRouteImport.update({
   id: '/admin/zones',
   path: '/admin/zones',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ClaimTokenRoute = ClaimTokenRouteImport.update({
-  id: '/claim/$token',
-  path: '/claim/$token',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CurrencyCodeRoute = CurrencyCodeRouteImport.update({
-  id: '/currency/$code',
-  path: '/currency/$code',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DepositMethodRoute = DepositMethodRouteImport.update({
-  id: '/method',
-  path: '/method',
-  getParentRoute: () => DepositRoute,
-} as any)
-const DepositStatusRoute = DepositStatusRouteImport.update({
-  id: '/status',
-  path: '/status',
-  getParentRoute: () => DepositRoute,
-} as any)
-const DepositVirtualRoute = DepositVirtualRouteImport.update({
-  id: '/virtual',
-  path: '/virtual',
-  getParentRoute: () => DepositRoute,
-} as any)
-const EscrowIndexRoute = EscrowIndexRouteImport.update({
-  id: '/escrow/',
-  path: '/escrow/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EscrowIdRoute = EscrowIdRouteImport.update({
-  id: '/escrow/$id',
-  path: '/escrow/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FxConfirmRoute = FxConfirmRouteImport.update({
-  id: '/confirm',
-  path: '/confirm',
-  getParentRoute: () => FxRoute,
-} as any)
-const HelpIndexRoute = HelpIndexRouteImport.update({
-  id: '/help/',
-  path: '/help/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HelpTicketRoute = HelpTicketRouteImport.update({
-  id: '/help/ticket',
-  path: '/help/ticket',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LogisticsIndexRoute = LogisticsIndexRouteImport.update({
-  id: '/logistics/',
-  path: '/logistics/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MarketIndexRoute = MarketIndexRouteImport.update({
-  id: '/market/',
-  path: '/market/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MarketCartRoute = MarketCartRouteImport.update({
-  id: '/market/cart',
-  path: '/market/cart',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MarketOrdersRoute = MarketOrdersRouteImport.update({
-  id: '/market/orders',
-  path: '/market/orders',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MarketRfqRoute = MarketRfqRouteImport.update({
-  id: '/market/rfq',
-  path: '/market/rfq',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MarketSampleRoute = MarketSampleRouteImport.update({
-  id: '/market/sample',
-  path: '/market/sample',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MarketSearchRoute = MarketSearchRouteImport.update({
-  id: '/market/search',
-  path: '/market/search',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MeIndexRoute = MeIndexRouteImport.update({
-  id: '/me/',
-  path: '/me/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MeEditRoute = MeEditRouteImport.update({
-  id: '/me/edit',
-  path: '/me/edit',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MeWishlistRoute = MeWishlistRouteImport.update({
-  id: '/me/wishlist',
-  path: '/me/wishlist',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MessagesIndexRoute = MessagesIndexRouteImport.update({
-  id: '/messages/',
-  path: '/messages/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MessagesIdRoute = MessagesIdRouteImport.update({
-  id: '/messages/$id',
-  path: '/messages/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RecipientsIndexRoute = RecipientsIndexRouteImport.update({
-  id: '/recipients/',
-  path: '/recipients/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RecipientsNewRoute = RecipientsNewRouteImport.update({
-  id: '/recipients/new',
-  path: '/recipients/new',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SellerIndexRoute = SellerIndexRouteImport.update({
-  id: '/seller/',
-  path: '/seller/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SellerCatalogRoute = SellerCatalogRouteImport.update({
-  id: '/seller/catalog',
-  path: '/seller/catalog',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SellerPerformanceRoute = SellerPerformanceRouteImport.update({
-  id: '/seller/performance',
-  path: '/seller/performance',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SellerQuotesRoute = SellerQuotesRouteImport.update({
-  id: '/seller/quotes',
-  path: '/seller/quotes',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SellerTemplatesRoute = SellerTemplatesRouteImport.update({
-  id: '/seller/templates',
-  path: '/seller/templates',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SendIndexRoute = SendIndexRouteImport.update({
-  id: '/send/',
-  path: '/send/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SendAmountRoute = SendAmountRouteImport.update({
-  id: '/send/amount',
-  path: '/send/amount',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SendAuthRoute = SendAuthRouteImport.update({
-  id: '/send/auth',
-  path: '/send/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SendDetailsRoute = SendDetailsRouteImport.update({
-  id: '/send/details',
-  path: '/send/details',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SendReviewRoute = SendReviewRouteImport.update({
-  id: '/send/review',
-  path: '/send/review',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SendStatusRoute = SendStatusRouteImport.update({
-  id: '/send/status',
-  path: '/send/status',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SendSuccessRoute = SendSuccessRouteImport.update({
-  id: '/send/success',
-  path: '/send/success',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SettingsAccountRoute = SettingsAccountRouteImport.update({
-  id: '/settings/account',
-  path: '/settings/account',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SettingsLocaleRoute = SettingsLocaleRouteImport.update({
-  id: '/settings/locale',
-  path: '/settings/locale',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SettingsNotificationsRoute = SettingsNotificationsRouteImport.update({
-  id: '/settings/notifications',
-  path: '/settings/notifications',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SettingsSecurityRoute = SettingsSecurityRouteImport.update({
-  id: '/settings/security',
-  path: '/settings/security',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TxIdRoute = TxIdRouteImport.update({
-  id: '/tx/$id',
-  path: '/tx/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminAmlIndexRoute = AdminAmlIndexRouteImport.update({
@@ -1368,197 +901,6 @@ const AdminWithdrawalsIdRoute = AdminWithdrawalsIdRouteImport.update({
   path: '/admin/withdrawals/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ClaimTokenDoneRoute = ClaimTokenDoneRouteImport.update({
-  id: '/done',
-  path: '/done',
-  getParentRoute: () => ClaimTokenRoute,
-} as any)
-const ClaimTokenSignupRoute = ClaimTokenSignupRouteImport.update({
-  id: '/signup',
-  path: '/signup',
-  getParentRoute: () => ClaimTokenRoute,
-} as any)
-const EscrowIdDisputeRoute = EscrowIdDisputeRouteImport.update({
-  id: '/dispute',
-  path: '/dispute',
-  getParentRoute: () => EscrowIdRoute,
-} as any)
-const EscrowIdReleaseRoute = EscrowIdReleaseRouteImport.update({
-  id: '/release',
-  path: '/release',
-  getParentRoute: () => EscrowIdRoute,
-} as any)
-const EscrowInviteIdRoute = EscrowInviteIdRouteImport.update({
-  id: '/escrow/invite/$id',
-  path: '/escrow/invite/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EscrowNewIndexRoute = EscrowNewIndexRouteImport.update({
-  id: '/escrow/new/',
-  path: '/escrow/new/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EscrowNewDoneRoute = EscrowNewDoneRouteImport.update({
-  id: '/escrow/new/done',
-  path: '/escrow/new/done',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EscrowNewFeesRoute = EscrowNewFeesRouteImport.update({
-  id: '/escrow/new/fees',
-  path: '/escrow/new/fees',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EscrowNewFundRoute = EscrowNewFundRouteImport.update({
-  id: '/escrow/new/fund',
-  path: '/escrow/new/fund',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EscrowNewInspectionRoute = EscrowNewInspectionRouteImport.update({
-  id: '/escrow/new/inspection',
-  path: '/escrow/new/inspection',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EscrowNewMilestonesRoute = EscrowNewMilestonesRouteImport.update({
-  id: '/escrow/new/milestones',
-  path: '/escrow/new/milestones',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EscrowNewReviewRoute = EscrowNewReviewRouteImport.update({
-  id: '/escrow/new/review',
-  path: '/escrow/new/review',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EscrowNewTermsRoute = EscrowNewTermsRouteImport.update({
-  id: '/escrow/new/terms',
-  path: '/escrow/new/terms',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EscrowSellerIdRoute = EscrowSellerIdRouteImport.update({
-  id: '/escrow/seller/$id',
-  path: '/escrow/seller/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LogisticsBookingIndexRoute = LogisticsBookingIndexRouteImport.update({
-  id: '/logistics/booking/',
-  path: '/logistics/booking/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LogisticsBookingConfirmationRoute =
-  LogisticsBookingConfirmationRouteImport.update({
-    id: '/logistics/booking/confirmation',
-    path: '/logistics/booking/confirmation',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const LogisticsBookingDocsRoute = LogisticsBookingDocsRouteImport.update({
-  id: '/logistics/booking/docs',
-  path: '/logistics/booking/docs',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LogisticsQuoteIndexRoute = LogisticsQuoteIndexRouteImport.update({
-  id: '/logistics/quote/',
-  path: '/logistics/quote/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LogisticsQuoteCompareRoute = LogisticsQuoteCompareRouteImport.update({
-  id: '/logistics/quote/compare',
-  path: '/logistics/quote/compare',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LogisticsShipmentsIndexRoute = LogisticsShipmentsIndexRouteImport.update({
-  id: '/logistics/shipments/',
-  path: '/logistics/shipments/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MarketCategorySlugRoute = MarketCategorySlugRouteImport.update({
-  id: '/market/category/$slug',
-  path: '/market/category/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MarketCheckoutPayRoute = MarketCheckoutPayRouteImport.update({
-  id: '/market/checkout/pay',
-  path: '/market/checkout/pay',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MarketCheckoutReviewRoute = MarketCheckoutReviewRouteImport.update({
-  id: '/market/checkout/review',
-  path: '/market/checkout/review',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MarketCheckoutShippingRoute = MarketCheckoutShippingRouteImport.update({
-  id: '/market/checkout/shipping',
-  path: '/market/checkout/shipping',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MarketOrderIdRoute = MarketOrderIdRouteImport.update({
-  id: '/market/order/$id',
-  path: '/market/order/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MarketProductIdRoute = MarketProductIdRouteImport.update({
-  id: '/market/product/$id',
-  path: '/market/product/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MarketQuoteIdRoute = MarketQuoteIdRouteImport.update({
-  id: '/market/quote/$id',
-  path: '/market/quote/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MarketRfqInboxRoute = MarketRfqInboxRouteImport.update({
-  id: '/inbox',
-  path: '/inbox',
-  getParentRoute: () => MarketRfqRoute,
-} as any)
-const MarketSupplierIdRoute = MarketSupplierIdRouteImport.update({
-  id: '/market/supplier/$id',
-  path: '/market/supplier/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SellerOrdersIndexRoute = SellerOrdersIndexRouteImport.update({
-  id: '/seller/orders/',
-  path: '/seller/orders/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SellerPayoutsIndexRoute = SellerPayoutsIndexRouteImport.update({
-  id: '/seller/payouts/',
-  path: '/seller/payouts/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SellerPayoutsIdRoute = SellerPayoutsIdRouteImport.update({
-  id: '/seller/payouts/$id',
-  path: '/seller/payouts/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SellerRfqIndexRoute = SellerRfqIndexRouteImport.update({
-  id: '/seller/rfq/',
-  path: '/seller/rfq/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SellerSettingsTaxRoute = SellerSettingsTaxRouteImport.update({
-  id: '/seller/settings/tax',
-  path: '/seller/settings/tax',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SellerSettingsTeamRoute = SellerSettingsTeamRouteImport.update({
-  id: '/seller/settings/team',
-  path: '/seller/settings/team',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SellerStorefrontIndexRoute = SellerStorefrontIndexRouteImport.update({
-  id: '/seller/storefront/',
-  path: '/seller/storefront/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SellerStorefrontPreviewRoute = SellerStorefrontPreviewRouteImport.update({
-  id: '/seller/storefront/preview',
-  path: '/seller/storefront/preview',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TxIdReceiptRoute = TxIdReceiptRouteImport.update({
-  id: '/receipt',
-  path: '/receipt',
-  getParentRoute: () => TxIdRoute,
-} as any)
 const AdminDisputesIdIndexRoute = AdminDisputesIdIndexRouteImport.update({
   id: '/admin/disputes/$id/',
   path: '/admin/disputes/$id/',
@@ -1672,176 +1014,9 @@ const AdminUsersIdWalletRoute = AdminUsersIdWalletRouteImport.update({
   path: '/admin/users/$id/wallet',
   getParentRoute: () => rootRouteImport,
 } as any)
-const EscrowIdDisputeOutcomeRoute = EscrowIdDisputeOutcomeRouteImport.update({
-  id: '/outcome',
-  path: '/outcome',
-  getParentRoute: () => EscrowIdDisputeRoute,
-} as any)
-const EscrowIdDisputeThreadRoute = EscrowIdDisputeThreadRouteImport.update({
-  id: '/thread',
-  path: '/thread',
-  getParentRoute: () => EscrowIdDisputeRoute,
-} as any)
-const EscrowIdMilestoneMsRoute = EscrowIdMilestoneMsRouteImport.update({
-  id: '/milestone/$ms',
-  path: '/milestone/$ms',
-  getParentRoute: () => EscrowIdRoute,
-} as any)
-const EscrowInviteIdCounterRoute = EscrowInviteIdCounterRouteImport.update({
-  id: '/counter',
-  path: '/counter',
-  getParentRoute: () => EscrowInviteIdRoute,
-} as any)
-const EscrowSellerIdDisputeRoute = EscrowSellerIdDisputeRouteImport.update({
-  id: '/dispute',
-  path: '/dispute',
-  getParentRoute: () => EscrowSellerIdRoute,
-} as any)
-const LogisticsShipmentsIdIndexRoute =
-  LogisticsShipmentsIdIndexRouteImport.update({
-    id: '/logistics/shipments/$id/',
-    path: '/logistics/shipments/$id/',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const LogisticsShipmentsIdClaimRoute =
-  LogisticsShipmentsIdClaimRouteImport.update({
-    id: '/logistics/shipments/$id/claim',
-    path: '/logistics/shipments/$id/claim',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const LogisticsShipmentsIdCustomsRoute =
-  LogisticsShipmentsIdCustomsRouteImport.update({
-    id: '/logistics/shipments/$id/customs',
-    path: '/logistics/shipments/$id/customs',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const LogisticsShipmentsIdPodRoute = LogisticsShipmentsIdPodRouteImport.update({
-  id: '/logistics/shipments/$id/pod',
-  path: '/logistics/shipments/$id/pod',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MarketOrderIdIndexRoute = MarketOrderIdIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => MarketOrderIdRoute,
-} as any)
-const MarketOrderIdConfirmedRoute = MarketOrderIdConfirmedRouteImport.update({
-  id: '/confirmed',
-  path: '/confirmed',
-  getParentRoute: () => MarketOrderIdRoute,
-} as any)
-const MarketOrderIdDisputeRoute = MarketOrderIdDisputeRouteImport.update({
-  id: '/dispute',
-  path: '/dispute',
-  getParentRoute: () => MarketOrderIdRoute,
-} as any)
-const MarketOrderIdEscrowRoute = MarketOrderIdEscrowRouteImport.update({
-  id: '/escrow',
-  path: '/escrow',
-  getParentRoute: () => MarketOrderIdRoute,
-} as any)
-const MarketOrderIdReleaseRoute = MarketOrderIdReleaseRouteImport.update({
-  id: '/release',
-  path: '/release',
-  getParentRoute: () => MarketOrderIdRoute,
-} as any)
-const MarketOrderIdReviewRoute = MarketOrderIdReviewRouteImport.update({
-  id: '/review',
-  path: '/review',
-  getParentRoute: () => MarketOrderIdRoute,
-} as any)
-const SellerOrdersIdIndexRoute = SellerOrdersIdIndexRouteImport.update({
-  id: '/seller/orders/$id/',
-  path: '/seller/orders/$id/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SellerOrdersIdDispatchRoute = SellerOrdersIdDispatchRouteImport.update({
-  id: '/seller/orders/$id/dispatch',
-  path: '/seller/orders/$id/dispatch',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SellerOrdersIdDocsRoute = SellerOrdersIdDocsRouteImport.update({
-  id: '/seller/orders/$id/docs',
-  path: '/seller/orders/$id/docs',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SellerOrdersIdProformaRoute = SellerOrdersIdProformaRouteImport.update({
-  id: '/seller/orders/$id/proforma',
-  path: '/seller/orders/$id/proforma',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SellerProductsIdEditRoute = SellerProductsIdEditRouteImport.update({
-  id: '/seller/products/$id/edit',
-  path: '/seller/products/$id/edit',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SellerProductsNewIndexRoute = SellerProductsNewIndexRouteImport.update({
-  id: '/seller/products/new/',
-  path: '/seller/products/new/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SellerProductsNewMediaRoute = SellerProductsNewMediaRouteImport.update({
-  id: '/seller/products/new/media',
-  path: '/seller/products/new/media',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SellerProductsNewPricingRoute =
-  SellerProductsNewPricingRouteImport.update({
-    id: '/seller/products/new/pricing',
-    path: '/seller/products/new/pricing',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const SellerProductsNewShippingRoute =
-  SellerProductsNewShippingRouteImport.update({
-    id: '/seller/products/new/shipping',
-    path: '/seller/products/new/shipping',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const SellerRfqIdQuoteRoute = SellerRfqIdQuoteRouteImport.update({
-  id: '/seller/rfq/$id/quote',
-  path: '/seller/rfq/$id/quote',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EscrowSellerIdEvidenceMsRoute =
-  EscrowSellerIdEvidenceMsRouteImport.update({
-    id: '/evidence/$ms',
-    path: '/evidence/$ms',
-    getParentRoute: () => EscrowSellerIdRoute,
-  } as any)
-const EscrowSellerIdRequestMsRoute = EscrowSellerIdRequestMsRouteImport.update({
-  id: '/request/$ms',
-  path: '/request/$ms',
-  getParentRoute: () => EscrowSellerIdRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/address': typeof AddressRoute
-  '/bank': typeof BankRoute
-  '/deposit': typeof DepositRouteWithChildren
-  '/fx': typeof FxRouteWithChildren
-  '/home': typeof HomeRoute
-  '/kyb': typeof KybRoute
-  '/kyb-docs': typeof KybDocsRoute
-  '/kyc-status': typeof KycStatusRoute
-  '/kyc1': typeof Kyc1Route
-  '/kyc2': typeof Kyc2Route
-  '/legal': typeof LegalRoute
-  '/locale': typeof LocaleRoute
-  '/login': typeof LoginRoute
-  '/notifications': typeof NotificationsRoute
-  '/otp': typeof OtpRoute
-  '/passcode': typeof PasscodeRoute
-  '/permissions': typeof PermissionsRoute
-  '/profile': typeof ProfileRoute
-  '/role': typeof RoleRoute
-  '/signup': typeof SignupRoute
-  '/splash': typeof SplashRoute
-  '/statements': typeof StatementsRoute
-  '/system': typeof SystemRoute
-  '/users': typeof UsersRoute
-  '/welcome': typeof WelcomeRoute
-  '/withdraw': typeof WithdrawRoute
   '/admin/2fa': typeof Admin2faRoute
   '/admin/allowlist': typeof AdminAllowlistRoute
   '/admin/attributes': typeof AdminAttributesRoute
@@ -1889,48 +1064,7 @@ export interface FileRoutesByFullPath {
   '/admin/velocity': typeof AdminVelocityRoute
   '/admin/workspaces': typeof AdminWorkspacesRoute
   '/admin/zones': typeof AdminZonesRoute
-  '/claim/$token': typeof ClaimTokenRouteWithChildren
-  '/currency/$code': typeof CurrencyCodeRoute
-  '/deposit/method': typeof DepositMethodRoute
-  '/deposit/status': typeof DepositStatusRoute
-  '/deposit/virtual': typeof DepositVirtualRoute
-  '/escrow/$id': typeof EscrowIdRouteWithChildren
-  '/fx/confirm': typeof FxConfirmRoute
-  '/help/ticket': typeof HelpTicketRoute
-  '/market/cart': typeof MarketCartRoute
-  '/market/orders': typeof MarketOrdersRoute
-  '/market/rfq': typeof MarketRfqRouteWithChildren
-  '/market/sample': typeof MarketSampleRoute
-  '/market/search': typeof MarketSearchRoute
-  '/me/edit': typeof MeEditRoute
-  '/me/wishlist': typeof MeWishlistRoute
-  '/messages/$id': typeof MessagesIdRoute
-  '/recipients/new': typeof RecipientsNewRoute
-  '/seller/catalog': typeof SellerCatalogRoute
-  '/seller/performance': typeof SellerPerformanceRoute
-  '/seller/quotes': typeof SellerQuotesRoute
-  '/seller/templates': typeof SellerTemplatesRoute
-  '/send/amount': typeof SendAmountRoute
-  '/send/auth': typeof SendAuthRoute
-  '/send/details': typeof SendDetailsRoute
-  '/send/review': typeof SendReviewRoute
-  '/send/status': typeof SendStatusRoute
-  '/send/success': typeof SendSuccessRoute
-  '/settings/account': typeof SettingsAccountRoute
-  '/settings/locale': typeof SettingsLocaleRoute
-  '/settings/notifications': typeof SettingsNotificationsRoute
-  '/settings/security': typeof SettingsSecurityRoute
-  '/tx/$id': typeof TxIdRouteWithChildren
   '/admin/': typeof AdminIndexRoute
-  '/escrow/': typeof EscrowIndexRoute
-  '/help/': typeof HelpIndexRoute
-  '/logistics/': typeof LogisticsIndexRoute
-  '/market/': typeof MarketIndexRoute
-  '/me/': typeof MeIndexRoute
-  '/messages/': typeof MessagesIndexRoute
-  '/recipients/': typeof RecipientsIndexRoute
-  '/seller/': typeof SellerIndexRoute
-  '/send/': typeof SendIndexRoute
   '/admin/aml/$id': typeof AdminAmlIdRoute
   '/admin/analytics/cohorts': typeof AdminAnalyticsCohortsRoute
   '/admin/analytics/funnels': typeof AdminAnalyticsFunnelsRoute
@@ -1997,36 +1131,6 @@ export interface FileRoutesByFullPath {
   '/admin/wallets/$userId': typeof AdminWalletsUserIdRoute
   '/admin/warehouses/$id': typeof AdminWarehousesIdRoute
   '/admin/withdrawals/$id': typeof AdminWithdrawalsIdRoute
-  '/claim/$token/done': typeof ClaimTokenDoneRoute
-  '/claim/$token/signup': typeof ClaimTokenSignupRoute
-  '/escrow/$id/dispute': typeof EscrowIdDisputeRouteWithChildren
-  '/escrow/$id/release': typeof EscrowIdReleaseRoute
-  '/escrow/invite/$id': typeof EscrowInviteIdRouteWithChildren
-  '/escrow/new/done': typeof EscrowNewDoneRoute
-  '/escrow/new/fees': typeof EscrowNewFeesRoute
-  '/escrow/new/fund': typeof EscrowNewFundRoute
-  '/escrow/new/inspection': typeof EscrowNewInspectionRoute
-  '/escrow/new/milestones': typeof EscrowNewMilestonesRoute
-  '/escrow/new/review': typeof EscrowNewReviewRoute
-  '/escrow/new/terms': typeof EscrowNewTermsRoute
-  '/escrow/seller/$id': typeof EscrowSellerIdRouteWithChildren
-  '/logistics/booking/confirmation': typeof LogisticsBookingConfirmationRoute
-  '/logistics/booking/docs': typeof LogisticsBookingDocsRoute
-  '/logistics/quote/compare': typeof LogisticsQuoteCompareRoute
-  '/market/category/$slug': typeof MarketCategorySlugRoute
-  '/market/checkout/pay': typeof MarketCheckoutPayRoute
-  '/market/checkout/review': typeof MarketCheckoutReviewRoute
-  '/market/checkout/shipping': typeof MarketCheckoutShippingRoute
-  '/market/order/$id': typeof MarketOrderIdRouteWithChildren
-  '/market/product/$id': typeof MarketProductIdRoute
-  '/market/quote/$id': typeof MarketQuoteIdRoute
-  '/market/rfq/inbox': typeof MarketRfqInboxRoute
-  '/market/supplier/$id': typeof MarketSupplierIdRoute
-  '/seller/payouts/$id': typeof SellerPayoutsIdRoute
-  '/seller/settings/tax': typeof SellerSettingsTaxRoute
-  '/seller/settings/team': typeof SellerSettingsTeamRoute
-  '/seller/storefront/preview': typeof SellerStorefrontPreviewRoute
-  '/tx/$id/receipt': typeof TxIdReceiptRoute
   '/admin/aml/': typeof AdminAmlIndexRoute
   '/admin/announcements/': typeof AdminAnnouncementsIndexRoute
   '/admin/carriers/': typeof AdminCarriersIndexRoute
@@ -2056,14 +1160,6 @@ export interface FileRoutesByFullPath {
   '/admin/wallets/': typeof AdminWalletsIndexRoute
   '/admin/warehouses/': typeof AdminWarehousesIndexRoute
   '/admin/withdrawals/': typeof AdminWithdrawalsIndexRoute
-  '/escrow/new/': typeof EscrowNewIndexRoute
-  '/logistics/booking/': typeof LogisticsBookingIndexRoute
-  '/logistics/quote/': typeof LogisticsQuoteIndexRoute
-  '/logistics/shipments/': typeof LogisticsShipmentsIndexRoute
-  '/seller/orders/': typeof SellerOrdersIndexRoute
-  '/seller/payouts/': typeof SellerPayoutsIndexRoute
-  '/seller/rfq/': typeof SellerRfqIndexRoute
-  '/seller/storefront/': typeof SellerStorefrontIndexRoute
   '/admin/disputes/$id/evidence': typeof AdminDisputesIdEvidenceRoute
   '/admin/disputes/$id/ruling': typeof AdminDisputesIdRulingRoute
   '/admin/fx/orders/$id': typeof AdminFxOrdersIdRoute
@@ -2079,27 +1175,6 @@ export interface FileRoutesByFullPath {
   '/admin/users/$id/orders': typeof AdminUsersIdOrdersRoute
   '/admin/users/$id/tickets': typeof AdminUsersIdTicketsRoute
   '/admin/users/$id/wallet': typeof AdminUsersIdWalletRoute
-  '/escrow/$id/dispute/outcome': typeof EscrowIdDisputeOutcomeRoute
-  '/escrow/$id/dispute/thread': typeof EscrowIdDisputeThreadRoute
-  '/escrow/$id/milestone/$ms': typeof EscrowIdMilestoneMsRoute
-  '/escrow/invite/$id/counter': typeof EscrowInviteIdCounterRoute
-  '/escrow/seller/$id/dispute': typeof EscrowSellerIdDisputeRoute
-  '/logistics/shipments/$id/claim': typeof LogisticsShipmentsIdClaimRoute
-  '/logistics/shipments/$id/customs': typeof LogisticsShipmentsIdCustomsRoute
-  '/logistics/shipments/$id/pod': typeof LogisticsShipmentsIdPodRoute
-  '/market/order/$id/confirmed': typeof MarketOrderIdConfirmedRoute
-  '/market/order/$id/dispute': typeof MarketOrderIdDisputeRoute
-  '/market/order/$id/escrow': typeof MarketOrderIdEscrowRoute
-  '/market/order/$id/release': typeof MarketOrderIdReleaseRoute
-  '/market/order/$id/review': typeof MarketOrderIdReviewRoute
-  '/seller/orders/$id/dispatch': typeof SellerOrdersIdDispatchRoute
-  '/seller/orders/$id/docs': typeof SellerOrdersIdDocsRoute
-  '/seller/orders/$id/proforma': typeof SellerOrdersIdProformaRoute
-  '/seller/products/$id/edit': typeof SellerProductsIdEditRoute
-  '/seller/products/new/media': typeof SellerProductsNewMediaRoute
-  '/seller/products/new/pricing': typeof SellerProductsNewPricingRoute
-  '/seller/products/new/shipping': typeof SellerProductsNewShippingRoute
-  '/seller/rfq/$id/quote': typeof SellerRfqIdQuoteRoute
   '/admin/disputes/$id/': typeof AdminDisputesIdIndexRoute
   '/admin/fx/orders/': typeof AdminFxOrdersIndexRoute
   '/admin/listings/$id/': typeof AdminListingsIdIndexRoute
@@ -2107,41 +1182,9 @@ export interface FileRoutesByFullPath {
   '/admin/orders/$id/': typeof AdminOrdersIdIndexRoute
   '/admin/settings/webhooks/': typeof AdminSettingsWebhooksIndexRoute
   '/admin/users/$id/': typeof AdminUsersIdIndexRoute
-  '/logistics/shipments/$id/': typeof LogisticsShipmentsIdIndexRoute
-  '/market/order/$id/': typeof MarketOrderIdIndexRoute
-  '/seller/orders/$id/': typeof SellerOrdersIdIndexRoute
-  '/seller/products/new/': typeof SellerProductsNewIndexRoute
-  '/escrow/seller/$id/evidence/$ms': typeof EscrowSellerIdEvidenceMsRoute
-  '/escrow/seller/$id/request/$ms': typeof EscrowSellerIdRequestMsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/address': typeof AddressRoute
-  '/bank': typeof BankRoute
-  '/deposit': typeof DepositRouteWithChildren
-  '/fx': typeof FxRouteWithChildren
-  '/home': typeof HomeRoute
-  '/kyb': typeof KybRoute
-  '/kyb-docs': typeof KybDocsRoute
-  '/kyc-status': typeof KycStatusRoute
-  '/kyc1': typeof Kyc1Route
-  '/kyc2': typeof Kyc2Route
-  '/legal': typeof LegalRoute
-  '/locale': typeof LocaleRoute
-  '/login': typeof LoginRoute
-  '/notifications': typeof NotificationsRoute
-  '/otp': typeof OtpRoute
-  '/passcode': typeof PasscodeRoute
-  '/permissions': typeof PermissionsRoute
-  '/profile': typeof ProfileRoute
-  '/role': typeof RoleRoute
-  '/signup': typeof SignupRoute
-  '/splash': typeof SplashRoute
-  '/statements': typeof StatementsRoute
-  '/system': typeof SystemRoute
-  '/users': typeof UsersRoute
-  '/welcome': typeof WelcomeRoute
-  '/withdraw': typeof WithdrawRoute
   '/admin/2fa': typeof Admin2faRoute
   '/admin/allowlist': typeof AdminAllowlistRoute
   '/admin/attributes': typeof AdminAttributesRoute
@@ -2189,48 +1232,7 @@ export interface FileRoutesByTo {
   '/admin/velocity': typeof AdminVelocityRoute
   '/admin/workspaces': typeof AdminWorkspacesRoute
   '/admin/zones': typeof AdminZonesRoute
-  '/claim/$token': typeof ClaimTokenRouteWithChildren
-  '/currency/$code': typeof CurrencyCodeRoute
-  '/deposit/method': typeof DepositMethodRoute
-  '/deposit/status': typeof DepositStatusRoute
-  '/deposit/virtual': typeof DepositVirtualRoute
-  '/escrow/$id': typeof EscrowIdRouteWithChildren
-  '/fx/confirm': typeof FxConfirmRoute
-  '/help/ticket': typeof HelpTicketRoute
-  '/market/cart': typeof MarketCartRoute
-  '/market/orders': typeof MarketOrdersRoute
-  '/market/rfq': typeof MarketRfqRouteWithChildren
-  '/market/sample': typeof MarketSampleRoute
-  '/market/search': typeof MarketSearchRoute
-  '/me/edit': typeof MeEditRoute
-  '/me/wishlist': typeof MeWishlistRoute
-  '/messages/$id': typeof MessagesIdRoute
-  '/recipients/new': typeof RecipientsNewRoute
-  '/seller/catalog': typeof SellerCatalogRoute
-  '/seller/performance': typeof SellerPerformanceRoute
-  '/seller/quotes': typeof SellerQuotesRoute
-  '/seller/templates': typeof SellerTemplatesRoute
-  '/send/amount': typeof SendAmountRoute
-  '/send/auth': typeof SendAuthRoute
-  '/send/details': typeof SendDetailsRoute
-  '/send/review': typeof SendReviewRoute
-  '/send/status': typeof SendStatusRoute
-  '/send/success': typeof SendSuccessRoute
-  '/settings/account': typeof SettingsAccountRoute
-  '/settings/locale': typeof SettingsLocaleRoute
-  '/settings/notifications': typeof SettingsNotificationsRoute
-  '/settings/security': typeof SettingsSecurityRoute
-  '/tx/$id': typeof TxIdRouteWithChildren
   '/admin': typeof AdminIndexRoute
-  '/escrow': typeof EscrowIndexRoute
-  '/help': typeof HelpIndexRoute
-  '/logistics': typeof LogisticsIndexRoute
-  '/market': typeof MarketIndexRoute
-  '/me': typeof MeIndexRoute
-  '/messages': typeof MessagesIndexRoute
-  '/recipients': typeof RecipientsIndexRoute
-  '/seller': typeof SellerIndexRoute
-  '/send': typeof SendIndexRoute
   '/admin/aml/$id': typeof AdminAmlIdRoute
   '/admin/analytics/cohorts': typeof AdminAnalyticsCohortsRoute
   '/admin/analytics/funnels': typeof AdminAnalyticsFunnelsRoute
@@ -2297,35 +1299,6 @@ export interface FileRoutesByTo {
   '/admin/wallets/$userId': typeof AdminWalletsUserIdRoute
   '/admin/warehouses/$id': typeof AdminWarehousesIdRoute
   '/admin/withdrawals/$id': typeof AdminWithdrawalsIdRoute
-  '/claim/$token/done': typeof ClaimTokenDoneRoute
-  '/claim/$token/signup': typeof ClaimTokenSignupRoute
-  '/escrow/$id/dispute': typeof EscrowIdDisputeRouteWithChildren
-  '/escrow/$id/release': typeof EscrowIdReleaseRoute
-  '/escrow/invite/$id': typeof EscrowInviteIdRouteWithChildren
-  '/escrow/new/done': typeof EscrowNewDoneRoute
-  '/escrow/new/fees': typeof EscrowNewFeesRoute
-  '/escrow/new/fund': typeof EscrowNewFundRoute
-  '/escrow/new/inspection': typeof EscrowNewInspectionRoute
-  '/escrow/new/milestones': typeof EscrowNewMilestonesRoute
-  '/escrow/new/review': typeof EscrowNewReviewRoute
-  '/escrow/new/terms': typeof EscrowNewTermsRoute
-  '/escrow/seller/$id': typeof EscrowSellerIdRouteWithChildren
-  '/logistics/booking/confirmation': typeof LogisticsBookingConfirmationRoute
-  '/logistics/booking/docs': typeof LogisticsBookingDocsRoute
-  '/logistics/quote/compare': typeof LogisticsQuoteCompareRoute
-  '/market/category/$slug': typeof MarketCategorySlugRoute
-  '/market/checkout/pay': typeof MarketCheckoutPayRoute
-  '/market/checkout/review': typeof MarketCheckoutReviewRoute
-  '/market/checkout/shipping': typeof MarketCheckoutShippingRoute
-  '/market/product/$id': typeof MarketProductIdRoute
-  '/market/quote/$id': typeof MarketQuoteIdRoute
-  '/market/rfq/inbox': typeof MarketRfqInboxRoute
-  '/market/supplier/$id': typeof MarketSupplierIdRoute
-  '/seller/payouts/$id': typeof SellerPayoutsIdRoute
-  '/seller/settings/tax': typeof SellerSettingsTaxRoute
-  '/seller/settings/team': typeof SellerSettingsTeamRoute
-  '/seller/storefront/preview': typeof SellerStorefrontPreviewRoute
-  '/tx/$id/receipt': typeof TxIdReceiptRoute
   '/admin/aml': typeof AdminAmlIndexRoute
   '/admin/announcements': typeof AdminAnnouncementsIndexRoute
   '/admin/carriers': typeof AdminCarriersIndexRoute
@@ -2355,14 +1328,6 @@ export interface FileRoutesByTo {
   '/admin/wallets': typeof AdminWalletsIndexRoute
   '/admin/warehouses': typeof AdminWarehousesIndexRoute
   '/admin/withdrawals': typeof AdminWithdrawalsIndexRoute
-  '/escrow/new': typeof EscrowNewIndexRoute
-  '/logistics/booking': typeof LogisticsBookingIndexRoute
-  '/logistics/quote': typeof LogisticsQuoteIndexRoute
-  '/logistics/shipments': typeof LogisticsShipmentsIndexRoute
-  '/seller/orders': typeof SellerOrdersIndexRoute
-  '/seller/payouts': typeof SellerPayoutsIndexRoute
-  '/seller/rfq': typeof SellerRfqIndexRoute
-  '/seller/storefront': typeof SellerStorefrontIndexRoute
   '/admin/disputes/$id/evidence': typeof AdminDisputesIdEvidenceRoute
   '/admin/disputes/$id/ruling': typeof AdminDisputesIdRulingRoute
   '/admin/fx/orders/$id': typeof AdminFxOrdersIdRoute
@@ -2378,27 +1343,6 @@ export interface FileRoutesByTo {
   '/admin/users/$id/orders': typeof AdminUsersIdOrdersRoute
   '/admin/users/$id/tickets': typeof AdminUsersIdTicketsRoute
   '/admin/users/$id/wallet': typeof AdminUsersIdWalletRoute
-  '/escrow/$id/dispute/outcome': typeof EscrowIdDisputeOutcomeRoute
-  '/escrow/$id/dispute/thread': typeof EscrowIdDisputeThreadRoute
-  '/escrow/$id/milestone/$ms': typeof EscrowIdMilestoneMsRoute
-  '/escrow/invite/$id/counter': typeof EscrowInviteIdCounterRoute
-  '/escrow/seller/$id/dispute': typeof EscrowSellerIdDisputeRoute
-  '/logistics/shipments/$id/claim': typeof LogisticsShipmentsIdClaimRoute
-  '/logistics/shipments/$id/customs': typeof LogisticsShipmentsIdCustomsRoute
-  '/logistics/shipments/$id/pod': typeof LogisticsShipmentsIdPodRoute
-  '/market/order/$id/confirmed': typeof MarketOrderIdConfirmedRoute
-  '/market/order/$id/dispute': typeof MarketOrderIdDisputeRoute
-  '/market/order/$id/escrow': typeof MarketOrderIdEscrowRoute
-  '/market/order/$id/release': typeof MarketOrderIdReleaseRoute
-  '/market/order/$id/review': typeof MarketOrderIdReviewRoute
-  '/seller/orders/$id/dispatch': typeof SellerOrdersIdDispatchRoute
-  '/seller/orders/$id/docs': typeof SellerOrdersIdDocsRoute
-  '/seller/orders/$id/proforma': typeof SellerOrdersIdProformaRoute
-  '/seller/products/$id/edit': typeof SellerProductsIdEditRoute
-  '/seller/products/new/media': typeof SellerProductsNewMediaRoute
-  '/seller/products/new/pricing': typeof SellerProductsNewPricingRoute
-  '/seller/products/new/shipping': typeof SellerProductsNewShippingRoute
-  '/seller/rfq/$id/quote': typeof SellerRfqIdQuoteRoute
   '/admin/disputes/$id': typeof AdminDisputesIdIndexRoute
   '/admin/fx/orders': typeof AdminFxOrdersIndexRoute
   '/admin/listings/$id': typeof AdminListingsIdIndexRoute
@@ -2406,42 +1350,10 @@ export interface FileRoutesByTo {
   '/admin/orders/$id': typeof AdminOrdersIdIndexRoute
   '/admin/settings/webhooks': typeof AdminSettingsWebhooksIndexRoute
   '/admin/users/$id': typeof AdminUsersIdIndexRoute
-  '/logistics/shipments/$id': typeof LogisticsShipmentsIdIndexRoute
-  '/market/order/$id': typeof MarketOrderIdIndexRoute
-  '/seller/orders/$id': typeof SellerOrdersIdIndexRoute
-  '/seller/products/new': typeof SellerProductsNewIndexRoute
-  '/escrow/seller/$id/evidence/$ms': typeof EscrowSellerIdEvidenceMsRoute
-  '/escrow/seller/$id/request/$ms': typeof EscrowSellerIdRequestMsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/address': typeof AddressRoute
-  '/bank': typeof BankRoute
-  '/deposit': typeof DepositRouteWithChildren
-  '/fx': typeof FxRouteWithChildren
-  '/home': typeof HomeRoute
-  '/kyb': typeof KybRoute
-  '/kyb-docs': typeof KybDocsRoute
-  '/kyc-status': typeof KycStatusRoute
-  '/kyc1': typeof Kyc1Route
-  '/kyc2': typeof Kyc2Route
-  '/legal': typeof LegalRoute
-  '/locale': typeof LocaleRoute
-  '/login': typeof LoginRoute
-  '/notifications': typeof NotificationsRoute
-  '/otp': typeof OtpRoute
-  '/passcode': typeof PasscodeRoute
-  '/permissions': typeof PermissionsRoute
-  '/profile': typeof ProfileRoute
-  '/role': typeof RoleRoute
-  '/signup': typeof SignupRoute
-  '/splash': typeof SplashRoute
-  '/statements': typeof StatementsRoute
-  '/system': typeof SystemRoute
-  '/users': typeof UsersRoute
-  '/welcome': typeof WelcomeRoute
-  '/withdraw': typeof WithdrawRoute
   '/admin/2fa': typeof Admin2faRoute
   '/admin/allowlist': typeof AdminAllowlistRoute
   '/admin/attributes': typeof AdminAttributesRoute
@@ -2489,48 +1401,7 @@ export interface FileRoutesById {
   '/admin/velocity': typeof AdminVelocityRoute
   '/admin/workspaces': typeof AdminWorkspacesRoute
   '/admin/zones': typeof AdminZonesRoute
-  '/claim/$token': typeof ClaimTokenRouteWithChildren
-  '/currency/$code': typeof CurrencyCodeRoute
-  '/deposit/method': typeof DepositMethodRoute
-  '/deposit/status': typeof DepositStatusRoute
-  '/deposit/virtual': typeof DepositVirtualRoute
-  '/escrow/$id': typeof EscrowIdRouteWithChildren
-  '/fx/confirm': typeof FxConfirmRoute
-  '/help/ticket': typeof HelpTicketRoute
-  '/market/cart': typeof MarketCartRoute
-  '/market/orders': typeof MarketOrdersRoute
-  '/market/rfq': typeof MarketRfqRouteWithChildren
-  '/market/sample': typeof MarketSampleRoute
-  '/market/search': typeof MarketSearchRoute
-  '/me/edit': typeof MeEditRoute
-  '/me/wishlist': typeof MeWishlistRoute
-  '/messages/$id': typeof MessagesIdRoute
-  '/recipients/new': typeof RecipientsNewRoute
-  '/seller/catalog': typeof SellerCatalogRoute
-  '/seller/performance': typeof SellerPerformanceRoute
-  '/seller/quotes': typeof SellerQuotesRoute
-  '/seller/templates': typeof SellerTemplatesRoute
-  '/send/amount': typeof SendAmountRoute
-  '/send/auth': typeof SendAuthRoute
-  '/send/details': typeof SendDetailsRoute
-  '/send/review': typeof SendReviewRoute
-  '/send/status': typeof SendStatusRoute
-  '/send/success': typeof SendSuccessRoute
-  '/settings/account': typeof SettingsAccountRoute
-  '/settings/locale': typeof SettingsLocaleRoute
-  '/settings/notifications': typeof SettingsNotificationsRoute
-  '/settings/security': typeof SettingsSecurityRoute
-  '/tx/$id': typeof TxIdRouteWithChildren
   '/admin/': typeof AdminIndexRoute
-  '/escrow/': typeof EscrowIndexRoute
-  '/help/': typeof HelpIndexRoute
-  '/logistics/': typeof LogisticsIndexRoute
-  '/market/': typeof MarketIndexRoute
-  '/me/': typeof MeIndexRoute
-  '/messages/': typeof MessagesIndexRoute
-  '/recipients/': typeof RecipientsIndexRoute
-  '/seller/': typeof SellerIndexRoute
-  '/send/': typeof SendIndexRoute
   '/admin/aml/$id': typeof AdminAmlIdRoute
   '/admin/analytics/cohorts': typeof AdminAnalyticsCohortsRoute
   '/admin/analytics/funnels': typeof AdminAnalyticsFunnelsRoute
@@ -2597,36 +1468,6 @@ export interface FileRoutesById {
   '/admin/wallets/$userId': typeof AdminWalletsUserIdRoute
   '/admin/warehouses/$id': typeof AdminWarehousesIdRoute
   '/admin/withdrawals/$id': typeof AdminWithdrawalsIdRoute
-  '/claim/$token/done': typeof ClaimTokenDoneRoute
-  '/claim/$token/signup': typeof ClaimTokenSignupRoute
-  '/escrow/$id/dispute': typeof EscrowIdDisputeRouteWithChildren
-  '/escrow/$id/release': typeof EscrowIdReleaseRoute
-  '/escrow/invite/$id': typeof EscrowInviteIdRouteWithChildren
-  '/escrow/new/done': typeof EscrowNewDoneRoute
-  '/escrow/new/fees': typeof EscrowNewFeesRoute
-  '/escrow/new/fund': typeof EscrowNewFundRoute
-  '/escrow/new/inspection': typeof EscrowNewInspectionRoute
-  '/escrow/new/milestones': typeof EscrowNewMilestonesRoute
-  '/escrow/new/review': typeof EscrowNewReviewRoute
-  '/escrow/new/terms': typeof EscrowNewTermsRoute
-  '/escrow/seller/$id': typeof EscrowSellerIdRouteWithChildren
-  '/logistics/booking/confirmation': typeof LogisticsBookingConfirmationRoute
-  '/logistics/booking/docs': typeof LogisticsBookingDocsRoute
-  '/logistics/quote/compare': typeof LogisticsQuoteCompareRoute
-  '/market/category/$slug': typeof MarketCategorySlugRoute
-  '/market/checkout/pay': typeof MarketCheckoutPayRoute
-  '/market/checkout/review': typeof MarketCheckoutReviewRoute
-  '/market/checkout/shipping': typeof MarketCheckoutShippingRoute
-  '/market/order/$id': typeof MarketOrderIdRouteWithChildren
-  '/market/product/$id': typeof MarketProductIdRoute
-  '/market/quote/$id': typeof MarketQuoteIdRoute
-  '/market/rfq/inbox': typeof MarketRfqInboxRoute
-  '/market/supplier/$id': typeof MarketSupplierIdRoute
-  '/seller/payouts/$id': typeof SellerPayoutsIdRoute
-  '/seller/settings/tax': typeof SellerSettingsTaxRoute
-  '/seller/settings/team': typeof SellerSettingsTeamRoute
-  '/seller/storefront/preview': typeof SellerStorefrontPreviewRoute
-  '/tx/$id/receipt': typeof TxIdReceiptRoute
   '/admin/aml/': typeof AdminAmlIndexRoute
   '/admin/announcements/': typeof AdminAnnouncementsIndexRoute
   '/admin/carriers/': typeof AdminCarriersIndexRoute
@@ -2656,14 +1497,6 @@ export interface FileRoutesById {
   '/admin/wallets/': typeof AdminWalletsIndexRoute
   '/admin/warehouses/': typeof AdminWarehousesIndexRoute
   '/admin/withdrawals/': typeof AdminWithdrawalsIndexRoute
-  '/escrow/new/': typeof EscrowNewIndexRoute
-  '/logistics/booking/': typeof LogisticsBookingIndexRoute
-  '/logistics/quote/': typeof LogisticsQuoteIndexRoute
-  '/logistics/shipments/': typeof LogisticsShipmentsIndexRoute
-  '/seller/orders/': typeof SellerOrdersIndexRoute
-  '/seller/payouts/': typeof SellerPayoutsIndexRoute
-  '/seller/rfq/': typeof SellerRfqIndexRoute
-  '/seller/storefront/': typeof SellerStorefrontIndexRoute
   '/admin/disputes/$id/evidence': typeof AdminDisputesIdEvidenceRoute
   '/admin/disputes/$id/ruling': typeof AdminDisputesIdRulingRoute
   '/admin/fx/orders/$id': typeof AdminFxOrdersIdRoute
@@ -2679,27 +1512,6 @@ export interface FileRoutesById {
   '/admin/users/$id/orders': typeof AdminUsersIdOrdersRoute
   '/admin/users/$id/tickets': typeof AdminUsersIdTicketsRoute
   '/admin/users/$id/wallet': typeof AdminUsersIdWalletRoute
-  '/escrow/$id/dispute/outcome': typeof EscrowIdDisputeOutcomeRoute
-  '/escrow/$id/dispute/thread': typeof EscrowIdDisputeThreadRoute
-  '/escrow/$id/milestone/$ms': typeof EscrowIdMilestoneMsRoute
-  '/escrow/invite/$id/counter': typeof EscrowInviteIdCounterRoute
-  '/escrow/seller/$id/dispute': typeof EscrowSellerIdDisputeRoute
-  '/logistics/shipments/$id/claim': typeof LogisticsShipmentsIdClaimRoute
-  '/logistics/shipments/$id/customs': typeof LogisticsShipmentsIdCustomsRoute
-  '/logistics/shipments/$id/pod': typeof LogisticsShipmentsIdPodRoute
-  '/market/order/$id/confirmed': typeof MarketOrderIdConfirmedRoute
-  '/market/order/$id/dispute': typeof MarketOrderIdDisputeRoute
-  '/market/order/$id/escrow': typeof MarketOrderIdEscrowRoute
-  '/market/order/$id/release': typeof MarketOrderIdReleaseRoute
-  '/market/order/$id/review': typeof MarketOrderIdReviewRoute
-  '/seller/orders/$id/dispatch': typeof SellerOrdersIdDispatchRoute
-  '/seller/orders/$id/docs': typeof SellerOrdersIdDocsRoute
-  '/seller/orders/$id/proforma': typeof SellerOrdersIdProformaRoute
-  '/seller/products/$id/edit': typeof SellerProductsIdEditRoute
-  '/seller/products/new/media': typeof SellerProductsNewMediaRoute
-  '/seller/products/new/pricing': typeof SellerProductsNewPricingRoute
-  '/seller/products/new/shipping': typeof SellerProductsNewShippingRoute
-  '/seller/rfq/$id/quote': typeof SellerRfqIdQuoteRoute
   '/admin/disputes/$id/': typeof AdminDisputesIdIndexRoute
   '/admin/fx/orders/': typeof AdminFxOrdersIndexRoute
   '/admin/listings/$id/': typeof AdminListingsIdIndexRoute
@@ -2707,43 +1519,11 @@ export interface FileRoutesById {
   '/admin/orders/$id/': typeof AdminOrdersIdIndexRoute
   '/admin/settings/webhooks/': typeof AdminSettingsWebhooksIndexRoute
   '/admin/users/$id/': typeof AdminUsersIdIndexRoute
-  '/logistics/shipments/$id/': typeof LogisticsShipmentsIdIndexRoute
-  '/market/order/$id/': typeof MarketOrderIdIndexRoute
-  '/seller/orders/$id/': typeof SellerOrdersIdIndexRoute
-  '/seller/products/new/': typeof SellerProductsNewIndexRoute
-  '/escrow/seller/$id/evidence/$ms': typeof EscrowSellerIdEvidenceMsRoute
-  '/escrow/seller/$id/request/$ms': typeof EscrowSellerIdRequestMsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/address'
-    | '/bank'
-    | '/deposit'
-    | '/fx'
-    | '/home'
-    | '/kyb'
-    | '/kyb-docs'
-    | '/kyc-status'
-    | '/kyc1'
-    | '/kyc2'
-    | '/legal'
-    | '/locale'
-    | '/login'
-    | '/notifications'
-    | '/otp'
-    | '/passcode'
-    | '/permissions'
-    | '/profile'
-    | '/role'
-    | '/signup'
-    | '/splash'
-    | '/statements'
-    | '/system'
-    | '/users'
-    | '/welcome'
-    | '/withdraw'
     | '/admin/2fa'
     | '/admin/allowlist'
     | '/admin/attributes'
@@ -2791,48 +1571,7 @@ export interface FileRouteTypes {
     | '/admin/velocity'
     | '/admin/workspaces'
     | '/admin/zones'
-    | '/claim/$token'
-    | '/currency/$code'
-    | '/deposit/method'
-    | '/deposit/status'
-    | '/deposit/virtual'
-    | '/escrow/$id'
-    | '/fx/confirm'
-    | '/help/ticket'
-    | '/market/cart'
-    | '/market/orders'
-    | '/market/rfq'
-    | '/market/sample'
-    | '/market/search'
-    | '/me/edit'
-    | '/me/wishlist'
-    | '/messages/$id'
-    | '/recipients/new'
-    | '/seller/catalog'
-    | '/seller/performance'
-    | '/seller/quotes'
-    | '/seller/templates'
-    | '/send/amount'
-    | '/send/auth'
-    | '/send/details'
-    | '/send/review'
-    | '/send/status'
-    | '/send/success'
-    | '/settings/account'
-    | '/settings/locale'
-    | '/settings/notifications'
-    | '/settings/security'
-    | '/tx/$id'
     | '/admin/'
-    | '/escrow/'
-    | '/help/'
-    | '/logistics/'
-    | '/market/'
-    | '/me/'
-    | '/messages/'
-    | '/recipients/'
-    | '/seller/'
-    | '/send/'
     | '/admin/aml/$id'
     | '/admin/analytics/cohorts'
     | '/admin/analytics/funnels'
@@ -2899,36 +1638,6 @@ export interface FileRouteTypes {
     | '/admin/wallets/$userId'
     | '/admin/warehouses/$id'
     | '/admin/withdrawals/$id'
-    | '/claim/$token/done'
-    | '/claim/$token/signup'
-    | '/escrow/$id/dispute'
-    | '/escrow/$id/release'
-    | '/escrow/invite/$id'
-    | '/escrow/new/done'
-    | '/escrow/new/fees'
-    | '/escrow/new/fund'
-    | '/escrow/new/inspection'
-    | '/escrow/new/milestones'
-    | '/escrow/new/review'
-    | '/escrow/new/terms'
-    | '/escrow/seller/$id'
-    | '/logistics/booking/confirmation'
-    | '/logistics/booking/docs'
-    | '/logistics/quote/compare'
-    | '/market/category/$slug'
-    | '/market/checkout/pay'
-    | '/market/checkout/review'
-    | '/market/checkout/shipping'
-    | '/market/order/$id'
-    | '/market/product/$id'
-    | '/market/quote/$id'
-    | '/market/rfq/inbox'
-    | '/market/supplier/$id'
-    | '/seller/payouts/$id'
-    | '/seller/settings/tax'
-    | '/seller/settings/team'
-    | '/seller/storefront/preview'
-    | '/tx/$id/receipt'
     | '/admin/aml/'
     | '/admin/announcements/'
     | '/admin/carriers/'
@@ -2958,14 +1667,6 @@ export interface FileRouteTypes {
     | '/admin/wallets/'
     | '/admin/warehouses/'
     | '/admin/withdrawals/'
-    | '/escrow/new/'
-    | '/logistics/booking/'
-    | '/logistics/quote/'
-    | '/logistics/shipments/'
-    | '/seller/orders/'
-    | '/seller/payouts/'
-    | '/seller/rfq/'
-    | '/seller/storefront/'
     | '/admin/disputes/$id/evidence'
     | '/admin/disputes/$id/ruling'
     | '/admin/fx/orders/$id'
@@ -2981,27 +1682,6 @@ export interface FileRouteTypes {
     | '/admin/users/$id/orders'
     | '/admin/users/$id/tickets'
     | '/admin/users/$id/wallet'
-    | '/escrow/$id/dispute/outcome'
-    | '/escrow/$id/dispute/thread'
-    | '/escrow/$id/milestone/$ms'
-    | '/escrow/invite/$id/counter'
-    | '/escrow/seller/$id/dispute'
-    | '/logistics/shipments/$id/claim'
-    | '/logistics/shipments/$id/customs'
-    | '/logistics/shipments/$id/pod'
-    | '/market/order/$id/confirmed'
-    | '/market/order/$id/dispute'
-    | '/market/order/$id/escrow'
-    | '/market/order/$id/release'
-    | '/market/order/$id/review'
-    | '/seller/orders/$id/dispatch'
-    | '/seller/orders/$id/docs'
-    | '/seller/orders/$id/proforma'
-    | '/seller/products/$id/edit'
-    | '/seller/products/new/media'
-    | '/seller/products/new/pricing'
-    | '/seller/products/new/shipping'
-    | '/seller/rfq/$id/quote'
     | '/admin/disputes/$id/'
     | '/admin/fx/orders/'
     | '/admin/listings/$id/'
@@ -3009,41 +1689,9 @@ export interface FileRouteTypes {
     | '/admin/orders/$id/'
     | '/admin/settings/webhooks/'
     | '/admin/users/$id/'
-    | '/logistics/shipments/$id/'
-    | '/market/order/$id/'
-    | '/seller/orders/$id/'
-    | '/seller/products/new/'
-    | '/escrow/seller/$id/evidence/$ms'
-    | '/escrow/seller/$id/request/$ms'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/address'
-    | '/bank'
-    | '/deposit'
-    | '/fx'
-    | '/home'
-    | '/kyb'
-    | '/kyb-docs'
-    | '/kyc-status'
-    | '/kyc1'
-    | '/kyc2'
-    | '/legal'
-    | '/locale'
-    | '/login'
-    | '/notifications'
-    | '/otp'
-    | '/passcode'
-    | '/permissions'
-    | '/profile'
-    | '/role'
-    | '/signup'
-    | '/splash'
-    | '/statements'
-    | '/system'
-    | '/users'
-    | '/welcome'
-    | '/withdraw'
     | '/admin/2fa'
     | '/admin/allowlist'
     | '/admin/attributes'
@@ -3091,48 +1739,7 @@ export interface FileRouteTypes {
     | '/admin/velocity'
     | '/admin/workspaces'
     | '/admin/zones'
-    | '/claim/$token'
-    | '/currency/$code'
-    | '/deposit/method'
-    | '/deposit/status'
-    | '/deposit/virtual'
-    | '/escrow/$id'
-    | '/fx/confirm'
-    | '/help/ticket'
-    | '/market/cart'
-    | '/market/orders'
-    | '/market/rfq'
-    | '/market/sample'
-    | '/market/search'
-    | '/me/edit'
-    | '/me/wishlist'
-    | '/messages/$id'
-    | '/recipients/new'
-    | '/seller/catalog'
-    | '/seller/performance'
-    | '/seller/quotes'
-    | '/seller/templates'
-    | '/send/amount'
-    | '/send/auth'
-    | '/send/details'
-    | '/send/review'
-    | '/send/status'
-    | '/send/success'
-    | '/settings/account'
-    | '/settings/locale'
-    | '/settings/notifications'
-    | '/settings/security'
-    | '/tx/$id'
     | '/admin'
-    | '/escrow'
-    | '/help'
-    | '/logistics'
-    | '/market'
-    | '/me'
-    | '/messages'
-    | '/recipients'
-    | '/seller'
-    | '/send'
     | '/admin/aml/$id'
     | '/admin/analytics/cohorts'
     | '/admin/analytics/funnels'
@@ -3199,35 +1806,6 @@ export interface FileRouteTypes {
     | '/admin/wallets/$userId'
     | '/admin/warehouses/$id'
     | '/admin/withdrawals/$id'
-    | '/claim/$token/done'
-    | '/claim/$token/signup'
-    | '/escrow/$id/dispute'
-    | '/escrow/$id/release'
-    | '/escrow/invite/$id'
-    | '/escrow/new/done'
-    | '/escrow/new/fees'
-    | '/escrow/new/fund'
-    | '/escrow/new/inspection'
-    | '/escrow/new/milestones'
-    | '/escrow/new/review'
-    | '/escrow/new/terms'
-    | '/escrow/seller/$id'
-    | '/logistics/booking/confirmation'
-    | '/logistics/booking/docs'
-    | '/logistics/quote/compare'
-    | '/market/category/$slug'
-    | '/market/checkout/pay'
-    | '/market/checkout/review'
-    | '/market/checkout/shipping'
-    | '/market/product/$id'
-    | '/market/quote/$id'
-    | '/market/rfq/inbox'
-    | '/market/supplier/$id'
-    | '/seller/payouts/$id'
-    | '/seller/settings/tax'
-    | '/seller/settings/team'
-    | '/seller/storefront/preview'
-    | '/tx/$id/receipt'
     | '/admin/aml'
     | '/admin/announcements'
     | '/admin/carriers'
@@ -3257,14 +1835,6 @@ export interface FileRouteTypes {
     | '/admin/wallets'
     | '/admin/warehouses'
     | '/admin/withdrawals'
-    | '/escrow/new'
-    | '/logistics/booking'
-    | '/logistics/quote'
-    | '/logistics/shipments'
-    | '/seller/orders'
-    | '/seller/payouts'
-    | '/seller/rfq'
-    | '/seller/storefront'
     | '/admin/disputes/$id/evidence'
     | '/admin/disputes/$id/ruling'
     | '/admin/fx/orders/$id'
@@ -3280,27 +1850,6 @@ export interface FileRouteTypes {
     | '/admin/users/$id/orders'
     | '/admin/users/$id/tickets'
     | '/admin/users/$id/wallet'
-    | '/escrow/$id/dispute/outcome'
-    | '/escrow/$id/dispute/thread'
-    | '/escrow/$id/milestone/$ms'
-    | '/escrow/invite/$id/counter'
-    | '/escrow/seller/$id/dispute'
-    | '/logistics/shipments/$id/claim'
-    | '/logistics/shipments/$id/customs'
-    | '/logistics/shipments/$id/pod'
-    | '/market/order/$id/confirmed'
-    | '/market/order/$id/dispute'
-    | '/market/order/$id/escrow'
-    | '/market/order/$id/release'
-    | '/market/order/$id/review'
-    | '/seller/orders/$id/dispatch'
-    | '/seller/orders/$id/docs'
-    | '/seller/orders/$id/proforma'
-    | '/seller/products/$id/edit'
-    | '/seller/products/new/media'
-    | '/seller/products/new/pricing'
-    | '/seller/products/new/shipping'
-    | '/seller/rfq/$id/quote'
     | '/admin/disputes/$id'
     | '/admin/fx/orders'
     | '/admin/listings/$id'
@@ -3308,41 +1857,9 @@ export interface FileRouteTypes {
     | '/admin/orders/$id'
     | '/admin/settings/webhooks'
     | '/admin/users/$id'
-    | '/logistics/shipments/$id'
-    | '/market/order/$id'
-    | '/seller/orders/$id'
-    | '/seller/products/new'
-    | '/escrow/seller/$id/evidence/$ms'
-    | '/escrow/seller/$id/request/$ms'
   id:
     | '__root__'
     | '/'
-    | '/address'
-    | '/bank'
-    | '/deposit'
-    | '/fx'
-    | '/home'
-    | '/kyb'
-    | '/kyb-docs'
-    | '/kyc-status'
-    | '/kyc1'
-    | '/kyc2'
-    | '/legal'
-    | '/locale'
-    | '/login'
-    | '/notifications'
-    | '/otp'
-    | '/passcode'
-    | '/permissions'
-    | '/profile'
-    | '/role'
-    | '/signup'
-    | '/splash'
-    | '/statements'
-    | '/system'
-    | '/users'
-    | '/welcome'
-    | '/withdraw'
     | '/admin/2fa'
     | '/admin/allowlist'
     | '/admin/attributes'
@@ -3390,48 +1907,7 @@ export interface FileRouteTypes {
     | '/admin/velocity'
     | '/admin/workspaces'
     | '/admin/zones'
-    | '/claim/$token'
-    | '/currency/$code'
-    | '/deposit/method'
-    | '/deposit/status'
-    | '/deposit/virtual'
-    | '/escrow/$id'
-    | '/fx/confirm'
-    | '/help/ticket'
-    | '/market/cart'
-    | '/market/orders'
-    | '/market/rfq'
-    | '/market/sample'
-    | '/market/search'
-    | '/me/edit'
-    | '/me/wishlist'
-    | '/messages/$id'
-    | '/recipients/new'
-    | '/seller/catalog'
-    | '/seller/performance'
-    | '/seller/quotes'
-    | '/seller/templates'
-    | '/send/amount'
-    | '/send/auth'
-    | '/send/details'
-    | '/send/review'
-    | '/send/status'
-    | '/send/success'
-    | '/settings/account'
-    | '/settings/locale'
-    | '/settings/notifications'
-    | '/settings/security'
-    | '/tx/$id'
     | '/admin/'
-    | '/escrow/'
-    | '/help/'
-    | '/logistics/'
-    | '/market/'
-    | '/me/'
-    | '/messages/'
-    | '/recipients/'
-    | '/seller/'
-    | '/send/'
     | '/admin/aml/$id'
     | '/admin/analytics/cohorts'
     | '/admin/analytics/funnels'
@@ -3498,36 +1974,6 @@ export interface FileRouteTypes {
     | '/admin/wallets/$userId'
     | '/admin/warehouses/$id'
     | '/admin/withdrawals/$id'
-    | '/claim/$token/done'
-    | '/claim/$token/signup'
-    | '/escrow/$id/dispute'
-    | '/escrow/$id/release'
-    | '/escrow/invite/$id'
-    | '/escrow/new/done'
-    | '/escrow/new/fees'
-    | '/escrow/new/fund'
-    | '/escrow/new/inspection'
-    | '/escrow/new/milestones'
-    | '/escrow/new/review'
-    | '/escrow/new/terms'
-    | '/escrow/seller/$id'
-    | '/logistics/booking/confirmation'
-    | '/logistics/booking/docs'
-    | '/logistics/quote/compare'
-    | '/market/category/$slug'
-    | '/market/checkout/pay'
-    | '/market/checkout/review'
-    | '/market/checkout/shipping'
-    | '/market/order/$id'
-    | '/market/product/$id'
-    | '/market/quote/$id'
-    | '/market/rfq/inbox'
-    | '/market/supplier/$id'
-    | '/seller/payouts/$id'
-    | '/seller/settings/tax'
-    | '/seller/settings/team'
-    | '/seller/storefront/preview'
-    | '/tx/$id/receipt'
     | '/admin/aml/'
     | '/admin/announcements/'
     | '/admin/carriers/'
@@ -3557,14 +2003,6 @@ export interface FileRouteTypes {
     | '/admin/wallets/'
     | '/admin/warehouses/'
     | '/admin/withdrawals/'
-    | '/escrow/new/'
-    | '/logistics/booking/'
-    | '/logistics/quote/'
-    | '/logistics/shipments/'
-    | '/seller/orders/'
-    | '/seller/payouts/'
-    | '/seller/rfq/'
-    | '/seller/storefront/'
     | '/admin/disputes/$id/evidence'
     | '/admin/disputes/$id/ruling'
     | '/admin/fx/orders/$id'
@@ -3580,27 +2018,6 @@ export interface FileRouteTypes {
     | '/admin/users/$id/orders'
     | '/admin/users/$id/tickets'
     | '/admin/users/$id/wallet'
-    | '/escrow/$id/dispute/outcome'
-    | '/escrow/$id/dispute/thread'
-    | '/escrow/$id/milestone/$ms'
-    | '/escrow/invite/$id/counter'
-    | '/escrow/seller/$id/dispute'
-    | '/logistics/shipments/$id/claim'
-    | '/logistics/shipments/$id/customs'
-    | '/logistics/shipments/$id/pod'
-    | '/market/order/$id/confirmed'
-    | '/market/order/$id/dispute'
-    | '/market/order/$id/escrow'
-    | '/market/order/$id/release'
-    | '/market/order/$id/review'
-    | '/seller/orders/$id/dispatch'
-    | '/seller/orders/$id/docs'
-    | '/seller/orders/$id/proforma'
-    | '/seller/products/$id/edit'
-    | '/seller/products/new/media'
-    | '/seller/products/new/pricing'
-    | '/seller/products/new/shipping'
-    | '/seller/rfq/$id/quote'
     | '/admin/disputes/$id/'
     | '/admin/fx/orders/'
     | '/admin/listings/$id/'
@@ -3608,42 +2025,10 @@ export interface FileRouteTypes {
     | '/admin/orders/$id/'
     | '/admin/settings/webhooks/'
     | '/admin/users/$id/'
-    | '/logistics/shipments/$id/'
-    | '/market/order/$id/'
-    | '/seller/orders/$id/'
-    | '/seller/products/new/'
-    | '/escrow/seller/$id/evidence/$ms'
-    | '/escrow/seller/$id/request/$ms'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AddressRoute: typeof AddressRoute
-  BankRoute: typeof BankRoute
-  DepositRoute: typeof DepositRouteWithChildren
-  FxRoute: typeof FxRouteWithChildren
-  HomeRoute: typeof HomeRoute
-  KybRoute: typeof KybRoute
-  KybDocsRoute: typeof KybDocsRoute
-  KycStatusRoute: typeof KycStatusRoute
-  Kyc1Route: typeof Kyc1Route
-  Kyc2Route: typeof Kyc2Route
-  LegalRoute: typeof LegalRoute
-  LocaleRoute: typeof LocaleRoute
-  LoginRoute: typeof LoginRoute
-  NotificationsRoute: typeof NotificationsRoute
-  OtpRoute: typeof OtpRoute
-  PasscodeRoute: typeof PasscodeRoute
-  PermissionsRoute: typeof PermissionsRoute
-  ProfileRoute: typeof ProfileRoute
-  RoleRoute: typeof RoleRoute
-  SignupRoute: typeof SignupRoute
-  SplashRoute: typeof SplashRoute
-  StatementsRoute: typeof StatementsRoute
-  SystemRoute: typeof SystemRoute
-  UsersRoute: typeof UsersRoute
-  WelcomeRoute: typeof WelcomeRoute
-  WithdrawRoute: typeof WithdrawRoute
   Admin2faRoute: typeof Admin2faRoute
   AdminAllowlistRoute: typeof AdminAllowlistRoute
   AdminAttributesRoute: typeof AdminAttributesRoute
@@ -3691,44 +2076,7 @@ export interface RootRouteChildren {
   AdminVelocityRoute: typeof AdminVelocityRoute
   AdminWorkspacesRoute: typeof AdminWorkspacesRoute
   AdminZonesRoute: typeof AdminZonesRoute
-  ClaimTokenRoute: typeof ClaimTokenRouteWithChildren
-  CurrencyCodeRoute: typeof CurrencyCodeRoute
-  EscrowIdRoute: typeof EscrowIdRouteWithChildren
-  HelpTicketRoute: typeof HelpTicketRoute
-  MarketCartRoute: typeof MarketCartRoute
-  MarketOrdersRoute: typeof MarketOrdersRoute
-  MarketRfqRoute: typeof MarketRfqRouteWithChildren
-  MarketSampleRoute: typeof MarketSampleRoute
-  MarketSearchRoute: typeof MarketSearchRoute
-  MeEditRoute: typeof MeEditRoute
-  MeWishlistRoute: typeof MeWishlistRoute
-  MessagesIdRoute: typeof MessagesIdRoute
-  RecipientsNewRoute: typeof RecipientsNewRoute
-  SellerCatalogRoute: typeof SellerCatalogRoute
-  SellerPerformanceRoute: typeof SellerPerformanceRoute
-  SellerQuotesRoute: typeof SellerQuotesRoute
-  SellerTemplatesRoute: typeof SellerTemplatesRoute
-  SendAmountRoute: typeof SendAmountRoute
-  SendAuthRoute: typeof SendAuthRoute
-  SendDetailsRoute: typeof SendDetailsRoute
-  SendReviewRoute: typeof SendReviewRoute
-  SendStatusRoute: typeof SendStatusRoute
-  SendSuccessRoute: typeof SendSuccessRoute
-  SettingsAccountRoute: typeof SettingsAccountRoute
-  SettingsLocaleRoute: typeof SettingsLocaleRoute
-  SettingsNotificationsRoute: typeof SettingsNotificationsRoute
-  SettingsSecurityRoute: typeof SettingsSecurityRoute
-  TxIdRoute: typeof TxIdRouteWithChildren
   AdminIndexRoute: typeof AdminIndexRoute
-  EscrowIndexRoute: typeof EscrowIndexRoute
-  HelpIndexRoute: typeof HelpIndexRoute
-  LogisticsIndexRoute: typeof LogisticsIndexRoute
-  MarketIndexRoute: typeof MarketIndexRoute
-  MeIndexRoute: typeof MeIndexRoute
-  MessagesIndexRoute: typeof MessagesIndexRoute
-  RecipientsIndexRoute: typeof RecipientsIndexRoute
-  SellerIndexRoute: typeof SellerIndexRoute
-  SendIndexRoute: typeof SendIndexRoute
   AdminAmlIdRoute: typeof AdminAmlIdRoute
   AdminAnalyticsCohortsRoute: typeof AdminAnalyticsCohortsRoute
   AdminAnalyticsFunnelsRoute: typeof AdminAnalyticsFunnelsRoute
@@ -3795,30 +2143,6 @@ export interface RootRouteChildren {
   AdminWalletsUserIdRoute: typeof AdminWalletsUserIdRoute
   AdminWarehousesIdRoute: typeof AdminWarehousesIdRoute
   AdminWithdrawalsIdRoute: typeof AdminWithdrawalsIdRoute
-  EscrowInviteIdRoute: typeof EscrowInviteIdRouteWithChildren
-  EscrowNewDoneRoute: typeof EscrowNewDoneRoute
-  EscrowNewFeesRoute: typeof EscrowNewFeesRoute
-  EscrowNewFundRoute: typeof EscrowNewFundRoute
-  EscrowNewInspectionRoute: typeof EscrowNewInspectionRoute
-  EscrowNewMilestonesRoute: typeof EscrowNewMilestonesRoute
-  EscrowNewReviewRoute: typeof EscrowNewReviewRoute
-  EscrowNewTermsRoute: typeof EscrowNewTermsRoute
-  EscrowSellerIdRoute: typeof EscrowSellerIdRouteWithChildren
-  LogisticsBookingConfirmationRoute: typeof LogisticsBookingConfirmationRoute
-  LogisticsBookingDocsRoute: typeof LogisticsBookingDocsRoute
-  LogisticsQuoteCompareRoute: typeof LogisticsQuoteCompareRoute
-  MarketCategorySlugRoute: typeof MarketCategorySlugRoute
-  MarketCheckoutPayRoute: typeof MarketCheckoutPayRoute
-  MarketCheckoutReviewRoute: typeof MarketCheckoutReviewRoute
-  MarketCheckoutShippingRoute: typeof MarketCheckoutShippingRoute
-  MarketOrderIdRoute: typeof MarketOrderIdRouteWithChildren
-  MarketProductIdRoute: typeof MarketProductIdRoute
-  MarketQuoteIdRoute: typeof MarketQuoteIdRoute
-  MarketSupplierIdRoute: typeof MarketSupplierIdRoute
-  SellerPayoutsIdRoute: typeof SellerPayoutsIdRoute
-  SellerSettingsTaxRoute: typeof SellerSettingsTaxRoute
-  SellerSettingsTeamRoute: typeof SellerSettingsTeamRoute
-  SellerStorefrontPreviewRoute: typeof SellerStorefrontPreviewRoute
   AdminAmlIndexRoute: typeof AdminAmlIndexRoute
   AdminAnnouncementsIndexRoute: typeof AdminAnnouncementsIndexRoute
   AdminCarriersIndexRoute: typeof AdminCarriersIndexRoute
@@ -3848,14 +2172,6 @@ export interface RootRouteChildren {
   AdminWalletsIndexRoute: typeof AdminWalletsIndexRoute
   AdminWarehousesIndexRoute: typeof AdminWarehousesIndexRoute
   AdminWithdrawalsIndexRoute: typeof AdminWithdrawalsIndexRoute
-  EscrowNewIndexRoute: typeof EscrowNewIndexRoute
-  LogisticsBookingIndexRoute: typeof LogisticsBookingIndexRoute
-  LogisticsQuoteIndexRoute: typeof LogisticsQuoteIndexRoute
-  LogisticsShipmentsIndexRoute: typeof LogisticsShipmentsIndexRoute
-  SellerOrdersIndexRoute: typeof SellerOrdersIndexRoute
-  SellerPayoutsIndexRoute: typeof SellerPayoutsIndexRoute
-  SellerRfqIndexRoute: typeof SellerRfqIndexRoute
-  SellerStorefrontIndexRoute: typeof SellerStorefrontIndexRoute
   AdminDisputesIdEvidenceRoute: typeof AdminDisputesIdEvidenceRoute
   AdminDisputesIdRulingRoute: typeof AdminDisputesIdRulingRoute
   AdminFxOrdersIdRoute: typeof AdminFxOrdersIdRoute
@@ -3871,17 +2187,6 @@ export interface RootRouteChildren {
   AdminUsersIdOrdersRoute: typeof AdminUsersIdOrdersRoute
   AdminUsersIdTicketsRoute: typeof AdminUsersIdTicketsRoute
   AdminUsersIdWalletRoute: typeof AdminUsersIdWalletRoute
-  LogisticsShipmentsIdClaimRoute: typeof LogisticsShipmentsIdClaimRoute
-  LogisticsShipmentsIdCustomsRoute: typeof LogisticsShipmentsIdCustomsRoute
-  LogisticsShipmentsIdPodRoute: typeof LogisticsShipmentsIdPodRoute
-  SellerOrdersIdDispatchRoute: typeof SellerOrdersIdDispatchRoute
-  SellerOrdersIdDocsRoute: typeof SellerOrdersIdDocsRoute
-  SellerOrdersIdProformaRoute: typeof SellerOrdersIdProformaRoute
-  SellerProductsIdEditRoute: typeof SellerProductsIdEditRoute
-  SellerProductsNewMediaRoute: typeof SellerProductsNewMediaRoute
-  SellerProductsNewPricingRoute: typeof SellerProductsNewPricingRoute
-  SellerProductsNewShippingRoute: typeof SellerProductsNewShippingRoute
-  SellerRfqIdQuoteRoute: typeof SellerRfqIdQuoteRoute
   AdminDisputesIdIndexRoute: typeof AdminDisputesIdIndexRoute
   AdminFxOrdersIndexRoute: typeof AdminFxOrdersIndexRoute
   AdminListingsIdIndexRoute: typeof AdminListingsIdIndexRoute
@@ -3889,9 +2194,6 @@ export interface RootRouteChildren {
   AdminOrdersIdIndexRoute: typeof AdminOrdersIdIndexRoute
   AdminSettingsWebhooksIndexRoute: typeof AdminSettingsWebhooksIndexRoute
   AdminUsersIdIndexRoute: typeof AdminUsersIdIndexRoute
-  LogisticsShipmentsIdIndexRoute: typeof LogisticsShipmentsIdIndexRoute
-  SellerOrdersIdIndexRoute: typeof SellerOrdersIdIndexRoute
-  SellerProductsNewIndexRoute: typeof SellerProductsNewIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -3901,188 +2203,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/address': {
-      id: '/address'
-      path: '/address'
-      fullPath: '/address'
-      preLoaderRoute: typeof AddressRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/bank': {
-      id: '/bank'
-      path: '/bank'
-      fullPath: '/bank'
-      preLoaderRoute: typeof BankRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/deposit': {
-      id: '/deposit'
-      path: '/deposit'
-      fullPath: '/deposit'
-      preLoaderRoute: typeof DepositRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/fx': {
-      id: '/fx'
-      path: '/fx'
-      fullPath: '/fx'
-      preLoaderRoute: typeof FxRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/home': {
-      id: '/home'
-      path: '/home'
-      fullPath: '/home'
-      preLoaderRoute: typeof HomeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/kyb': {
-      id: '/kyb'
-      path: '/kyb'
-      fullPath: '/kyb'
-      preLoaderRoute: typeof KybRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/kyb-docs': {
-      id: '/kyb-docs'
-      path: '/kyb-docs'
-      fullPath: '/kyb-docs'
-      preLoaderRoute: typeof KybDocsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/kyc-status': {
-      id: '/kyc-status'
-      path: '/kyc-status'
-      fullPath: '/kyc-status'
-      preLoaderRoute: typeof KycStatusRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/kyc1': {
-      id: '/kyc1'
-      path: '/kyc1'
-      fullPath: '/kyc1'
-      preLoaderRoute: typeof Kyc1RouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/kyc2': {
-      id: '/kyc2'
-      path: '/kyc2'
-      fullPath: '/kyc2'
-      preLoaderRoute: typeof Kyc2RouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/legal': {
-      id: '/legal'
-      path: '/legal'
-      fullPath: '/legal'
-      preLoaderRoute: typeof LegalRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/locale': {
-      id: '/locale'
-      path: '/locale'
-      fullPath: '/locale'
-      preLoaderRoute: typeof LocaleRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/notifications': {
-      id: '/notifications'
-      path: '/notifications'
-      fullPath: '/notifications'
-      preLoaderRoute: typeof NotificationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/otp': {
-      id: '/otp'
-      path: '/otp'
-      fullPath: '/otp'
-      preLoaderRoute: typeof OtpRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/passcode': {
-      id: '/passcode'
-      path: '/passcode'
-      fullPath: '/passcode'
-      preLoaderRoute: typeof PasscodeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/permissions': {
-      id: '/permissions'
-      path: '/permissions'
-      fullPath: '/permissions'
-      preLoaderRoute: typeof PermissionsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/profile': {
-      id: '/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof ProfileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/role': {
-      id: '/role'
-      path: '/role'
-      fullPath: '/role'
-      preLoaderRoute: typeof RoleRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/signup': {
-      id: '/signup'
-      path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof SignupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/splash': {
-      id: '/splash'
-      path: '/splash'
-      fullPath: '/splash'
-      preLoaderRoute: typeof SplashRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/statements': {
-      id: '/statements'
-      path: '/statements'
-      fullPath: '/statements'
-      preLoaderRoute: typeof StatementsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/system': {
-      id: '/system'
-      path: '/system'
-      fullPath: '/system'
-      preLoaderRoute: typeof SystemRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/users': {
-      id: '/users'
-      path: '/users'
-      fullPath: '/users'
-      preLoaderRoute: typeof UsersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/welcome': {
-      id: '/welcome'
-      path: '/welcome'
-      fullPath: '/welcome'
-      preLoaderRoute: typeof WelcomeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/withdraw': {
-      id: '/withdraw'
-      path: '/withdraw'
-      fullPath: '/withdraw'
-      preLoaderRoute: typeof WithdrawRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -4419,293 +2539,6 @@ declare module '@tanstack/react-router' {
       path: '/admin/zones'
       fullPath: '/admin/zones'
       preLoaderRoute: typeof AdminZonesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/claim/$token': {
-      id: '/claim/$token'
-      path: '/claim/$token'
-      fullPath: '/claim/$token'
-      preLoaderRoute: typeof ClaimTokenRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/currency/$code': {
-      id: '/currency/$code'
-      path: '/currency/$code'
-      fullPath: '/currency/$code'
-      preLoaderRoute: typeof CurrencyCodeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/deposit/method': {
-      id: '/deposit/method'
-      path: '/method'
-      fullPath: '/deposit/method'
-      preLoaderRoute: typeof DepositMethodRouteImport
-      parentRoute: typeof DepositRoute
-    }
-    '/deposit/status': {
-      id: '/deposit/status'
-      path: '/status'
-      fullPath: '/deposit/status'
-      preLoaderRoute: typeof DepositStatusRouteImport
-      parentRoute: typeof DepositRoute
-    }
-    '/deposit/virtual': {
-      id: '/deposit/virtual'
-      path: '/virtual'
-      fullPath: '/deposit/virtual'
-      preLoaderRoute: typeof DepositVirtualRouteImport
-      parentRoute: typeof DepositRoute
-    }
-    '/escrow/': {
-      id: '/escrow/'
-      path: '/escrow'
-      fullPath: '/escrow/'
-      preLoaderRoute: typeof EscrowIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/escrow/$id': {
-      id: '/escrow/$id'
-      path: '/escrow/$id'
-      fullPath: '/escrow/$id'
-      preLoaderRoute: typeof EscrowIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/fx/confirm': {
-      id: '/fx/confirm'
-      path: '/confirm'
-      fullPath: '/fx/confirm'
-      preLoaderRoute: typeof FxConfirmRouteImport
-      parentRoute: typeof FxRoute
-    }
-    '/help/': {
-      id: '/help/'
-      path: '/help'
-      fullPath: '/help/'
-      preLoaderRoute: typeof HelpIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/help/ticket': {
-      id: '/help/ticket'
-      path: '/help/ticket'
-      fullPath: '/help/ticket'
-      preLoaderRoute: typeof HelpTicketRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/logistics/': {
-      id: '/logistics/'
-      path: '/logistics'
-      fullPath: '/logistics/'
-      preLoaderRoute: typeof LogisticsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/market/': {
-      id: '/market/'
-      path: '/market'
-      fullPath: '/market/'
-      preLoaderRoute: typeof MarketIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/market/cart': {
-      id: '/market/cart'
-      path: '/market/cart'
-      fullPath: '/market/cart'
-      preLoaderRoute: typeof MarketCartRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/market/orders': {
-      id: '/market/orders'
-      path: '/market/orders'
-      fullPath: '/market/orders'
-      preLoaderRoute: typeof MarketOrdersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/market/rfq': {
-      id: '/market/rfq'
-      path: '/market/rfq'
-      fullPath: '/market/rfq'
-      preLoaderRoute: typeof MarketRfqRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/market/sample': {
-      id: '/market/sample'
-      path: '/market/sample'
-      fullPath: '/market/sample'
-      preLoaderRoute: typeof MarketSampleRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/market/search': {
-      id: '/market/search'
-      path: '/market/search'
-      fullPath: '/market/search'
-      preLoaderRoute: typeof MarketSearchRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/me/': {
-      id: '/me/'
-      path: '/me'
-      fullPath: '/me/'
-      preLoaderRoute: typeof MeIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/me/edit': {
-      id: '/me/edit'
-      path: '/me/edit'
-      fullPath: '/me/edit'
-      preLoaderRoute: typeof MeEditRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/me/wishlist': {
-      id: '/me/wishlist'
-      path: '/me/wishlist'
-      fullPath: '/me/wishlist'
-      preLoaderRoute: typeof MeWishlistRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/messages/': {
-      id: '/messages/'
-      path: '/messages'
-      fullPath: '/messages/'
-      preLoaderRoute: typeof MessagesIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/messages/$id': {
-      id: '/messages/$id'
-      path: '/messages/$id'
-      fullPath: '/messages/$id'
-      preLoaderRoute: typeof MessagesIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/recipients/': {
-      id: '/recipients/'
-      path: '/recipients'
-      fullPath: '/recipients/'
-      preLoaderRoute: typeof RecipientsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/recipients/new': {
-      id: '/recipients/new'
-      path: '/recipients/new'
-      fullPath: '/recipients/new'
-      preLoaderRoute: typeof RecipientsNewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/seller/': {
-      id: '/seller/'
-      path: '/seller'
-      fullPath: '/seller/'
-      preLoaderRoute: typeof SellerIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/seller/catalog': {
-      id: '/seller/catalog'
-      path: '/seller/catalog'
-      fullPath: '/seller/catalog'
-      preLoaderRoute: typeof SellerCatalogRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/seller/performance': {
-      id: '/seller/performance'
-      path: '/seller/performance'
-      fullPath: '/seller/performance'
-      preLoaderRoute: typeof SellerPerformanceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/seller/quotes': {
-      id: '/seller/quotes'
-      path: '/seller/quotes'
-      fullPath: '/seller/quotes'
-      preLoaderRoute: typeof SellerQuotesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/seller/templates': {
-      id: '/seller/templates'
-      path: '/seller/templates'
-      fullPath: '/seller/templates'
-      preLoaderRoute: typeof SellerTemplatesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/send/': {
-      id: '/send/'
-      path: '/send'
-      fullPath: '/send/'
-      preLoaderRoute: typeof SendIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/send/amount': {
-      id: '/send/amount'
-      path: '/send/amount'
-      fullPath: '/send/amount'
-      preLoaderRoute: typeof SendAmountRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/send/auth': {
-      id: '/send/auth'
-      path: '/send/auth'
-      fullPath: '/send/auth'
-      preLoaderRoute: typeof SendAuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/send/details': {
-      id: '/send/details'
-      path: '/send/details'
-      fullPath: '/send/details'
-      preLoaderRoute: typeof SendDetailsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/send/review': {
-      id: '/send/review'
-      path: '/send/review'
-      fullPath: '/send/review'
-      preLoaderRoute: typeof SendReviewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/send/status': {
-      id: '/send/status'
-      path: '/send/status'
-      fullPath: '/send/status'
-      preLoaderRoute: typeof SendStatusRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/send/success': {
-      id: '/send/success'
-      path: '/send/success'
-      fullPath: '/send/success'
-      preLoaderRoute: typeof SendSuccessRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings/account': {
-      id: '/settings/account'
-      path: '/settings/account'
-      fullPath: '/settings/account'
-      preLoaderRoute: typeof SettingsAccountRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings/locale': {
-      id: '/settings/locale'
-      path: '/settings/locale'
-      fullPath: '/settings/locale'
-      preLoaderRoute: typeof SettingsLocaleRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings/notifications': {
-      id: '/settings/notifications'
-      path: '/settings/notifications'
-      fullPath: '/settings/notifications'
-      preLoaderRoute: typeof SettingsNotificationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings/security': {
-      id: '/settings/security'
-      path: '/settings/security'
-      fullPath: '/settings/security'
-      preLoaderRoute: typeof SettingsSecurityRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/tx/$id': {
-      id: '/tx/$id'
-      path: '/tx/$id'
-      fullPath: '/tx/$id'
-      preLoaderRoute: typeof TxIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/aml/': {
@@ -5373,272 +3206,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminWithdrawalsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/claim/$token/done': {
-      id: '/claim/$token/done'
-      path: '/done'
-      fullPath: '/claim/$token/done'
-      preLoaderRoute: typeof ClaimTokenDoneRouteImport
-      parentRoute: typeof ClaimTokenRoute
-    }
-    '/claim/$token/signup': {
-      id: '/claim/$token/signup'
-      path: '/signup'
-      fullPath: '/claim/$token/signup'
-      preLoaderRoute: typeof ClaimTokenSignupRouteImport
-      parentRoute: typeof ClaimTokenRoute
-    }
-    '/escrow/$id/dispute': {
-      id: '/escrow/$id/dispute'
-      path: '/dispute'
-      fullPath: '/escrow/$id/dispute'
-      preLoaderRoute: typeof EscrowIdDisputeRouteImport
-      parentRoute: typeof EscrowIdRoute
-    }
-    '/escrow/$id/release': {
-      id: '/escrow/$id/release'
-      path: '/release'
-      fullPath: '/escrow/$id/release'
-      preLoaderRoute: typeof EscrowIdReleaseRouteImport
-      parentRoute: typeof EscrowIdRoute
-    }
-    '/escrow/invite/$id': {
-      id: '/escrow/invite/$id'
-      path: '/escrow/invite/$id'
-      fullPath: '/escrow/invite/$id'
-      preLoaderRoute: typeof EscrowInviteIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/escrow/new/': {
-      id: '/escrow/new/'
-      path: '/escrow/new'
-      fullPath: '/escrow/new/'
-      preLoaderRoute: typeof EscrowNewIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/escrow/new/done': {
-      id: '/escrow/new/done'
-      path: '/escrow/new/done'
-      fullPath: '/escrow/new/done'
-      preLoaderRoute: typeof EscrowNewDoneRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/escrow/new/fees': {
-      id: '/escrow/new/fees'
-      path: '/escrow/new/fees'
-      fullPath: '/escrow/new/fees'
-      preLoaderRoute: typeof EscrowNewFeesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/escrow/new/fund': {
-      id: '/escrow/new/fund'
-      path: '/escrow/new/fund'
-      fullPath: '/escrow/new/fund'
-      preLoaderRoute: typeof EscrowNewFundRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/escrow/new/inspection': {
-      id: '/escrow/new/inspection'
-      path: '/escrow/new/inspection'
-      fullPath: '/escrow/new/inspection'
-      preLoaderRoute: typeof EscrowNewInspectionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/escrow/new/milestones': {
-      id: '/escrow/new/milestones'
-      path: '/escrow/new/milestones'
-      fullPath: '/escrow/new/milestones'
-      preLoaderRoute: typeof EscrowNewMilestonesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/escrow/new/review': {
-      id: '/escrow/new/review'
-      path: '/escrow/new/review'
-      fullPath: '/escrow/new/review'
-      preLoaderRoute: typeof EscrowNewReviewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/escrow/new/terms': {
-      id: '/escrow/new/terms'
-      path: '/escrow/new/terms'
-      fullPath: '/escrow/new/terms'
-      preLoaderRoute: typeof EscrowNewTermsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/escrow/seller/$id': {
-      id: '/escrow/seller/$id'
-      path: '/escrow/seller/$id'
-      fullPath: '/escrow/seller/$id'
-      preLoaderRoute: typeof EscrowSellerIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/logistics/booking/': {
-      id: '/logistics/booking/'
-      path: '/logistics/booking'
-      fullPath: '/logistics/booking/'
-      preLoaderRoute: typeof LogisticsBookingIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/logistics/booking/confirmation': {
-      id: '/logistics/booking/confirmation'
-      path: '/logistics/booking/confirmation'
-      fullPath: '/logistics/booking/confirmation'
-      preLoaderRoute: typeof LogisticsBookingConfirmationRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/logistics/booking/docs': {
-      id: '/logistics/booking/docs'
-      path: '/logistics/booking/docs'
-      fullPath: '/logistics/booking/docs'
-      preLoaderRoute: typeof LogisticsBookingDocsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/logistics/quote/': {
-      id: '/logistics/quote/'
-      path: '/logistics/quote'
-      fullPath: '/logistics/quote/'
-      preLoaderRoute: typeof LogisticsQuoteIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/logistics/quote/compare': {
-      id: '/logistics/quote/compare'
-      path: '/logistics/quote/compare'
-      fullPath: '/logistics/quote/compare'
-      preLoaderRoute: typeof LogisticsQuoteCompareRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/logistics/shipments/': {
-      id: '/logistics/shipments/'
-      path: '/logistics/shipments'
-      fullPath: '/logistics/shipments/'
-      preLoaderRoute: typeof LogisticsShipmentsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/market/category/$slug': {
-      id: '/market/category/$slug'
-      path: '/market/category/$slug'
-      fullPath: '/market/category/$slug'
-      preLoaderRoute: typeof MarketCategorySlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/market/checkout/pay': {
-      id: '/market/checkout/pay'
-      path: '/market/checkout/pay'
-      fullPath: '/market/checkout/pay'
-      preLoaderRoute: typeof MarketCheckoutPayRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/market/checkout/review': {
-      id: '/market/checkout/review'
-      path: '/market/checkout/review'
-      fullPath: '/market/checkout/review'
-      preLoaderRoute: typeof MarketCheckoutReviewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/market/checkout/shipping': {
-      id: '/market/checkout/shipping'
-      path: '/market/checkout/shipping'
-      fullPath: '/market/checkout/shipping'
-      preLoaderRoute: typeof MarketCheckoutShippingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/market/order/$id': {
-      id: '/market/order/$id'
-      path: '/market/order/$id'
-      fullPath: '/market/order/$id'
-      preLoaderRoute: typeof MarketOrderIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/market/product/$id': {
-      id: '/market/product/$id'
-      path: '/market/product/$id'
-      fullPath: '/market/product/$id'
-      preLoaderRoute: typeof MarketProductIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/market/quote/$id': {
-      id: '/market/quote/$id'
-      path: '/market/quote/$id'
-      fullPath: '/market/quote/$id'
-      preLoaderRoute: typeof MarketQuoteIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/market/rfq/inbox': {
-      id: '/market/rfq/inbox'
-      path: '/inbox'
-      fullPath: '/market/rfq/inbox'
-      preLoaderRoute: typeof MarketRfqInboxRouteImport
-      parentRoute: typeof MarketRfqRoute
-    }
-    '/market/supplier/$id': {
-      id: '/market/supplier/$id'
-      path: '/market/supplier/$id'
-      fullPath: '/market/supplier/$id'
-      preLoaderRoute: typeof MarketSupplierIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/seller/orders/': {
-      id: '/seller/orders/'
-      path: '/seller/orders'
-      fullPath: '/seller/orders/'
-      preLoaderRoute: typeof SellerOrdersIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/seller/payouts/': {
-      id: '/seller/payouts/'
-      path: '/seller/payouts'
-      fullPath: '/seller/payouts/'
-      preLoaderRoute: typeof SellerPayoutsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/seller/payouts/$id': {
-      id: '/seller/payouts/$id'
-      path: '/seller/payouts/$id'
-      fullPath: '/seller/payouts/$id'
-      preLoaderRoute: typeof SellerPayoutsIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/seller/rfq/': {
-      id: '/seller/rfq/'
-      path: '/seller/rfq'
-      fullPath: '/seller/rfq/'
-      preLoaderRoute: typeof SellerRfqIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/seller/settings/tax': {
-      id: '/seller/settings/tax'
-      path: '/seller/settings/tax'
-      fullPath: '/seller/settings/tax'
-      preLoaderRoute: typeof SellerSettingsTaxRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/seller/settings/team': {
-      id: '/seller/settings/team'
-      path: '/seller/settings/team'
-      fullPath: '/seller/settings/team'
-      preLoaderRoute: typeof SellerSettingsTeamRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/seller/storefront/': {
-      id: '/seller/storefront/'
-      path: '/seller/storefront'
-      fullPath: '/seller/storefront/'
-      preLoaderRoute: typeof SellerStorefrontIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/seller/storefront/preview': {
-      id: '/seller/storefront/preview'
-      path: '/seller/storefront/preview'
-      fullPath: '/seller/storefront/preview'
-      preLoaderRoute: typeof SellerStorefrontPreviewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/tx/$id/receipt': {
-      id: '/tx/$id/receipt'
-      path: '/receipt'
-      fullPath: '/tx/$id/receipt'
-      preLoaderRoute: typeof TxIdReceiptRouteImport
-      parentRoute: typeof TxIdRoute
-    }
     '/admin/disputes/$id/': {
       id: '/admin/disputes/$id/'
       path: '/admin/disputes/$id'
@@ -5793,367 +3360,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUsersIdWalletRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/escrow/$id/dispute/outcome': {
-      id: '/escrow/$id/dispute/outcome'
-      path: '/outcome'
-      fullPath: '/escrow/$id/dispute/outcome'
-      preLoaderRoute: typeof EscrowIdDisputeOutcomeRouteImport
-      parentRoute: typeof EscrowIdDisputeRoute
-    }
-    '/escrow/$id/dispute/thread': {
-      id: '/escrow/$id/dispute/thread'
-      path: '/thread'
-      fullPath: '/escrow/$id/dispute/thread'
-      preLoaderRoute: typeof EscrowIdDisputeThreadRouteImport
-      parentRoute: typeof EscrowIdDisputeRoute
-    }
-    '/escrow/$id/milestone/$ms': {
-      id: '/escrow/$id/milestone/$ms'
-      path: '/milestone/$ms'
-      fullPath: '/escrow/$id/milestone/$ms'
-      preLoaderRoute: typeof EscrowIdMilestoneMsRouteImport
-      parentRoute: typeof EscrowIdRoute
-    }
-    '/escrow/invite/$id/counter': {
-      id: '/escrow/invite/$id/counter'
-      path: '/counter'
-      fullPath: '/escrow/invite/$id/counter'
-      preLoaderRoute: typeof EscrowInviteIdCounterRouteImport
-      parentRoute: typeof EscrowInviteIdRoute
-    }
-    '/escrow/seller/$id/dispute': {
-      id: '/escrow/seller/$id/dispute'
-      path: '/dispute'
-      fullPath: '/escrow/seller/$id/dispute'
-      preLoaderRoute: typeof EscrowSellerIdDisputeRouteImport
-      parentRoute: typeof EscrowSellerIdRoute
-    }
-    '/logistics/shipments/$id/': {
-      id: '/logistics/shipments/$id/'
-      path: '/logistics/shipments/$id'
-      fullPath: '/logistics/shipments/$id/'
-      preLoaderRoute: typeof LogisticsShipmentsIdIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/logistics/shipments/$id/claim': {
-      id: '/logistics/shipments/$id/claim'
-      path: '/logistics/shipments/$id/claim'
-      fullPath: '/logistics/shipments/$id/claim'
-      preLoaderRoute: typeof LogisticsShipmentsIdClaimRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/logistics/shipments/$id/customs': {
-      id: '/logistics/shipments/$id/customs'
-      path: '/logistics/shipments/$id/customs'
-      fullPath: '/logistics/shipments/$id/customs'
-      preLoaderRoute: typeof LogisticsShipmentsIdCustomsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/logistics/shipments/$id/pod': {
-      id: '/logistics/shipments/$id/pod'
-      path: '/logistics/shipments/$id/pod'
-      fullPath: '/logistics/shipments/$id/pod'
-      preLoaderRoute: typeof LogisticsShipmentsIdPodRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/market/order/$id/': {
-      id: '/market/order/$id/'
-      path: '/'
-      fullPath: '/market/order/$id/'
-      preLoaderRoute: typeof MarketOrderIdIndexRouteImport
-      parentRoute: typeof MarketOrderIdRoute
-    }
-    '/market/order/$id/confirmed': {
-      id: '/market/order/$id/confirmed'
-      path: '/confirmed'
-      fullPath: '/market/order/$id/confirmed'
-      preLoaderRoute: typeof MarketOrderIdConfirmedRouteImport
-      parentRoute: typeof MarketOrderIdRoute
-    }
-    '/market/order/$id/dispute': {
-      id: '/market/order/$id/dispute'
-      path: '/dispute'
-      fullPath: '/market/order/$id/dispute'
-      preLoaderRoute: typeof MarketOrderIdDisputeRouteImport
-      parentRoute: typeof MarketOrderIdRoute
-    }
-    '/market/order/$id/escrow': {
-      id: '/market/order/$id/escrow'
-      path: '/escrow'
-      fullPath: '/market/order/$id/escrow'
-      preLoaderRoute: typeof MarketOrderIdEscrowRouteImport
-      parentRoute: typeof MarketOrderIdRoute
-    }
-    '/market/order/$id/release': {
-      id: '/market/order/$id/release'
-      path: '/release'
-      fullPath: '/market/order/$id/release'
-      preLoaderRoute: typeof MarketOrderIdReleaseRouteImport
-      parentRoute: typeof MarketOrderIdRoute
-    }
-    '/market/order/$id/review': {
-      id: '/market/order/$id/review'
-      path: '/review'
-      fullPath: '/market/order/$id/review'
-      preLoaderRoute: typeof MarketOrderIdReviewRouteImport
-      parentRoute: typeof MarketOrderIdRoute
-    }
-    '/seller/orders/$id/': {
-      id: '/seller/orders/$id/'
-      path: '/seller/orders/$id'
-      fullPath: '/seller/orders/$id/'
-      preLoaderRoute: typeof SellerOrdersIdIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/seller/orders/$id/dispatch': {
-      id: '/seller/orders/$id/dispatch'
-      path: '/seller/orders/$id/dispatch'
-      fullPath: '/seller/orders/$id/dispatch'
-      preLoaderRoute: typeof SellerOrdersIdDispatchRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/seller/orders/$id/docs': {
-      id: '/seller/orders/$id/docs'
-      path: '/seller/orders/$id/docs'
-      fullPath: '/seller/orders/$id/docs'
-      preLoaderRoute: typeof SellerOrdersIdDocsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/seller/orders/$id/proforma': {
-      id: '/seller/orders/$id/proforma'
-      path: '/seller/orders/$id/proforma'
-      fullPath: '/seller/orders/$id/proforma'
-      preLoaderRoute: typeof SellerOrdersIdProformaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/seller/products/$id/edit': {
-      id: '/seller/products/$id/edit'
-      path: '/seller/products/$id/edit'
-      fullPath: '/seller/products/$id/edit'
-      preLoaderRoute: typeof SellerProductsIdEditRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/seller/products/new/': {
-      id: '/seller/products/new/'
-      path: '/seller/products/new'
-      fullPath: '/seller/products/new/'
-      preLoaderRoute: typeof SellerProductsNewIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/seller/products/new/media': {
-      id: '/seller/products/new/media'
-      path: '/seller/products/new/media'
-      fullPath: '/seller/products/new/media'
-      preLoaderRoute: typeof SellerProductsNewMediaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/seller/products/new/pricing': {
-      id: '/seller/products/new/pricing'
-      path: '/seller/products/new/pricing'
-      fullPath: '/seller/products/new/pricing'
-      preLoaderRoute: typeof SellerProductsNewPricingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/seller/products/new/shipping': {
-      id: '/seller/products/new/shipping'
-      path: '/seller/products/new/shipping'
-      fullPath: '/seller/products/new/shipping'
-      preLoaderRoute: typeof SellerProductsNewShippingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/seller/rfq/$id/quote': {
-      id: '/seller/rfq/$id/quote'
-      path: '/seller/rfq/$id/quote'
-      fullPath: '/seller/rfq/$id/quote'
-      preLoaderRoute: typeof SellerRfqIdQuoteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/escrow/seller/$id/evidence/$ms': {
-      id: '/escrow/seller/$id/evidence/$ms'
-      path: '/evidence/$ms'
-      fullPath: '/escrow/seller/$id/evidence/$ms'
-      preLoaderRoute: typeof EscrowSellerIdEvidenceMsRouteImport
-      parentRoute: typeof EscrowSellerIdRoute
-    }
-    '/escrow/seller/$id/request/$ms': {
-      id: '/escrow/seller/$id/request/$ms'
-      path: '/request/$ms'
-      fullPath: '/escrow/seller/$id/request/$ms'
-      preLoaderRoute: typeof EscrowSellerIdRequestMsRouteImport
-      parentRoute: typeof EscrowSellerIdRoute
-    }
   }
 }
 
-interface DepositRouteChildren {
-  DepositMethodRoute: typeof DepositMethodRoute
-  DepositStatusRoute: typeof DepositStatusRoute
-  DepositVirtualRoute: typeof DepositVirtualRoute
-}
-
-const DepositRouteChildren: DepositRouteChildren = {
-  DepositMethodRoute: DepositMethodRoute,
-  DepositStatusRoute: DepositStatusRoute,
-  DepositVirtualRoute: DepositVirtualRoute,
-}
-
-const DepositRouteWithChildren =
-  DepositRoute._addFileChildren(DepositRouteChildren)
-
-interface FxRouteChildren {
-  FxConfirmRoute: typeof FxConfirmRoute
-}
-
-const FxRouteChildren: FxRouteChildren = {
-  FxConfirmRoute: FxConfirmRoute,
-}
-
-const FxRouteWithChildren = FxRoute._addFileChildren(FxRouteChildren)
-
-interface ClaimTokenRouteChildren {
-  ClaimTokenDoneRoute: typeof ClaimTokenDoneRoute
-  ClaimTokenSignupRoute: typeof ClaimTokenSignupRoute
-}
-
-const ClaimTokenRouteChildren: ClaimTokenRouteChildren = {
-  ClaimTokenDoneRoute: ClaimTokenDoneRoute,
-  ClaimTokenSignupRoute: ClaimTokenSignupRoute,
-}
-
-const ClaimTokenRouteWithChildren = ClaimTokenRoute._addFileChildren(
-  ClaimTokenRouteChildren,
-)
-
-interface EscrowIdDisputeRouteChildren {
-  EscrowIdDisputeOutcomeRoute: typeof EscrowIdDisputeOutcomeRoute
-  EscrowIdDisputeThreadRoute: typeof EscrowIdDisputeThreadRoute
-}
-
-const EscrowIdDisputeRouteChildren: EscrowIdDisputeRouteChildren = {
-  EscrowIdDisputeOutcomeRoute: EscrowIdDisputeOutcomeRoute,
-  EscrowIdDisputeThreadRoute: EscrowIdDisputeThreadRoute,
-}
-
-const EscrowIdDisputeRouteWithChildren = EscrowIdDisputeRoute._addFileChildren(
-  EscrowIdDisputeRouteChildren,
-)
-
-interface EscrowIdRouteChildren {
-  EscrowIdDisputeRoute: typeof EscrowIdDisputeRouteWithChildren
-  EscrowIdReleaseRoute: typeof EscrowIdReleaseRoute
-  EscrowIdMilestoneMsRoute: typeof EscrowIdMilestoneMsRoute
-}
-
-const EscrowIdRouteChildren: EscrowIdRouteChildren = {
-  EscrowIdDisputeRoute: EscrowIdDisputeRouteWithChildren,
-  EscrowIdReleaseRoute: EscrowIdReleaseRoute,
-  EscrowIdMilestoneMsRoute: EscrowIdMilestoneMsRoute,
-}
-
-const EscrowIdRouteWithChildren = EscrowIdRoute._addFileChildren(
-  EscrowIdRouteChildren,
-)
-
-interface MarketRfqRouteChildren {
-  MarketRfqInboxRoute: typeof MarketRfqInboxRoute
-}
-
-const MarketRfqRouteChildren: MarketRfqRouteChildren = {
-  MarketRfqInboxRoute: MarketRfqInboxRoute,
-}
-
-const MarketRfqRouteWithChildren = MarketRfqRoute._addFileChildren(
-  MarketRfqRouteChildren,
-)
-
-interface TxIdRouteChildren {
-  TxIdReceiptRoute: typeof TxIdReceiptRoute
-}
-
-const TxIdRouteChildren: TxIdRouteChildren = {
-  TxIdReceiptRoute: TxIdReceiptRoute,
-}
-
-const TxIdRouteWithChildren = TxIdRoute._addFileChildren(TxIdRouteChildren)
-
-interface EscrowInviteIdRouteChildren {
-  EscrowInviteIdCounterRoute: typeof EscrowInviteIdCounterRoute
-}
-
-const EscrowInviteIdRouteChildren: EscrowInviteIdRouteChildren = {
-  EscrowInviteIdCounterRoute: EscrowInviteIdCounterRoute,
-}
-
-const EscrowInviteIdRouteWithChildren = EscrowInviteIdRoute._addFileChildren(
-  EscrowInviteIdRouteChildren,
-)
-
-interface EscrowSellerIdRouteChildren {
-  EscrowSellerIdDisputeRoute: typeof EscrowSellerIdDisputeRoute
-  EscrowSellerIdEvidenceMsRoute: typeof EscrowSellerIdEvidenceMsRoute
-  EscrowSellerIdRequestMsRoute: typeof EscrowSellerIdRequestMsRoute
-}
-
-const EscrowSellerIdRouteChildren: EscrowSellerIdRouteChildren = {
-  EscrowSellerIdDisputeRoute: EscrowSellerIdDisputeRoute,
-  EscrowSellerIdEvidenceMsRoute: EscrowSellerIdEvidenceMsRoute,
-  EscrowSellerIdRequestMsRoute: EscrowSellerIdRequestMsRoute,
-}
-
-const EscrowSellerIdRouteWithChildren = EscrowSellerIdRoute._addFileChildren(
-  EscrowSellerIdRouteChildren,
-)
-
-interface MarketOrderIdRouteChildren {
-  MarketOrderIdConfirmedRoute: typeof MarketOrderIdConfirmedRoute
-  MarketOrderIdDisputeRoute: typeof MarketOrderIdDisputeRoute
-  MarketOrderIdEscrowRoute: typeof MarketOrderIdEscrowRoute
-  MarketOrderIdReleaseRoute: typeof MarketOrderIdReleaseRoute
-  MarketOrderIdReviewRoute: typeof MarketOrderIdReviewRoute
-  MarketOrderIdIndexRoute: typeof MarketOrderIdIndexRoute
-}
-
-const MarketOrderIdRouteChildren: MarketOrderIdRouteChildren = {
-  MarketOrderIdConfirmedRoute: MarketOrderIdConfirmedRoute,
-  MarketOrderIdDisputeRoute: MarketOrderIdDisputeRoute,
-  MarketOrderIdEscrowRoute: MarketOrderIdEscrowRoute,
-  MarketOrderIdReleaseRoute: MarketOrderIdReleaseRoute,
-  MarketOrderIdReviewRoute: MarketOrderIdReviewRoute,
-  MarketOrderIdIndexRoute: MarketOrderIdIndexRoute,
-}
-
-const MarketOrderIdRouteWithChildren = MarketOrderIdRoute._addFileChildren(
-  MarketOrderIdRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AddressRoute: AddressRoute,
-  BankRoute: BankRoute,
-  DepositRoute: DepositRouteWithChildren,
-  FxRoute: FxRouteWithChildren,
-  HomeRoute: HomeRoute,
-  KybRoute: KybRoute,
-  KybDocsRoute: KybDocsRoute,
-  KycStatusRoute: KycStatusRoute,
-  Kyc1Route: Kyc1Route,
-  Kyc2Route: Kyc2Route,
-  LegalRoute: LegalRoute,
-  LocaleRoute: LocaleRoute,
-  LoginRoute: LoginRoute,
-  NotificationsRoute: NotificationsRoute,
-  OtpRoute: OtpRoute,
-  PasscodeRoute: PasscodeRoute,
-  PermissionsRoute: PermissionsRoute,
-  ProfileRoute: ProfileRoute,
-  RoleRoute: RoleRoute,
-  SignupRoute: SignupRoute,
-  SplashRoute: SplashRoute,
-  StatementsRoute: StatementsRoute,
-  SystemRoute: SystemRoute,
-  UsersRoute: UsersRoute,
-  WelcomeRoute: WelcomeRoute,
-  WithdrawRoute: WithdrawRoute,
   Admin2faRoute: Admin2faRoute,
   AdminAllowlistRoute: AdminAllowlistRoute,
   AdminAttributesRoute: AdminAttributesRoute,
@@ -6201,44 +3412,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminVelocityRoute: AdminVelocityRoute,
   AdminWorkspacesRoute: AdminWorkspacesRoute,
   AdminZonesRoute: AdminZonesRoute,
-  ClaimTokenRoute: ClaimTokenRouteWithChildren,
-  CurrencyCodeRoute: CurrencyCodeRoute,
-  EscrowIdRoute: EscrowIdRouteWithChildren,
-  HelpTicketRoute: HelpTicketRoute,
-  MarketCartRoute: MarketCartRoute,
-  MarketOrdersRoute: MarketOrdersRoute,
-  MarketRfqRoute: MarketRfqRouteWithChildren,
-  MarketSampleRoute: MarketSampleRoute,
-  MarketSearchRoute: MarketSearchRoute,
-  MeEditRoute: MeEditRoute,
-  MeWishlistRoute: MeWishlistRoute,
-  MessagesIdRoute: MessagesIdRoute,
-  RecipientsNewRoute: RecipientsNewRoute,
-  SellerCatalogRoute: SellerCatalogRoute,
-  SellerPerformanceRoute: SellerPerformanceRoute,
-  SellerQuotesRoute: SellerQuotesRoute,
-  SellerTemplatesRoute: SellerTemplatesRoute,
-  SendAmountRoute: SendAmountRoute,
-  SendAuthRoute: SendAuthRoute,
-  SendDetailsRoute: SendDetailsRoute,
-  SendReviewRoute: SendReviewRoute,
-  SendStatusRoute: SendStatusRoute,
-  SendSuccessRoute: SendSuccessRoute,
-  SettingsAccountRoute: SettingsAccountRoute,
-  SettingsLocaleRoute: SettingsLocaleRoute,
-  SettingsNotificationsRoute: SettingsNotificationsRoute,
-  SettingsSecurityRoute: SettingsSecurityRoute,
-  TxIdRoute: TxIdRouteWithChildren,
   AdminIndexRoute: AdminIndexRoute,
-  EscrowIndexRoute: EscrowIndexRoute,
-  HelpIndexRoute: HelpIndexRoute,
-  LogisticsIndexRoute: LogisticsIndexRoute,
-  MarketIndexRoute: MarketIndexRoute,
-  MeIndexRoute: MeIndexRoute,
-  MessagesIndexRoute: MessagesIndexRoute,
-  RecipientsIndexRoute: RecipientsIndexRoute,
-  SellerIndexRoute: SellerIndexRoute,
-  SendIndexRoute: SendIndexRoute,
   AdminAmlIdRoute: AdminAmlIdRoute,
   AdminAnalyticsCohortsRoute: AdminAnalyticsCohortsRoute,
   AdminAnalyticsFunnelsRoute: AdminAnalyticsFunnelsRoute,
@@ -6305,30 +3479,6 @@ const rootRouteChildren: RootRouteChildren = {
   AdminWalletsUserIdRoute: AdminWalletsUserIdRoute,
   AdminWarehousesIdRoute: AdminWarehousesIdRoute,
   AdminWithdrawalsIdRoute: AdminWithdrawalsIdRoute,
-  EscrowInviteIdRoute: EscrowInviteIdRouteWithChildren,
-  EscrowNewDoneRoute: EscrowNewDoneRoute,
-  EscrowNewFeesRoute: EscrowNewFeesRoute,
-  EscrowNewFundRoute: EscrowNewFundRoute,
-  EscrowNewInspectionRoute: EscrowNewInspectionRoute,
-  EscrowNewMilestonesRoute: EscrowNewMilestonesRoute,
-  EscrowNewReviewRoute: EscrowNewReviewRoute,
-  EscrowNewTermsRoute: EscrowNewTermsRoute,
-  EscrowSellerIdRoute: EscrowSellerIdRouteWithChildren,
-  LogisticsBookingConfirmationRoute: LogisticsBookingConfirmationRoute,
-  LogisticsBookingDocsRoute: LogisticsBookingDocsRoute,
-  LogisticsQuoteCompareRoute: LogisticsQuoteCompareRoute,
-  MarketCategorySlugRoute: MarketCategorySlugRoute,
-  MarketCheckoutPayRoute: MarketCheckoutPayRoute,
-  MarketCheckoutReviewRoute: MarketCheckoutReviewRoute,
-  MarketCheckoutShippingRoute: MarketCheckoutShippingRoute,
-  MarketOrderIdRoute: MarketOrderIdRouteWithChildren,
-  MarketProductIdRoute: MarketProductIdRoute,
-  MarketQuoteIdRoute: MarketQuoteIdRoute,
-  MarketSupplierIdRoute: MarketSupplierIdRoute,
-  SellerPayoutsIdRoute: SellerPayoutsIdRoute,
-  SellerSettingsTaxRoute: SellerSettingsTaxRoute,
-  SellerSettingsTeamRoute: SellerSettingsTeamRoute,
-  SellerStorefrontPreviewRoute: SellerStorefrontPreviewRoute,
   AdminAmlIndexRoute: AdminAmlIndexRoute,
   AdminAnnouncementsIndexRoute: AdminAnnouncementsIndexRoute,
   AdminCarriersIndexRoute: AdminCarriersIndexRoute,
@@ -6358,14 +3508,6 @@ const rootRouteChildren: RootRouteChildren = {
   AdminWalletsIndexRoute: AdminWalletsIndexRoute,
   AdminWarehousesIndexRoute: AdminWarehousesIndexRoute,
   AdminWithdrawalsIndexRoute: AdminWithdrawalsIndexRoute,
-  EscrowNewIndexRoute: EscrowNewIndexRoute,
-  LogisticsBookingIndexRoute: LogisticsBookingIndexRoute,
-  LogisticsQuoteIndexRoute: LogisticsQuoteIndexRoute,
-  LogisticsShipmentsIndexRoute: LogisticsShipmentsIndexRoute,
-  SellerOrdersIndexRoute: SellerOrdersIndexRoute,
-  SellerPayoutsIndexRoute: SellerPayoutsIndexRoute,
-  SellerRfqIndexRoute: SellerRfqIndexRoute,
-  SellerStorefrontIndexRoute: SellerStorefrontIndexRoute,
   AdminDisputesIdEvidenceRoute: AdminDisputesIdEvidenceRoute,
   AdminDisputesIdRulingRoute: AdminDisputesIdRulingRoute,
   AdminFxOrdersIdRoute: AdminFxOrdersIdRoute,
@@ -6381,17 +3523,6 @@ const rootRouteChildren: RootRouteChildren = {
   AdminUsersIdOrdersRoute: AdminUsersIdOrdersRoute,
   AdminUsersIdTicketsRoute: AdminUsersIdTicketsRoute,
   AdminUsersIdWalletRoute: AdminUsersIdWalletRoute,
-  LogisticsShipmentsIdClaimRoute: LogisticsShipmentsIdClaimRoute,
-  LogisticsShipmentsIdCustomsRoute: LogisticsShipmentsIdCustomsRoute,
-  LogisticsShipmentsIdPodRoute: LogisticsShipmentsIdPodRoute,
-  SellerOrdersIdDispatchRoute: SellerOrdersIdDispatchRoute,
-  SellerOrdersIdDocsRoute: SellerOrdersIdDocsRoute,
-  SellerOrdersIdProformaRoute: SellerOrdersIdProformaRoute,
-  SellerProductsIdEditRoute: SellerProductsIdEditRoute,
-  SellerProductsNewMediaRoute: SellerProductsNewMediaRoute,
-  SellerProductsNewPricingRoute: SellerProductsNewPricingRoute,
-  SellerProductsNewShippingRoute: SellerProductsNewShippingRoute,
-  SellerRfqIdQuoteRoute: SellerRfqIdQuoteRoute,
   AdminDisputesIdIndexRoute: AdminDisputesIdIndexRoute,
   AdminFxOrdersIndexRoute: AdminFxOrdersIndexRoute,
   AdminListingsIdIndexRoute: AdminListingsIdIndexRoute,
@@ -6399,9 +3530,6 @@ const rootRouteChildren: RootRouteChildren = {
   AdminOrdersIdIndexRoute: AdminOrdersIdIndexRoute,
   AdminSettingsWebhooksIndexRoute: AdminSettingsWebhooksIndexRoute,
   AdminUsersIdIndexRoute: AdminUsersIdIndexRoute,
-  LogisticsShipmentsIdIndexRoute: LogisticsShipmentsIdIndexRoute,
-  SellerOrdersIdIndexRoute: SellerOrdersIdIndexRoute,
-  SellerProductsNewIndexRoute: SellerProductsNewIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

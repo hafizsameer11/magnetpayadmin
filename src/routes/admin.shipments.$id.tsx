@@ -10,6 +10,7 @@ import {
   fetchAdminShipment,
   fetchAdminShipmentDocumentKinds,
   fmtMoney,
+  markAdminOrderShipped,
   resolveApiFileUrl,
   settleAdminShipment,
   uploadAdminFile,
@@ -30,10 +31,10 @@ const NEXT: Record<string, string> = {
   CUSTOMS: "SETTLEMENT_PENDING",
   SETTLEMENT_PENDING: "READY_FOR_POD",
   TOP_UP_REQUIRED: "READY_FOR_POD",
-  READY_FOR_POD: "DELIVERED",
 };
 
-const STATUSES = ["IN_TRANSIT", "CUSTOMS", "SETTLEMENT_PENDING", "READY_FOR_POD", "DELIVERED"] as const;
+/** Admin can advance logistics only — DELIVERED (POD) is buyer-only. */
+const OPS_STATUSES = ["IN_TRANSIT", "CUSTOMS", "SETTLEMENT_PENDING", "READY_FOR_POD"] as const;
 
 const DEFAULT_COST_LINES = [
   { label: "Freight / handling", ngn: "" },
@@ -67,12 +68,13 @@ function Page() {
   const [busy, setBusy] = useState(false);
   const [targetStatus, setTargetStatus] = useState("");
   const [message, setMessage] = useState("");
-  const [skipPod, setSkipPod] = useState(true);
   const [settleNotes, setSettleNotes] = useState("");
   const [costLines, setCostLines] = useState(DEFAULT_COST_LINES.map((l) => ({ ...l })));
   const [docKind, setDocKind] = useState("customs_clearance");
   const [docNote, setDocNote] = useState("");
   const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [forceAdvance, setForceAdvance] = useState(false);
+  const [adminTracking, setAdminTracking] = useState("");
 
   const load = async () => {
     setLoading(true);
@@ -111,13 +113,33 @@ function Page() {
       await advanceAdminShipment(id, {
         status: useNext ? undefined : targetStatus || undefined,
         message: message.trim() || undefined,
-        skipPodCheck: skipPod,
+        skipSellerShipCheck: forceAdvance,
       });
       toast.success("Shipment status updated");
       setMessage("");
+      setForceAdvance(false);
       await load();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Advance failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const markOrderShipped = async () => {
+    const orderId = row?.marketOrder?.id;
+    if (!orderId || busy) return;
+    setBusy(true);
+    try {
+      await markAdminOrderShipped(orderId, {
+        tracking: adminTracking.trim() || undefined,
+        note: "Marked shipped by admin from shipment ops",
+      });
+      toast.success("Order marked shipped — shipment moved to in transit if it was on hold");
+      setAdminTracking("");
+      await load();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not mark order shipped");
     } finally {
       setBusy(false);
     }
@@ -222,6 +244,10 @@ function Page() {
   const nextStatus = NEXT[row.status?.toUpperCase() ?? ""];
   const canSettle = row.hold && !row.settlement;
   const breakdown = row.settlement?.breakdown ?? [];
+  const order = row.marketOrder;
+  const sellerNotShipped =
+    order != null && !["SHIPPED", "DELIVERED", "COMPLETED"].includes(String(order.status).toUpperCase());
+  const needsSellerBeforeTransit = sellerNotShipped && (nextStatus === "IN_TRANSIT" || targetStatus === "IN_TRANSIT");
 
   return (
     <AdminShell
@@ -427,57 +453,128 @@ function Page() {
             )}
           </div>
 
+          {order ? (
+            <div className="rounded-xl p-4" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
+              <p className="text-[10px] font-bold uppercase tracking-[0.16em]" style={{ color: T.muted }}>
+                Linked order
+              </p>
+              <div className="mt-2 flex items-center gap-2 flex-wrap">
+                <Link
+                  to="/admin/orders/$id"
+                  params={{ id: order.id }}
+                  className="font-bold tabular-nums hover:underline text-[12px]"
+                  style={{ color: T.navy, fontFamily: "'JetBrains Mono', monospace" }}
+                >
+                  {order.id.slice(0, 8)}
+                </Link>
+                <Pill tone={sellerNotShipped ? "warn" : "success"}>{order.status}</Pill>
+              </div>
+              {order.tracking ? (
+                <p className="mt-1 text-[11px] tabular-nums" style={{ color: T.sub, fontFamily: "'JetBrains Mono', monospace" }}>
+                  Tracking: {order.tracking}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
+
+          {needsSellerBeforeTransit ? (
+            <div className="rounded-xl p-4 space-y-3" style={{ background: `${T.warn}08`, border: `1px solid ${T.warn}40` }}>
+              <p className="text-[12px] font-bold" style={{ color: T.warn }}>
+                Seller has not marked dispatch
+              </p>
+              <p className="text-[11px] leading-snug" style={{ color: T.sub }}>
+                Logistics normally starts after the seller marks the order <strong>SHIPPED</strong> in the seller app. You can mark it shipped here (recommended), or force-advance below.
+              </p>
+              <input
+                value={adminTracking}
+                onChange={(e) => setAdminTracking(e.target.value)}
+                placeholder="Tracking / B/L (optional)"
+                className="w-full h-9 px-2 rounded-md text-[12px]"
+                style={{ background: T.surface, border: `1px solid ${T.border}` }}
+              />
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => void markOrderShipped()}
+                className="w-full h-9 rounded-lg text-[12px] font-bold text-white disabled:opacity-60"
+                style={{ background: T.success }}
+              >
+                Mark order shipped (admin)
+              </button>
+            </div>
+          ) : null}
+
           <div className="rounded-xl p-4 space-y-3" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
             <p className="text-[12px] font-bold">Ops — update status</p>
+            {row.status === "READY_FOR_POD" ? (
+              <p className="text-[11px] leading-snug" style={{ color: T.sub }}>
+                Shipment is ready for proof of delivery. Only the buyer can confirm POD in the mobile app — admin cannot mark delivered.
+              </p>
+            ) : null}
             {nextStatus ? (
               <p className="text-[11px]" style={{ color: T.sub }}>
                 Next step: <span className="font-bold" style={{ color: T.ink }}>{nextStatus.replace(/_/g, " ")}</span>
               </p>
+            ) : row.status !== "DELIVERED" ? (
+              <p className="text-[11px]" style={{ color: T.sub }}>
+                No further admin advance from this status.
+              </p>
             ) : null}
-            <select
-              value={targetStatus}
-              onChange={(e) => setTargetStatus(e.target.value)}
-              className="w-full h-9 px-2 rounded-md text-[12px]"
-              style={{ background: T.bg, border: `1px solid ${T.border}` }}
-            >
-              {STATUSES.map((s) => (
-                <option key={s} value={s}>
-                  {s.replace(/_/g, " ")}
-                </option>
-              ))}
-            </select>
-            <input
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="Event note (optional)"
-              className="w-full h-9 px-2 rounded-md text-[12px]"
-              style={{ background: T.bg, border: `1px solid ${T.border}` }}
-            />
-            <label className="flex items-center gap-2 text-[11px]" style={{ color: T.sub }}>
-              <input type="checkbox" checked={skipPod} onChange={(e) => setSkipPod(e.target.checked)} />
-              Skip POD check (admin)
-            </label>
-            <div className="flex flex-col gap-2">
-              {nextStatus ? (
-                <button
-                  disabled={busy}
-                  onClick={() => void advance(true)}
-                  className="w-full h-9 rounded-lg text-[12px] font-bold text-white flex items-center justify-center gap-1.5 disabled:opacity-60"
-                  style={{ background: T.navy }}
+            {row.status !== "READY_FOR_POD" && row.status !== "DELIVERED" ? (
+              <>
+                <select
+                  value={targetStatus}
+                  onChange={(e) => setTargetStatus(e.target.value)}
+                  className="w-full h-9 px-2 rounded-md text-[12px]"
+                  style={{ background: T.bg, border: `1px solid ${T.border}` }}
                 >
-                  {busy ? <Loader2 className="size-3.5 animate-spin" /> : <ArrowRight className="size-3.5" />}
-                  Advance to {nextStatus.replace(/_/g, " ")}
-                </button>
-              ) : null}
-              <button
-                disabled={busy || !targetStatus}
-                onClick={() => void advance(false)}
-                className="w-full h-9 rounded-lg text-[12px] font-semibold disabled:opacity-60"
-                style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.ink }}
-              >
-                Set status → {targetStatus.replace(/_/g, " ")}
-              </button>
-            </div>
+                  {OPS_STATUSES.map((s) => (
+                    <option key={s} value={s}>
+                      {s.replace(/_/g, " ")}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Event note (optional)"
+                  className="w-full h-9 px-2 rounded-md text-[12px]"
+                  style={{ background: T.bg, border: `1px solid ${T.border}` }}
+                />
+                {needsSellerBeforeTransit ? (
+                  <label className="flex items-start gap-2 text-[11px] cursor-pointer" style={{ color: T.sub }}>
+                    <input
+                      type="checkbox"
+                      checked={forceAdvance}
+                      onChange={(e) => setForceAdvance(e.target.checked)}
+                      className="mt-0.5"
+                    />
+                    <span>Force advance without seller dispatch (ops override)</span>
+                  </label>
+                ) : null}
+                <div className="flex flex-col gap-2">
+                  {nextStatus ? (
+                    <button
+                      disabled={busy || (needsSellerBeforeTransit && !forceAdvance)}
+                      onClick={() => void advance(true)}
+                      className="w-full h-9 rounded-lg text-[12px] font-bold text-white flex items-center justify-center gap-1.5 disabled:opacity-60"
+                      style={{ background: T.navy }}
+                    >
+                      {busy ? <Loader2 className="size-3.5 animate-spin" /> : <ArrowRight className="size-3.5" />}
+                      Advance to {nextStatus.replace(/_/g, " ")}
+                    </button>
+                  ) : null}
+                  <button
+                    disabled={busy || !targetStatus || (needsSellerBeforeTransit && !forceAdvance && targetStatus === "IN_TRANSIT")}
+                    onClick={() => void advance(false)}
+                    className="w-full h-9 rounded-lg text-[12px] font-semibold disabled:opacity-60"
+                    style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.ink }}
+                  >
+                    Set status → {targetStatus.replace(/_/g, " ")}
+                  </button>
+                </div>
+              </>
+            ) : null}
           </div>
 
           {canSettle ? (

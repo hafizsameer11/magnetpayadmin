@@ -5,9 +5,10 @@ import {
   Settings, Search, Bell, ChevronRight,
   User, KeyRound, Building2, Languages, Moon, LifeBuoy, LogOut, Check,
 } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
+import { clearSession, getAccessToken } from "@/lib/api";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -86,7 +87,17 @@ export function AdminShell({
   const [language, setLanguage] = useState("English");
   const [appearance, setAppearance] = useState<"Light" | "Dark" | "System">("Light");
 
+  useEffect(() => {
+    const publicPaths = ["/admin/login", "/admin/forgot"];
+    if (publicPaths.some((p) => path === p || path.startsWith(`${p}/`))) return;
+    if (path.startsWith("/admin") && !getAccessToken()) {
+      toast.error("Sign in to view admin data");
+      navigate({ to: "/admin/login", replace: true });
+    }
+  }, [path, navigate]);
+
   const handleSignOut = () => {
+    clearSession();
     toast.success("Signed out");
     navigate({ to: "/admin/login", replace: true });
   };

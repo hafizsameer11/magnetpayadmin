@@ -2,8 +2,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Check, EyeOff, Search } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
-import { Pill } from "@/components/admin/UserProfile";
-import { fetchAdminProducts, fmtMoney, moderateProduct } from "@/lib/api";
+import { statusPillCatalog, Thumb } from "@/components/admin/Catalog";
+import { listingCatalogStatus } from "@/components/admin/ListingProfile";
+import type { AdminProduct } from "@/lib/api";
+import { fetchAdminProducts, fmtMoney, moderateProduct, resolveApiFileUrl } from "@/lib/api";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/listings/")({
@@ -11,21 +13,18 @@ export const Route = createFileRoute("/admin/listings/")({
   component: Page,
 });
 
-type Tone = "success" | "warn" | "danger" | "info" | "neutral";
-
-function str(v: unknown, fallback = "—") {
-  if (v == null) return fallback;
-  return String(v);
+function primarySku(p: AdminProduct) {
+  return p.variants?.find((v) => v.sku)?.sku ?? "—";
 }
 
 function Page() {
-  const [rows, setRows] = useState<unknown[]>([]);
+  const [rows, setRows] = useState<AdminProduct[]>([]);
   const [query, setQuery] = useState("");
   const [busyId, setBusyId] = useState<string | null>(null);
 
   const load = async () => {
     try {
-      setRows(await fetchAdminProducts());
+      setRows((await fetchAdminProducts()) as AdminProduct[]);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to load products");
     }
@@ -35,17 +34,15 @@ function Page() {
     void load();
   }, []);
 
-  const filtered = rows.filter((raw) => {
+  const filtered = rows.filter((r) => {
     if (!query) return true;
-    const r = raw as Record<string, unknown>;
-    const store = (r.store ?? {}) as Record<string, unknown>;
-    const cat = (r.category ?? {}) as Record<string, unknown>;
     const q = query.toLowerCase();
     return (
-      str(r.title).toLowerCase().includes(q) ||
-      str(r.id).toLowerCase().includes(q) ||
-      str(store.name).toLowerCase().includes(q) ||
-      str(cat.name).toLowerCase().includes(q)
+      r.title.toLowerCase().includes(q) ||
+      r.id.toLowerCase().includes(q) ||
+      (r.store?.name ?? "").toLowerCase().includes(q) ||
+      (r.category?.name ?? "").toLowerCase().includes(q) ||
+      primarySku(r).toLowerCase().includes(q)
     );
   });
 
@@ -62,7 +59,7 @@ function Page() {
     }
   };
 
-  const activeCount = rows.filter((raw) => (raw as Record<string, unknown>).active === true).length;
+  const activeCount = rows.filter((r) => r.active).length;
 
   return (
     <AdminShell
@@ -70,11 +67,12 @@ function Page() {
       description="Marketplace products — approve or hide."
       breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Marketplace" }, { label: "Listings" }]}
     >
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-5">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
         {[
           { label: "Total", val: rows.length },
           { label: "Active", val: activeCount, tone: T.success },
-          { label: "Hidden", val: rows.length - activeCount, tone: T.warn },
+          { label: "Hidden / pending", val: rows.length - activeCount, tone: T.warn },
+          { label: "Reported", val: rows.filter((r) => listingCatalogStatus(r) === "reported").length, tone: T.danger },
         ].map((s) => (
           <div key={s.label} className="rounded-xl p-3.5" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
             <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em]" style={{ color: T.muted }}>
@@ -93,7 +91,7 @@ function Page() {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Title, store, category…"
+            placeholder="Title, SKU, store…"
             className="bg-transparent text-[12px] outline-none flex-1"
             style={{ color: T.ink }}
           />
@@ -107,55 +105,54 @@ function Page() {
             color: T.muted,
             background: T.bg,
             borderBottom: `1px solid ${T.border}`,
-            gridTemplateColumns: "2fr 1.2fr 1fr 0.9fr 0.9fr 1.4fr",
+            gridTemplateColumns: "2.2fr 1fr 0.8fr 0.7fr 0.7fr 0.8fr 1.3fr",
           }}
         >
           <span>Product</span>
           <span>Store</span>
           <span className="text-right">Price</span>
+          <span>Stock</span>
           <span>Rating</span>
           <span>Status</span>
           <span>Actions</span>
         </div>
-        {filtered.map((raw, i) => {
-          const r = raw as Record<string, unknown>;
-          const store = (r.store ?? {}) as Record<string, unknown>;
-          const cat = (r.category ?? {}) as Record<string, unknown>;
-          const id = str(r.id);
-          const active = r.active === true;
-          const tone: Tone = active ? "success" : "warn";
+        {filtered.map((r, i) => {
+          const id = r.id;
+          const status = listingCatalogStatus(r);
+          const img = r.imageUrl ? resolveApiFileUrl(r.imageUrl) : "";
           return (
             <div
               key={id}
-              className="grid items-center px-4 h-[58px] text-[12px]"
+              className="grid items-center px-4 min-h-[58px] py-2 text-[12px]"
               style={{
-                gridTemplateColumns: "2fr 1.2fr 1fr 0.9fr 0.9fr 1.4fr",
+                gridTemplateColumns: "2.2fr 1fr 0.8fr 0.7fr 0.7fr 0.8fr 1.3fr",
                 borderBottom: i < filtered.length - 1 ? `1px solid ${T.border}` : "none",
               }}
             >
-              <div className="min-w-0">
-                <Link
-                  to="/admin/listings/$id"
-                  params={{ id }}
-                  className="font-semibold truncate hover:underline block"
-                  style={{ color: T.navy }}
-                >
-                  {str(r.title)}
-                </Link>
-                <p className="text-[10.5px] tabular-nums truncate" style={{ color: T.muted, fontFamily: "'JetBrains Mono', monospace" }}>
-                  {id.slice(0, 8)} · {str(cat.name, "Uncategorized")}
-                </p>
+              <div className="flex items-center gap-2 min-w-0">
+                {img ? <Thumb src={img} alt={r.title} size={36} /> : null}
+                <div className="min-w-0">
+                  <Link to="/admin/listings/$id" params={{ id }} className="font-semibold truncate hover:underline block" style={{ color: T.navy }}>
+                    {r.title}
+                  </Link>
+                  <p className="text-[10.5px] tabular-nums truncate" style={{ color: T.muted, fontFamily: "'JetBrains Mono', monospace" }}>
+                    {primarySku(r)} · {id.slice(0, 8)}
+                  </p>
+                </div>
               </div>
-              <span className="truncate">{str(store.name)}</span>
+              <span className="truncate">{r.store?.name ?? "—"}</span>
               <span className="text-right tabular-nums font-bold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                {fmtMoney(str(r.currency, "USD"), r.priceMinor as string | number)}
+                {fmtMoney(r.currency, r.priceMinor)}
               </span>
               <span className="tabular-nums" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                {typeof r.rating === "number" ? r.rating.toFixed(1) : str(r.rating)}
+                {r.stock ?? "—"}
               </span>
-              <Pill tone={tone}>{active ? "Active" : "Hidden"}</Pill>
+              <span className="tabular-nums" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                {r.rating != null ? r.rating.toFixed(1) : "—"}
+              </span>
+              {statusPillCatalog(status)}
               <div className="flex gap-1.5">
-                {!active ? (
+                {!r.active ? (
                   <button
                     disabled={busyId === id}
                     onClick={() => void moderate(id, "APPROVED")}
@@ -165,7 +162,7 @@ function Page() {
                     <Check className="size-3" /> Approve
                   </button>
                 ) : null}
-                {active ? (
+                {r.active ? (
                   <button
                     disabled={busyId === id}
                     onClick={() => void moderate(id, "HIDDEN")}

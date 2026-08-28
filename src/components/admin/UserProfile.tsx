@@ -135,19 +135,18 @@ function copyId(id: string) {
   );
 }
 
+const USER_TAB_ROUTES = [
+  { to: "/admin/users/$id/" as const, label: "Profile", exact: true },
+  { to: "/admin/users/$id/wallet" as const, label: "Wallet" },
+  { to: "/admin/users/$id/orders" as const, label: "Orders" },
+  { to: "/admin/users/$id/escrow" as const, label: "Escrow" },
+  { to: "/admin/users/$id/tickets" as const, label: "Tickets" },
+  { to: "/admin/users/$id/notes" as const, label: "Notes" },
+];
+
 export function UserHeader({ user }: { user: AdminUser }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
-  const base = `/admin/users/${user.id}`;
   const country = countryFromPhone(user.phone);
-
-  const tabs: { to: string; label: string; exact?: boolean }[] = [
-    { to: base, label: "Profile", exact: true },
-    { to: `${base}/wallet`, label: "Wallet" },
-    { to: `${base}/orders`, label: "Orders" },
-    { to: `${base}/escrow`, label: "Escrow" },
-    { to: `${base}/tickets`, label: "Tickets" },
-    { to: `${base}/notes`, label: "Notes" },
-  ];
 
   return (
     <>
@@ -233,12 +232,16 @@ export function UserHeader({ user }: { user: AdminUser }) {
       </div>
 
       <div className="mt-4 flex items-center gap-1 border-b overflow-x-auto" style={{ borderColor: T.border }}>
-        {tabs.map((t) => {
-          const active = t.exact ? path === t.to : path === t.to || path.startsWith(`${t.to}/`);
+        {USER_TAB_ROUTES.map((t) => {
+          const href = t.to.replace("$id", user.id).replace(/\/$/, "");
+          const active = t.exact
+            ? path === href || path === `${href}/`
+            : path === href || path.startsWith(`${href}/`);
           return (
             <Link
               key={t.to}
               to={t.to}
+              params={{ id: user.id }}
               className="px-3 h-10 inline-flex items-center text-[12.5px] font-semibold transition relative shrink-0"
               style={{ color: active ? T.ink : T.sub }}
             >

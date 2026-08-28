@@ -78,26 +78,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { name: "theme-color", content: "#fbfaf7" },
-      { title: "MP — Cross-border payments & trade" },
+      { title: "MagnetPay Admin" },
       {
         name: "description",
-        content:
-          "Multi-currency wallets, verified suppliers, escrow, and shipping for Nigeria–China trade.",
+        content: "MagnetPay staff portal for users, KYC, wallets, marketplace, escrow, and logistics operations.",
       },
-      { property: "og:title", content: "MP — Cross-border payments & trade" },
-      {
-        property: "og:description",
-        content:
-          "Multi-currency wallets, verified suppliers, escrow, and shipping for Nigeria–China trade.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:title", content: "MP — Cross-border payments & trade" },
-      { name: "description", content: "MagnetPay is a cross-border trade and payment platform simplifying international transactions." },
-      { property: "og:description", content: "MagnetPay is a cross-border trade and payment platform simplifying international transactions." },
-      { name: "twitter:description", content: "MagnetPay is a cross-border trade and payment platform simplifying international transactions." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/19981003-ca79-4837-adfb-c755b08f1d83/id-preview-a811deb6--9c2ae35f-5b28-49be-b5c9-da10110bd580.lovable.app-1782649521065.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/19981003-ca79-4837-adfb-c755b08f1d83/id-preview-a811deb6--9c2ae35f-5b28-49be-b5c9-da10110bd580.lovable.app-1782649521065.png" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },

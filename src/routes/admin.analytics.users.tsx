@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { AdminRecordListPage } from "@/components/admin/AdminRecordPage";
+import { AnalyticsSectionShell, AnalyticsUsersBody } from "@/components/admin/AnalyticsSection";
 
 export const Route = createFileRoute("/admin/analytics/users")({
   head: () => ({ meta: [{ title: "Analytics Users — MagnetPay Admin" }] }),
@@ -7,5 +7,9 @@ export const Route = createFileRoute("/admin/analytics/users")({
 });
 
 function Page() {
-  return <AdminRecordListPage domain="incident" />;
+  return (
+    <AnalyticsSectionShell active="/admin/analytics/users" title="Users" description="Buyer growth and engagement.">
+      {(data, loading) => <AnalyticsUsersBody data={data} loading={loading} />}
+    </AnalyticsSectionShell>
+  );
 }

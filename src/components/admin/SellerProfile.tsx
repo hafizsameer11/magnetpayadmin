@@ -28,7 +28,6 @@ function tierTone(label: string): "success" | "warn" | "info" | "neutral" {
 }
 
 export function SellerHeader({ seller, tab }: { seller: AdminSeller; tab?: string }) {
-  const base = `/admin/sellers/${seller.id}`;
   const activeTab = tab ?? "overview";
   const owner = seller.user;
   const productCount = seller._count?.products ?? seller.products?.length ?? 0;
@@ -161,7 +160,8 @@ export function SellerHeader({ seller, tab }: { seller: AdminSeller; tab?: strin
           return (
             <Link
               key={t.id}
-              to={base}
+              to="/admin/sellers/$id"
+              params={{ id: seller.id }}
               search={{ tab: t.id }}
               className="px-3 h-10 inline-flex items-center text-[12.5px] font-semibold transition relative shrink-0"
               style={{ color: active ? T.ink : T.sub }}

@@ -4,7 +4,7 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
 import { Pill, initials } from "@/components/admin/UserProfile";
 import { fetchAdminEscrow, fmtMoney, resolveEscrow, type AdminEscrow } from "@/lib/api";
-import { toast } from "sonner";
+import { EscrowMilestones } from "@/components/admin/DisputeProfile";
 
 export const Route = createFileRoute("/admin/escrow/$id")({
   head: () => ({ meta: [{ title: "Escrow detail — MagnetPay Admin" }] }),
@@ -144,6 +144,12 @@ function Page() {
               </div>
             </div>
           </div>
+
+          <EscrowMilestones
+            milestones={(row.milestones ?? []) as { label?: string; name?: string; status?: string; amountMinor?: string | number; releasedMinor?: string | number }[]}
+            totalMinor={row.amountMinor}
+            currency={row.currency}
+          />
 
           {(row.disputes?.length ?? 0) > 0 ? (
             <div className="rounded-xl p-4" style={{ background: T.surface, border: `1px solid ${T.border}` }}>

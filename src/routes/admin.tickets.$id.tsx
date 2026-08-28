@@ -1,12 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { AdminRecordDetailPage } from "@/components/admin/AdminRecordPage";
+import { TicketDetailPage } from "@/components/admin/CaseDetailPage";
 
 export const Route = createFileRoute("/admin/tickets/$id")({
-  head: () => ({ meta: [{ title: "Tickets Id — MagnetPay Admin" }] }),
+  head: () => ({ meta: [{ title: "Support ticket — MagnetPay Admin" }] }),
   component: Page,
 });
 
 function Page() {
   const { id } = Route.useParams();
-  return <AdminRecordDetailPage domain="ticket" id={id} />;
+  return <TicketDetailPage id={id} />;
 }
