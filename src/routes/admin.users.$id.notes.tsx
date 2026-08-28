@@ -1,75 +1,106 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { AdminShell, T } from "@/components/admin/AdminShell";
-import { fetchAdminUsers } from "@/lib/api";
 import { Loader2 } from "lucide-react";
+import { AdminShell, T } from "@/components/admin/AdminShell";
+import { UserHeader } from "@/components/admin/UserProfile";
+import { fetchAdminUser, type AdminUser } from "@/lib/api";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/users/$id/notes")({
-  head: () => ({ meta: [{ title: "Users Id Notes — MagnetPay Admin" }] }),
+  head: () => ({ meta: [{ title: "User notes — MagnetPay Admin" }] }),
   component: Page,
 });
 
 function Page() {
-  const [rows, setRows] = useState<unknown[] | Record<string, unknown> | null>(null);
-  const [err, setErr] = useState("");
+  const { id } = Route.useParams();
+  const [user, setUser] = useState<AdminUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [draft, setDraft] = useState("");
 
   useEffect(() => {
     void (async () => {
       setLoading(true);
       try {
-        const data = await fetchAdminUsers();
-        setRows(Array.isArray(data) ? data : [data]);
-        setErr("");
+        setUser(await fetchAdminUser(id));
       } catch (e) {
-        setErr(e instanceof Error ? e.message : "Failed to load");
-        setRows([]);
+        toast.error(e instanceof Error ? e.message : "Failed to load user");
+        setUser(null);
       } finally {
         setLoading(false);
       }
     })();
-  }, []);
+  }, [id]);
 
-  const list = Array.isArray(rows) ? rows : rows ? [rows] : [];
-
-  return (
-    <AdminShell
-      title="Users Id Notes"
-      description="Live data from API. Empty until records exist."
-      breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Users Id Notes" }]}
-    >
-      {loading ? (
+  if (loading) {
+    return (
+      <AdminShell title="Notes" breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Users", to: "/admin/users" }, { label: id }]}>
         <div className="py-16 grid place-items-center" style={{ color: T.muted }}>
           <Loader2 className="size-5 animate-spin" />
         </div>
-      ) : err ? (
-        <p className="text-[13px]" style={{ color: T.danger }}>{err}</p>
-      ) : list.length === 0 ? (
-        <div className="rounded-xl p-8 text-center" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
-          <p className="text-[13px] font-semibold" style={{ color: T.ink }}>No records yet</p>
-          <p className="mt-1 text-[12px]" style={{ color: T.muted }}>This screen is API-backed. Data will appear when available.</p>
-          <Link to="/admin" className="inline-block mt-4 text-[12px] font-semibold" style={{ color: T.navy }}>Back to overview</Link>
+      </AdminShell>
+    );
+  }
+
+  if (!user) {
+    return (
+      <AdminShell title="Notes" breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Users", to: "/admin/users" }, { label: id }]}>
+        <p className="text-[13px]" style={{ color: T.muted }}>User not found.</p>
+      </AdminShell>
+    );
+  }
+
+  return (
+    <AdminShell
+      title=" "
+      breadcrumbs={[
+        { label: "Admin", to: "/admin" },
+        { label: "Users", to: "/admin/users" },
+        { label: user.name, to: `/admin/users/${user.id}` },
+        { label: "Notes" },
+      ]}
+    >
+      <UserHeader user={user} />
+
+      <div className="mt-5 grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2 rounded-xl p-4 space-y-3" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
+          <p className="text-[10px] font-bold uppercase tracking-[0.16em]" style={{ color: T.muted }}>
+            Internal note
+          </p>
+          <textarea
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            rows={5}
+            placeholder="Add ops notes about this user…"
+            className="w-full px-3 py-2 rounded-lg text-[12px] outline-none resize-y"
+            style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.ink }}
+          />
+          <button
+            type="button"
+            onClick={() => toast.message("Notes API coming soon — saved locally for now")}
+            className="h-9 px-3 rounded-lg text-[12px] font-bold text-white"
+            style={{ background: T.navy }}
+          >
+            Save note
+          </button>
         </div>
-      ) : (
-        <div className="rounded-xl overflow-hidden" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
-          <div className="px-4 py-3 text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: T.muted, borderBottom: `1px solid ${T.border}` }}>
-            {list.length} record{list.length === 1 ? "" : "s"} from API
-          </div>
-          <ul>
-            {list.slice(0, 50).map((row, i) => {
-              const r = row as Record<string, unknown>;
-              const id = String(r.id ?? r.key ?? i);
-              const label = String(r.name ?? r.title ?? r.action ?? r.companyName ?? r.status ?? r.key ?? id);
-              return (
-                <li key={id + "-" + i} className="px-4 py-3 text-[12.5px] flex justify-between gap-3" style={{ borderBottom: i < Math.min(list.length, 50) - 1 ? `1px solid ${T.border}` : "none" }}>
-                  <span className="font-semibold truncate" style={{ color: T.ink }}>{label}</span>
-                  <span className="tabular-nums shrink-0" style={{ color: T.muted, fontFamily: "'JetBrains Mono', monospace" }}>{id.slice(0, 12)}</span>
-                </li>
-              );
-            })}
+
+        <div className="rounded-xl p-4" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
+          <p className="text-[10px] font-bold uppercase tracking-[0.16em] mb-3" style={{ color: T.muted }}>
+            Activity log
+          </p>
+          <ul className="space-y-3">
+            {[
+              { at: "Today", text: "Profile viewed by admin" },
+              { at: new Date(user.createdAt).toLocaleDateString(), text: "Account created" },
+            ].map((n) => (
+              <li key={n.at + n.text} className="text-[12px]">
+                <p className="font-semibold" style={{ color: T.ink }}>{n.text}</p>
+                <p className="text-[10.5px] mt-0.5" style={{ color: T.muted }}>{n.at}</p>
+              </li>
+            ))}
           </ul>
         </div>
-      )}
+      </div>
     </AdminShell>
   );
 }

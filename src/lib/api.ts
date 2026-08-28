@@ -173,6 +173,21 @@ export type AdminFreightPricing = {
   updatedAt: string;
 };
 
+export type AdminComplianceLimits = {
+  id: string;
+  unverifiedNgnDailyCapMinor: number;
+  ngnTier1DailyCapMinor: number;
+  ngnTier2DailyCapMinor: number;
+  cnyDailyCapMinor: number;
+  minTierDeposit: number;
+  minTierWithdraw: number;
+  minTierCrossBorder: number;
+  minTierMarketCheckout: number;
+  minTierLogistics: number;
+  allowBasicWhilePending: boolean;
+  updatedAt: string;
+};
+
 export type AdminLogisticsPartner = {
   id: string;
   name: string;
@@ -439,6 +454,14 @@ export async function patchAdminLogisticsPartner(id: string, body: Partial<Admin
   return api<AdminLogisticsPartner>(`/admin/logistics/partners/${id}`, { method: "PATCH", body: JSON.stringify(body) });
 }
 
+export async function fetchAdminComplianceLimits() {
+  return api<AdminComplianceLimits>("/admin/compliance/limits");
+}
+
+export async function putAdminComplianceLimits(body: Omit<AdminComplianceLimits, "id" | "updatedAt">) {
+  return api<AdminComplianceLimits>("/admin/compliance/limits", { method: "PUT", body: JSON.stringify(body) });
+}
+
 // —— Market ——
 export async function fetchAdminOrders() {
   return api<unknown[]>("/admin/orders");
@@ -464,8 +487,63 @@ export async function createAdminCategory(body: Record<string, unknown>) {
 export async function patchAdminCategory(id: string, body: Record<string, unknown>) {
   return api(`/admin/categories/${id}`, { method: "PATCH", body: JSON.stringify(body) });
 }
+export type AdminSeller = {
+  id: string;
+  name: string;
+  description?: string | null;
+  bannerUrl?: string | null;
+  logoUrl?: string | null;
+  verified: boolean;
+  createdAt: string;
+  user?: { id: string; name: string; phone: string; email?: string | null };
+  products?: {
+    id: string;
+    title: string;
+    priceMinor: string | number;
+    currency: string;
+    rating?: number;
+    stock?: number | null;
+    active: boolean;
+    createdAt: string;
+  }[];
+  _count?: { products: number; members?: number };
+};
+
 export async function fetchAdminSellers() {
-  return api<unknown[]>("/admin/sellers");
+  return api<AdminSeller[]>("/admin/sellers");
+}
+
+export async function fetchAdminSeller(id: string) {
+  return api<AdminSeller>(`/admin/sellers/${id}`);
+}
+
+export async function patchAdminSeller(id: string, body: { verified?: boolean; name?: string; description?: string }) {
+  return api<AdminSeller>(`/admin/sellers/${id}`, { method: "PATCH", body: JSON.stringify(body) });
+}
+
+export type AdminRecord = {
+  id: string;
+  domain: string;
+  externalId?: string | null;
+  title: string;
+  subtitle?: string | null;
+  status?: string | null;
+  payload: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export async function fetchAdminRecords(domain: string, status?: string) {
+  const q = status ? `?domain=${encodeURIComponent(domain)}&status=${encodeURIComponent(status)}` : `?domain=${encodeURIComponent(domain)}`;
+  return api<AdminRecord[]>(`/admin/records${q}`);
+}
+
+export async function fetchAdminRecord(id: string) {
+  return api<AdminRecord>(`/admin/records/${id}`);
+}
+
+export async function patchAdminRecord(id: string, body: Partial<Pick<AdminRecord, "title" | "subtitle" | "status" | "payload">>) {
+  return api<AdminRecord>(`/admin/records/${id}`, { method: "PATCH", body: JSON.stringify(body) });
 }
 export async function fetchAdminReviews() {
   return api<unknown[]>("/admin/reviews");

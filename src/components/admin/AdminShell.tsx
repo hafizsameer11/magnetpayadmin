@@ -61,6 +61,7 @@ const NAV: NavItem[] = [
   { label: "Chats", to: "/admin/chats", I: MessageSquare },
   { label: "AML", to: "/admin/aml", I: AlertTriangle },
   { label: "Announcements", to: "/admin/announcements", I: FileText },
+  { label: "KYC limits", to: "/admin/limits", I: ShieldCheck },
   { label: "Fees", to: "/admin/fees", I: Settings },
   { label: "Ledger", to: "/admin/ledger", I: FileText },
   { label: "Audit", to: "/admin/audit", I: FileText },

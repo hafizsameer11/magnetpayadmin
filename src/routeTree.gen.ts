@@ -187,6 +187,7 @@ import { Route as AdminOrdersRefundedRouteImport } from './routes/admin.orders.r
 import { Route as AdminOrdersShippedRouteImport } from './routes/admin.orders.shipped'
 import { Route as AdminPromotionsIndexRouteImport } from './routes/admin.promotions.index'
 import { Route as AdminPromotionsIdRouteImport } from './routes/admin.promotions.$id'
+import { Route as AdminRecordsIdRouteImport } from './routes/admin.records.$id'
 import { Route as AdminReportsIndexRouteImport } from './routes/admin.reports.index'
 import { Route as AdminReportsIdRouteImport } from './routes/admin.reports.$id'
 import { Route as AdminReviewsIndexRouteImport } from './routes/admin.reviews.index'
@@ -1198,6 +1199,11 @@ const AdminPromotionsIdRoute = AdminPromotionsIdRouteImport.update({
   path: '/admin/promotions/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRecordsIdRoute = AdminRecordsIdRouteImport.update({
+  id: '/admin/records/$id',
+  path: '/admin/records/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminReportsIndexRoute = AdminReportsIndexRouteImport.update({
   id: '/admin/reports/',
   path: '/admin/reports/',
@@ -1968,6 +1974,7 @@ export interface FileRoutesByFullPath {
   '/admin/orders/refunded': typeof AdminOrdersRefundedRoute
   '/admin/orders/shipped': typeof AdminOrdersShippedRoute
   '/admin/promotions/$id': typeof AdminPromotionsIdRoute
+  '/admin/records/$id': typeof AdminRecordsIdRoute
   '/admin/reports/$id': typeof AdminReportsIdRoute
   '/admin/reviews/$id': typeof AdminReviewsIdRoute
   '/admin/sellers/$id': typeof AdminSellersIdRoute
@@ -2267,6 +2274,7 @@ export interface FileRoutesByTo {
   '/admin/orders/refunded': typeof AdminOrdersRefundedRoute
   '/admin/orders/shipped': typeof AdminOrdersShippedRoute
   '/admin/promotions/$id': typeof AdminPromotionsIdRoute
+  '/admin/records/$id': typeof AdminRecordsIdRoute
   '/admin/reports/$id': typeof AdminReportsIdRoute
   '/admin/reviews/$id': typeof AdminReviewsIdRoute
   '/admin/sellers/$id': typeof AdminSellersIdRoute
@@ -2566,6 +2574,7 @@ export interface FileRoutesById {
   '/admin/orders/refunded': typeof AdminOrdersRefundedRoute
   '/admin/orders/shipped': typeof AdminOrdersShippedRoute
   '/admin/promotions/$id': typeof AdminPromotionsIdRoute
+  '/admin/records/$id': typeof AdminRecordsIdRoute
   '/admin/reports/$id': typeof AdminReportsIdRoute
   '/admin/reviews/$id': typeof AdminReviewsIdRoute
   '/admin/sellers/$id': typeof AdminSellersIdRoute
@@ -2867,6 +2876,7 @@ export interface FileRouteTypes {
     | '/admin/orders/refunded'
     | '/admin/orders/shipped'
     | '/admin/promotions/$id'
+    | '/admin/records/$id'
     | '/admin/reports/$id'
     | '/admin/reviews/$id'
     | '/admin/sellers/$id'
@@ -3166,6 +3176,7 @@ export interface FileRouteTypes {
     | '/admin/orders/refunded'
     | '/admin/orders/shipped'
     | '/admin/promotions/$id'
+    | '/admin/records/$id'
     | '/admin/reports/$id'
     | '/admin/reviews/$id'
     | '/admin/sellers/$id'
@@ -3464,6 +3475,7 @@ export interface FileRouteTypes {
     | '/admin/orders/refunded'
     | '/admin/orders/shipped'
     | '/admin/promotions/$id'
+    | '/admin/records/$id'
     | '/admin/reports/$id'
     | '/admin/reviews/$id'
     | '/admin/sellers/$id'
@@ -3760,6 +3772,7 @@ export interface RootRouteChildren {
   AdminOrdersRefundedRoute: typeof AdminOrdersRefundedRoute
   AdminOrdersShippedRoute: typeof AdminOrdersShippedRoute
   AdminPromotionsIdRoute: typeof AdminPromotionsIdRoute
+  AdminRecordsIdRoute: typeof AdminRecordsIdRoute
   AdminReportsIdRoute: typeof AdminReportsIdRoute
   AdminReviewsIdRoute: typeof AdminReviewsIdRoute
   AdminSellersIdRoute: typeof AdminSellersIdRoute
@@ -5129,6 +5142,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPromotionsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/records/$id': {
+      id: '/admin/records/$id'
+      path: '/admin/records/$id'
+      fullPath: '/admin/records/$id'
+      preLoaderRoute: typeof AdminRecordsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/reports/': {
       id: '/admin/reports/'
       path: '/admin/reports'
@@ -6262,6 +6282,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminOrdersRefundedRoute: AdminOrdersRefundedRoute,
   AdminOrdersShippedRoute: AdminOrdersShippedRoute,
   AdminPromotionsIdRoute: AdminPromotionsIdRoute,
+  AdminRecordsIdRoute: AdminRecordsIdRoute,
   AdminReportsIdRoute: AdminReportsIdRoute,
   AdminReviewsIdRoute: AdminReviewsIdRoute,
   AdminSellersIdRoute: AdminSellersIdRoute,
