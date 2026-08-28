@@ -243,11 +243,59 @@ export type AdminFxConversion = {
 
 export type AdminAnalytics = {
   users: number;
+  users30d?: number;
+  signups7d?: number;
+  activeBuyers30d?: number;
   transfers: number;
   escrows: number;
   orders: number;
+  orders30d?: number;
   shipments: number;
+  shipmentsInTransit?: number;
+  delivered30d?: number;
+  disputesOpen?: number;
+  listingsLive?: number;
+  verifiedStores?: number;
+  fxOrders24h?: number;
+  kycPending?: number;
+  gmv30d?: number;
+  takeRate?: number;
+  disputeRate?: number;
   wallets?: { balanceMinorSum?: string | number; holdMinorSum?: string | number };
+};
+
+export type AdminProductStats = {
+  views30d: number;
+  orders30d: number;
+  conversionRate: number;
+  rating: number | null;
+};
+
+export type AdminBrand = {
+  id: string;
+  name: string;
+  status: string;
+  country: string;
+  _count?: { products: number };
+};
+
+export type AdminOrderStats = {
+  count: number;
+  valueMinor: string | number;
+  avgMinor: string | number;
+  oldest: string | null;
+};
+
+export type AdminRecordRow = {
+  id: string;
+  domain: string;
+  externalId?: string | null;
+  title: string;
+  subtitle?: string | null;
+  status?: string | null;
+  payload?: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type AdminConversation = {
@@ -507,6 +555,10 @@ export type AdminProduct = {
   rating?: number;
   stock?: number | null;
   active: boolean;
+  moderationStatus?: string;
+  flagReason?: string | null;
+  updatedAt?: string;
+  brand?: { id: string; name: string; status?: string; country?: string } | null;
   cbmPerUnit?: number | null;
   weightKgPerUnit?: number | null;
   originHub?: string | null;
@@ -547,6 +599,140 @@ export type AdminProduct = {
 
 export async function fetchAdminProduct(id: string) {
   return api<AdminProduct>(`/admin/products/${id}`);
+}
+
+export async function fetchAdminProductStats(id: string) {
+  return api<AdminProductStats>(`/admin/products/${id}/stats`);
+}
+
+export async function fetchAdminBrands() {
+  return api<AdminBrand[]>("/admin/brands");
+}
+
+export async function fetchAdminOrderStats(status?: string) {
+  const q = status ? `?status=${encodeURIComponent(status)}` : "";
+  return api<AdminOrderStats>(`/admin/orders/stats${q}`);
+}
+
+export async function fetchAdminOrderNotes(orderId: string) {
+  return api<{ id: string; body: string; createdAt: string; author?: { name: string } }[]>(`/admin/orders/${orderId}/notes`);
+}
+
+export async function postAdminOrderNote(orderId: string, body: string) {
+  return api(`/admin/orders/${orderId}/notes`, { method: "POST", body: JSON.stringify({ body }) });
+}
+
+export async function refundAdminOrder(orderId: string, reason?: string) {
+  return api(`/admin/orders/${orderId}/refund`, { method: "POST", body: JSON.stringify({ reason }) });
+}
+
+export async function fetchAdminSellerStats(id: string) {
+  return api<{ tier: string; products: number; orders: number; disputes: number; gmvMinor: string | number; verified: boolean }>(
+    `/admin/sellers/${id}/stats`,
+  );
+}
+
+export async function fetchAdminDispute(id: string) {
+  return api<AdminDispute>(`/admin/disputes/${id}`);
+}
+
+export async function patchAdminDispute(id: string, body: Record<string, unknown>) {
+  return api(`/admin/disputes/${id}`, { method: "PATCH", body: JSON.stringify(body) });
+}
+
+export async function fetchAdminAnalyticsGmv() {
+  return api<{ gmv30d: number; series: { label: string; value: number }[]; byCategory: { name: string; value: number }[] }>(
+    "/admin/analytics/gmv",
+  );
+}
+
+export async function fetchAdminAnalyticsUsers() {
+  return api<{ total: number; growth30d: number; series: { label: string; value: number }[]; byCountry: { name: string; value: number }[] }>(
+    "/admin/analytics/users",
+  );
+}
+
+export async function fetchAdminAnalyticsSellers() {
+  return api<{ tiers: { name: string; value: number }[]; top: { id: string; name: string; orders: number }[] }>(
+    "/admin/analytics/sellers",
+  );
+}
+
+export async function fetchAdminAnalyticsFx() {
+  return api<{ spreadAvg: number; volumeByPair: { name: string; value: number }[]; orders24h: number }>("/admin/analytics/fx");
+}
+
+export async function fetchAdminAnalyticsLogistics() {
+  return api<{ shipments30d: number; delivered30d: number; inTransit: number; exceptions: number }>("/admin/analytics/logistics");
+}
+
+export async function fetchAdminAnalyticsFunnels() {
+  return api<{ checkout: { step: string; count: number }[]; onboarding: { step: string; count: number }[] }>("/admin/analytics/funnels");
+}
+
+export async function fetchAdminAnalyticsCohorts() {
+  return api<{ cohorts: { month: string; size: number; retention: number[] }[] }>("/admin/analytics/cohorts");
+}
+
+export async function fetchAdminEscrowStats() {
+  return api<{ count: number; heldMinor: string | number; oldest: string | null }>("/admin/escrows/stats");
+}
+
+export async function fetchAdminShipmentStats() {
+  return api<{ total: number; inTransit: number; delivered30d: number; exceptions: number }>("/admin/shipments/stats");
+}
+
+export async function fetchAdminMoneyLedger() {
+  return api<unknown[]>("/admin/money/ledger");
+}
+
+export async function fetchAdminReconciliation() {
+  return api<unknown>("/admin/money/reconciliation");
+}
+
+export async function fetchAdminFxSpreads() {
+  return api<{ pair?: string; tier?: string; spread?: number; key?: string; value?: string; label?: string }[]>("/admin/money/fx-spreads");
+}
+
+export async function fetchAdminSellerTiers() {
+  return api<{ id: string; name: string; minOrders?: number; verified?: boolean; title?: string; status?: string }[]>("/admin/sellers/tiers");
+}
+
+export async function fetchAdminTickets(status?: string) {
+  const q = status ? `?status=${encodeURIComponent(status)}` : "";
+  return api<AdminRecordRow[]>(`/admin/tickets${q}`);
+}
+
+export async function fetchAdminWebhooks() {
+  return api<AdminRecordRow[]>("/admin/webhooks");
+}
+
+export async function fetchAdminFeatureFlags() {
+  return api<AdminRecordRow[]>("/admin/feature-flags");
+}
+
+export async function fetchAdminJobs() {
+  return api<AdminRecordRow[]>("/admin/jobs");
+}
+
+export async function fetchAdminIncidents() {
+  return api<AdminRecordRow[]>("/admin/incidents");
+}
+
+export async function fetchAdminContentPages() {
+  return api<AdminRecordRow[]>("/admin/content/pages");
+}
+
+export async function fetchAdminHelpArticles() {
+  return api<AdminRecordRow[]>("/admin/help/articles");
+}
+
+export async function fetchAdminEmailTemplates() {
+  return api<AdminRecordRow[]>("/admin/email-templates");
+}
+
+export async function fetchAdminSmsTemplates() {
+  return api<AdminRecordRow[]>("/admin/sms-templates");
 }
 
 export async function moderateProduct(id: string, status: "APPROVED" | "HIDDEN" | "REJECTED") {

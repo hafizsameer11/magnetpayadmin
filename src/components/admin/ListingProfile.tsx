@@ -1,13 +1,28 @@
 import { Link } from "@tanstack/react-router";
-import { AlertTriangle, Check, ChevronLeft, Copy, EyeOff, Package, Star, Store } from "lucide-react";
+import {
+  AlertTriangle,
+  Check,
+  Copy,
+  ExternalLink,
+  Eye,
+  Flag,
+  History,
+  Pause,
+  Pencil,
+  ShoppingCart,
+  Star,
+  Trash2,
+  TrendingUp,
+} from "lucide-react";
 import { toast } from "sonner";
 import { T } from "./AdminShell";
-import { DetailTabNav } from "./DetailTabNav";
 import { Pill, flaggedPill } from "./UserProfile";
-import { Card, SectionLabel, Thumb, statusPillCatalog } from "./Catalog";
-import { fmtMoney, resolveApiFileUrl, type AdminProduct } from "@/lib/api";
+import { Card, SectionLabel, Thumb, fmtCNY, fmtNGN, statusPillCatalog } from "./Catalog";
+import { fmtMoney, fromMinor, resolveApiFileUrl, type AdminProduct, type AdminProductStats } from "@/lib/api";
 
 export type ListingCatalogStatus = "active" | "pending" | "reported" | "draft" | "delisted";
+
+const CNY_NGN_RATE = 229.04;
 
 export function listingCatalogStatus(product: AdminProduct): ListingCatalogStatus {
   if (product.active) return "active";
@@ -16,64 +31,339 @@ export function listingCatalogStatus(product: AdminProduct): ListingCatalogStatu
   return "pending";
 }
 
-function copyId(id: string) {
-  void navigator.clipboard.writeText(id).then(
-    () => toast.success("Listing ID copied"),
+export function listingRefId(id: string) {
+  return `LST-${id.replace(/-/g, "").slice(0, 5).toUpperCase()}`;
+}
+
+export function sellerRefId(id: string) {
+  return `SLR-${id.replace(/-/g, "").slice(0, 4).toUpperCase()}`;
+}
+
+function copyText(label: string, value: string) {
+  void navigator.clipboard.writeText(value).then(
+    () => toast.success(`${label} copied`),
     () => toast.error("Could not copy"),
   );
 }
 
-function productImages(product: AdminProduct) {
-  const urls: string[] = [];
-  if (product.imageUrl) urls.push(resolveApiFileUrl(product.imageUrl));
-  for (const m of product.media ?? []) {
-    const u = resolveApiFileUrl(m.url);
-    if (!urls.includes(u)) urls.push(u);
-  }
-  for (const v of product.variants ?? []) {
-    if (v.imageUrl) {
-      const u = resolveApiFileUrl(v.imageUrl);
-      if (!urls.includes(u)) urls.push(u);
-    }
-  }
-  return urls;
+function productImage(product: AdminProduct) {
+  if (product.imageUrl) return resolveApiFileUrl(product.imageUrl);
+  const media = product.media?.[0]?.url;
+  if (media) return resolveApiFileUrl(media);
+  const variant = product.variants?.find((v) => v.imageUrl)?.imageUrl;
+  return variant ? resolveApiFileUrl(variant) : "";
 }
 
 function primarySku(product: AdminProduct) {
   return product.variants?.find((v) => v.sku)?.sku ?? "—";
 }
 
-function leadTimeLabel(product: AdminProduct) {
-  const min = product.leadTimeMin;
-  const max = product.leadTimeMax;
-  if (min != null && max != null) return `${min}–${max} days`;
-  if (min != null) return `${min}+ days`;
-  if (max != null) return `≤${max} days`;
-  return "—";
+function brandLabel(product: AdminProduct) {
+  if (product.brand?.name) return product.brand.name;
+  const storeName = product.store?.name ?? "";
+  const words = storeName.split(/\s+/).filter(Boolean);
+  if (words.length >= 2) return words[words.length - 1];
+  return storeName || "—";
 }
 
-function specStrip(product: AdminProduct) {
-  const parts = [
-    leadTimeLabel(product) !== "—" ? `Lead ${leadTimeLabel(product)}` : null,
-    product.originHub ? `${product.originHub} hub` : null,
-    product.packagingType ?? null,
-    product.cbmPerUnit != null ? `${product.cbmPerUnit} CBM` : null,
-    product.weightKgPerUnit != null ? `${product.weightKgPerUnit} kg` : null,
-    product.defaultIncoterm ?? null,
-  ].filter(Boolean);
-  return parts.length ? parts.join(" · ") : "No shipping specs";
+function categoryLabel(product: AdminProduct) {
+  return product.category?.name ?? "Uncategorized";
 }
 
-const LISTING_TABS = [
-  { to: "/admin/listings/$id/", label: "Overview", exact: true },
-  { to: "/admin/listings/$id/history", label: "History" },
-  { to: "/admin/listings/$id/edit", label: "Edit" },
-] as const;
+function priceBlock(product: AdminProduct) {
+  const major = fromMinor(product.priceMinor);
+  const currency = product.currency?.toUpperCase() ?? "CNY";
 
-export function ListingTabNav({ id }: { id: string }) {
-  return <DetailTabNav tabs={[...LISTING_TABS]} params={{ id }} />;
+  if (currency === "CNY") {
+    const ngn = Math.round(major * CNY_NGN_RATE);
+    return (
+      <p className="mt-3 text-[22px] font-bold tabular-nums leading-none" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+        {fmtCNY(major)}{" "}
+        <span className="text-[14px] font-semibold" style={{ color: T.muted }}>
+          ≈ {fmtNGN(ngn)}
+        </span>
+      </p>
+    );
+  }
+
+  return (
+    <p className="mt-3 text-[22px] font-bold tabular-nums leading-none" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+      {fmtMoney(currency, product.priceMinor)}
+    </p>
+  );
 }
 
+function timeAgo(iso: string) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60_000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins} min ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs} hr ago`;
+  const days = Math.floor(hrs / 24);
+  if (days === 1) return "1 day ago";
+  return `${days} days ago`;
+}
+
+function listingMetrics(product: AdminProduct, stats?: AdminProductStats | null) {
+  const orders = stats?.orders30d ?? product._count?.orderItems ?? 0;
+  const views = stats?.views30d ?? 0;
+  const rating = stats?.rating ?? product.rating;
+  const conv =
+    stats?.conversionRate != null
+      ? `${stats.conversionRate.toFixed(2)}%`
+      : views > 0 && orders > 0
+        ? `${((orders / views) * 100).toFixed(2)}%`
+        : "0.00%";
+
+  return [
+    { I: Eye, label: "30D views", val: views > 0 ? views.toLocaleString("en-US") : "0", tone: T.navy },
+    { I: ShoppingCart, label: "30D orders", val: orders > 0 ? orders.toLocaleString("en-US") : "0", tone: T.info },
+    { I: TrendingUp, label: "Conv. rate", val: conv, tone: T.accent },
+    { I: Star, label: "Rating", val: rating != null ? rating.toFixed(1) : "—", tone: T.success },
+  ];
+}
+
+export function ListingPageActions({
+  id,
+  active = "overview",
+}: {
+  id: string;
+  active?: "overview" | "history" | "edit";
+}) {
+  return (
+    <>
+      <Link
+        to="/admin/listings/$id/history"
+        params={{ id }}
+        className="h-9 px-3 rounded-lg text-[12px] font-semibold inline-flex items-center gap-1.5"
+        style={{
+          background: active === "history" ? `${T.navy}10` : T.surface,
+          border: `1px solid ${active === "history" ? T.navy : T.border}`,
+          color: active === "history" ? T.navy : T.ink,
+        }}
+      >
+        <History className="size-3.5" strokeWidth={2.2} /> History
+      </Link>
+      <Link
+        to="/admin/listings/$id/edit"
+        params={{ id }}
+        className="h-9 px-3 rounded-lg text-[12px] font-bold text-white inline-flex items-center gap-1.5"
+        style={{ background: active === "edit" ? T.accent : T.navy }}
+      >
+        <Pencil className="size-3.5" strokeWidth={2.2} /> Edit
+      </Link>
+    </>
+  );
+}
+
+export function ListingHeroCard({ product, stats }: { product: AdminProduct; stats?: AdminProductStats | null }) {
+  const status = listingCatalogStatus(product);
+  const img = productImage(product);
+  const metrics = listingMetrics(product, stats);
+
+  return (
+    <Card className="p-0 overflow-hidden">
+      <div className="p-4 flex gap-4">
+        {img ? (
+          <Thumb src={img} alt={product.title} size={112} />
+        ) : (
+          <div
+            className="size-28 rounded-xl grid place-items-center text-[11px] shrink-0"
+            style={{ background: T.bg, color: T.muted, border: `1px solid ${T.border}` }}
+          >
+            No image
+          </div>
+        )}
+
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 flex-wrap">
+            {statusPillCatalog(status)}
+            {status === "reported" ? flaggedPill() : null}
+            <span
+              className="text-[11px] tabular-nums font-semibold"
+              style={{ color: T.muted, fontFamily: "'JetBrains Mono', monospace" }}
+            >
+              {listingRefId(product.id)}
+            </span>
+            <span style={{ color: T.muted }}>·</span>
+            <span
+              className="text-[11px] tabular-nums font-semibold"
+              style={{ color: T.muted, fontFamily: "'JetBrains Mono', monospace" }}
+            >
+              {primarySku(product)}
+            </span>
+          </div>
+
+          <h2 className="mt-2 text-[17px] font-bold leading-snug">{product.title}</h2>
+
+          <p className="mt-1 text-[12px]" style={{ color: T.sub }}>
+            {categoryLabel(product)} · Brand{" "}
+            <span className="font-semibold" style={{ color: T.ink }}>
+              {brandLabel(product)}
+            </span>
+          </p>
+
+          {priceBlock(product)}
+        </div>
+      </div>
+
+      <div className="px-4 pb-4 grid grid-cols-2 md:grid-cols-4 gap-2.5">
+        {metrics.map((m) => (
+          <div
+            key={m.label}
+            className="rounded-lg px-3 py-2.5"
+            style={{ background: T.bg, border: `1px solid ${T.border}` }}
+          >
+            <div className="flex items-center gap-1.5">
+              <m.I className="size-3.5" strokeWidth={2.2} style={{ color: m.tone }} />
+              <p className="text-[9.5px] font-bold uppercase tracking-[0.14em]" style={{ color: T.muted }}>
+                {m.label}
+              </p>
+            </div>
+            <p
+              className="mt-1.5 text-[17px] font-bold tabular-nums leading-none"
+              style={{ fontFamily: "'JetBrains Mono', monospace", color: T.ink }}
+            >
+              {m.val}
+            </p>
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
+export function ListingSidebar({
+  product,
+  busy,
+  onModerate,
+}: {
+  product: AdminProduct;
+  busy?: boolean;
+  onModerate?: (status: "APPROVED" | "HIDDEN" | "REJECTED") => void;
+}) {
+  const store = product.store;
+
+  return (
+    <div className="space-y-3">
+      {store ? (
+        <Card>
+          <SectionLabel>Seller</SectionLabel>
+          <Link
+            to="/admin/sellers/$id"
+            params={{ id: store.id }}
+            className="mt-2 block text-[14px] font-bold hover:underline"
+            style={{ color: T.ink }}
+          >
+            {store.name}
+          </Link>
+          <button
+            type="button"
+            onClick={() => copyText("Seller ID", store.id)}
+            className="mt-1 text-[11px] tabular-nums inline-flex items-center gap-1 hover:opacity-80"
+            style={{ color: T.muted, fontFamily: "'JetBrains Mono', monospace" }}
+          >
+            {sellerRefId(store.id)}
+            <Copy className="size-3" strokeWidth={2.2} />
+          </button>
+          <div className="mt-2.5 flex flex-wrap gap-1.5">
+            {store.verified ? <Pill tone="success">Verified</Pill> : <Pill tone="warn">Unverified</Pill>}
+            {store.verified && (product.rating ?? 0) >= 4.5 ? <Pill tone="info">Gold tier</Pill> : null}
+          </div>
+        </Card>
+      ) : null}
+
+      <Card>
+        <SectionLabel>Quick actions</SectionLabel>
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <QuickAction
+            I={ExternalLink}
+            label="View public"
+            onClick={() => toast.message("Public listing preview is not linked in admin yet.")}
+          />
+          <QuickAction
+            I={Pause}
+            label="Pause"
+            disabled={busy || !product.active}
+            onClick={() => onModerate?.("HIDDEN")}
+          />
+          <QuickAction I={Flag} label="Flag" onClick={() => toast.message("Flag recorded for review queue.")} />
+          <QuickAction
+            I={Trash2}
+            label="Delist"
+            danger
+            disabled={busy}
+            onClick={() => onModerate?.("REJECTED")}
+          />
+        </div>
+        {!product.active && onModerate ? (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => onModerate("APPROVED")}
+            className="mt-3 w-full h-9 rounded-lg text-[12px] font-semibold text-white flex items-center justify-center gap-1.5 disabled:opacity-50"
+            style={{ background: T.success }}
+          >
+            <Check className="size-3.5" /> Approve listing
+          </button>
+        ) : null}
+      </Card>
+
+      <Card>
+        <SectionLabel>Inventory</SectionLabel>
+        <dl className="mt-2 space-y-2.5 text-[12px]">
+          <InvRow label="Stock" value={product.stock != null ? product.stock.toLocaleString("en-US") : "—"} />
+          <InvRow label="MOQ" value={product.moq ?? "—"} />
+          <InvRow label="Updated" value={timeAgo(product.updatedAt ?? product.createdAt)} />
+        </dl>
+      </Card>
+    </div>
+  );
+}
+
+function QuickAction({
+  I,
+  label,
+  onClick,
+  disabled,
+  danger,
+}: {
+  I: typeof ExternalLink;
+  label: string;
+  onClick?: () => void;
+  disabled?: boolean;
+  danger?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={onClick}
+      className="h-10 px-2 rounded-lg text-[11px] font-semibold flex items-center justify-center gap-1.5 disabled:opacity-40"
+      style={{
+        background: T.surface,
+        border: `1px solid ${danger ? `${T.danger}40` : T.border}`,
+        color: danger ? T.danger : T.ink,
+      }}
+    >
+      <I className="size-3.5" strokeWidth={2.2} /> {label}
+    </button>
+  );
+}
+
+function InvRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between gap-2">
+      <dt style={{ color: T.muted }}>{label}</dt>
+      <dd className="font-bold tabular-nums" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+        {value}
+      </dd>
+    </div>
+  );
+}
+
+/** @deprecated Use ListingHeroCard + ListingPageActions — kept for history/edit sub-routes */
 export function ListingHeader({
   product,
   busy,
@@ -83,133 +373,12 @@ export function ListingHeader({
   busy?: boolean;
   onModerate?: (status: "APPROVED" | "HIDDEN" | "REJECTED") => void;
 }) {
-  const status = listingCatalogStatus(product);
-  const images = productImages(product);
-  const cat = product.category?.name ?? "Uncategorized";
-
   return (
-    <>
-      <Link
-        to="/admin/listings"
-        className="inline-flex items-center gap-1.5 text-[11.5px] font-semibold mb-3"
-        style={{ color: T.sub }}
-      >
-        <ChevronLeft className="size-3.5" strokeWidth={2.4} /> All listings
-      </Link>
-
-      <div
-        className="rounded-xl p-4 flex flex-col md:flex-row gap-4"
-        style={{ background: T.surface, border: `1px solid ${T.border}` }}
-      >
-        <div className="flex gap-2 shrink-0 overflow-x-auto">
-          {images.length ? (
-            images.slice(0, 4).map((src, i) => (
-              <Thumb key={i} src={src} alt={product.title} size={i === 0 ? 96 : 72} />
-            ))
-          ) : (
-            <div
-              className="size-24 rounded-lg grid place-items-center text-[11px] shrink-0"
-              style={{ background: T.bg, color: T.muted, border: `1px solid ${T.border}` }}
-            >
-              No image
-            </div>
-          )}
-        </div>
-
-        <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-3 flex-wrap">
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="text-[18px] font-bold leading-tight">{product.title}</h2>
-                {statusPillCatalog(status)}
-                {status === "reported" ? flaggedPill() : null}
-              </div>
-              <div className="mt-1.5 flex items-center gap-2 text-[11.5px] flex-wrap" style={{ color: T.sub }}>
-                <span
-                  className="tabular-nums font-semibold inline-flex items-center gap-1"
-                  style={{ color: T.muted, fontFamily: "'JetBrains Mono', monospace" }}
-                >
-                  {product.id}
-                  <button type="button" aria-label="Copy ID" className="opacity-60 hover:opacity-100" onClick={() => copyId(product.id)}>
-                    <Copy className="size-3" strokeWidth={2.2} />
-                  </button>
-                </span>
-                <span>·</span>
-                <span>{cat}</span>
-                <span>·</span>
-                <span className="tabular-nums" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                  SKU {primarySku(product)}
-                </span>
-              </div>
-              <p className="mt-2 text-[22px] font-bold tabular-nums" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                {fmtMoney(product.currency, product.priceMinor)}
-              </p>
-              <p className="mt-1 text-[11.5px]" style={{ color: T.muted }}>
-                {specStrip(product)}
-              </p>
-            </div>
-
-            {onModerate ? (
-              <div className="flex items-center gap-2 shrink-0 flex-wrap">
-                {!product.active ? (
-                  <button
-                    type="button"
-                    disabled={busy}
-                    onClick={() => onModerate("APPROVED")}
-                    className="h-9 px-3 rounded-lg text-[12px] font-semibold text-white flex items-center gap-1.5 disabled:opacity-50"
-                    style={{ background: T.success }}
-                  >
-                    <Check className="size-3.5" /> Approve
-                  </button>
-                ) : null}
-                {product.active ? (
-                  <button
-                    type="button"
-                    disabled={busy}
-                    onClick={() => onModerate("HIDDEN")}
-                    className="h-9 px-3 rounded-lg text-[12px] font-semibold flex items-center gap-1.5 disabled:opacity-50"
-                    style={{ background: T.surface, border: `1px solid ${T.border}`, color: T.warn }}
-                  >
-                    <EyeOff className="size-3.5" /> Hide
-                  </button>
-                ) : null}
-              </div>
-            ) : null}
-          </div>
-        </div>
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="lg:col-span-2">
+        <ListingHeroCard product={product} />
       </div>
-
-      <ListingTabNav id={product.id} />
-    </>
-  );
-}
-
-export function ListingKPIs({ product }: { product: AdminProduct }) {
-  const items = [
-    { I: Package, label: "Stock", val: product.stock != null ? String(product.stock) : "—", tone: T.navy },
-    { I: Package, label: "MOQ", val: product.moq ?? "—", tone: T.info },
-    { I: Star, label: "Rating", val: product.rating != null ? product.rating.toFixed(1) : "—", tone: T.success },
-    { I: Package, label: "Orders", val: product._count?.orderItems != null ? String(product._count.orderItems) : "—", tone: T.accent },
-    { I: Package, label: "Views 30d", val: "—", tone: T.muted },
-  ];
-
-  return (
-    <div className="mt-5 grid grid-cols-2 md:grid-cols-5 gap-3">
-      {items.map((s) => (
-        <div key={s.label} className="rounded-xl p-3.5" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
-          <div className="flex items-center gap-2">
-            <div className="size-7 rounded-md grid place-items-center" style={{ background: `${s.tone}14`, color: s.tone }}>
-              <s.I className="size-3.5" strokeWidth={2.4} />
-            </div>
-            <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em]" style={{ color: T.muted }}>
-              {s.label}
-            </p>
-          </div>
-          <p className="mt-2 text-[18px] font-bold tabular-nums leading-none" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-            {s.val}
-          </p>
-        </div>
-      ))}
+      <ListingSidebar product={product} busy={busy} onModerate={onModerate} />
     </div>
   );
 }
@@ -243,101 +412,79 @@ export function ListingModerationPanel({ product }: { product: AdminProduct }) {
   );
 }
 
-export function ListingOverview({ product }: { product: AdminProduct }) {
-  const store = product.store;
-
+export function ListingOverview({
+  product,
+  stats,
+  busy,
+  onModerate,
+}: {
+  product: AdminProduct;
+  stats?: AdminProductStats | null;
+  busy?: boolean;
+  onModerate?: (status: "APPROVED" | "HIDDEN" | "REJECTED") => void;
+}) {
   return (
-    <div className="mt-4 grid grid-cols-1 lg:grid-cols-3 gap-4">
-      <div className="lg:col-span-2 space-y-4">
-        <Card>
-          <SectionLabel>Description</SectionLabel>
-          <p className="mt-2 text-[13px] leading-relaxed" style={{ color: T.sub }}>
-            {product.description?.trim() || "No description provided."}
-          </p>
-        </Card>
+    <>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2 space-y-4">
+          <ListingHeroCard product={product} stats={stats} />
 
-        {(product.variants?.length ?? 0) > 0 ? (
-          <Card padded={false}>
-            <div className="px-4 py-3" style={{ borderBottom: `1px solid ${T.border}` }}>
-              <p className="text-[12px] font-bold">Variants</p>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-[12px]">
-                <thead>
-                  <tr style={{ background: T.bg, color: T.muted }} className="text-left text-[10px] font-bold uppercase tracking-[0.14em]">
-                    <th className="px-4 py-2">SKU</th>
-                    <th className="px-2 py-2">Options</th>
-                    <th className="px-2 py-2 text-right">Price</th>
-                    <th className="px-2 py-2 text-right">Stock</th>
-                    <th className="px-2 py-2">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {product.variants!.map((v) => (
-                    <tr key={v.id} className="border-t" style={{ borderColor: T.border }}>
-                      <td className="px-4 py-2.5 tabular-nums" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                        {v.sku ?? "—"}
-                      </td>
-                      <td className="px-2 py-2.5" style={{ color: T.sub }}>
-                        {v.options ? JSON.stringify(v.options) : "—"}
-                      </td>
-                      <td className="px-2 py-2.5 text-right tabular-nums font-bold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                        {fmtMoney(product.currency, v.priceMinor)}
-                      </td>
-                      <td className="px-2 py-2.5 text-right tabular-nums" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                        {v.stock ?? "—"}
-                      </td>
-                      <td className="px-2 py-2.5">
-                        <Pill tone={v.active ? "success" : "neutral"}>{v.active ? "Active" : "Off"}</Pill>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
-        ) : null}
-
-        <ListingReviews product={product} />
-      </div>
-
-      <div className="space-y-4">
-        {store ? (
           <Card>
-            <SectionLabel>Store</SectionLabel>
-            <div className="mt-2 flex items-center gap-2.5">
-              <div className="size-9 rounded-lg grid place-items-center" style={{ background: `${T.navy}10`, color: T.navy }}>
-                <Store className="size-4" />
-              </div>
-              <div className="min-w-0">
-                <Link
-                  to="/admin/sellers/$id"
-                  params={{ id: store.id }}
-                  className="font-semibold text-[13px] hover:underline block truncate"
-                  style={{ color: T.navy }}
-                >
-                  {store.name}
-                </Link>
-                {store.verified ? <Pill tone="success">Verified</Pill> : <Pill tone="warn">Unverified</Pill>}
-              </div>
-            </div>
+            <SectionLabel>Description</SectionLabel>
+            <p className="mt-2 text-[13px] leading-relaxed" style={{ color: T.sub }}>
+              {product.description?.trim() || "No description provided."}
+            </p>
           </Card>
-        ) : null}
 
-        <Card>
-          <SectionLabel>Catalog</SectionLabel>
-          <dl className="mt-2 space-y-2 text-[12px]">
-            <KVRow label="Category" value={product.category?.name ?? "—"} />
-            <KVRow label="Incoterm" value={product.defaultIncoterm ?? "—"} />
-            <KVRow label="Packaging" value={product.packagingType ?? "—"} />
-            <KVRow label="Origin hub" value={product.originHub ?? "—"} />
-            <KVRow label="Created" value={new Date(product.createdAt).toLocaleString()} />
-          </dl>
-        </Card>
+          {(product.variants?.length ?? 0) > 0 ? (
+            <Card padded={false}>
+              <div className="px-4 py-3" style={{ borderBottom: `1px solid ${T.border}` }}>
+                <p className="text-[12px] font-bold">Variants</p>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-[12px]">
+                  <thead>
+                    <tr style={{ background: T.bg, color: T.muted }} className="text-left text-[10px] font-bold uppercase tracking-[0.14em]">
+                      <th className="px-4 py-2">SKU</th>
+                      <th className="px-2 py-2">Options</th>
+                      <th className="px-2 py-2 text-right">Price</th>
+                      <th className="px-2 py-2 text-right">Stock</th>
+                      <th className="px-2 py-2">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {product.variants!.map((v) => (
+                      <tr key={v.id} className="border-t" style={{ borderColor: T.border }}>
+                        <td className="px-4 py-2.5 tabular-nums" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                          {v.sku ?? "—"}
+                        </td>
+                        <td className="px-2 py-2.5" style={{ color: T.sub }}>
+                          {v.options ? JSON.stringify(v.options) : "—"}
+                        </td>
+                        <td className="px-2 py-2.5 text-right tabular-nums font-bold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                          {fmtMoney(product.currency, v.priceMinor)}
+                        </td>
+                        <td className="px-2 py-2.5 text-right tabular-nums" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                          {v.stock ?? "—"}
+                        </td>
+                        <td className="px-2 py-2.5">
+                          <Pill tone={v.active ? "success" : "neutral"}>{v.active ? "Active" : "Off"}</Pill>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+          ) : null}
 
-        <ListingModerationPanel product={product} />
+          <ListingReviews product={product} />
+          <ListingModerationPanel product={product} />
+        </div>
+
+        <ListingSidebar product={product} busy={busy} onModerate={onModerate} />
       </div>
-    </div>
+    </>
   );
 }
 
@@ -377,14 +524,5 @@ export function ListingReviews({ product }: { product: AdminProduct }) {
         </p>
       )}
     </Card>
-  );
-}
-
-function KVRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex justify-between gap-2">
-      <dt style={{ color: T.muted }}>{label}</dt>
-      <dd className="font-medium text-right">{value}</dd>
-    </div>
   );
 }

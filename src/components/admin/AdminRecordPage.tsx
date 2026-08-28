@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Loader2, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
 import { Pill } from "@/components/admin/UserProfile";
-import { fetchAdminRecords, type AdminRecord } from "@/lib/api";
+import { fetchAdminRecords, fetchAdminTickets, fetchAdminWebhooks, fetchAdminFeatureFlags, fetchAdminJobs, fetchAdminIncidents, fetchAdminContentPages, fetchAdminHelpArticles, fetchAdminEmailTemplates, fetchAdminSmsTemplates, type AdminRecord } from "@/lib/api";
 import { DOMAIN_CONFIG, type AdminRecordRow } from "@/components/admin/recordRegistry";
 import { toast } from "sonner";
 
@@ -23,6 +23,18 @@ function cellValue(row: AdminRecordRow, key: string) {
   if (key === "status") return row.status ?? "—";
   return "—";
 }
+
+const DOMAIN_FETCH: Record<string, () => Promise<AdminRecord[]>> = {
+  ticket: () => fetchAdminTickets(),
+  webhook: () => fetchAdminWebhooks(),
+  "feature-flag": () => fetchAdminFeatureFlags(),
+  job: () => fetchAdminJobs(),
+  incident: () => fetchAdminIncidents(),
+  "legal-page": () => fetchAdminContentPages(),
+  "help-article": () => fetchAdminHelpArticles(),
+  "email-template": () => fetchAdminEmailTemplates(),
+  "sms-template": () => fetchAdminSmsTemplates(),
+};
 
 export function AdminRecordListPage({ domain }: { domain: string }) {
   const config = DOMAIN_CONFIG[domain] ?? {
@@ -47,7 +59,8 @@ export function AdminRecordListPage({ domain }: { domain: string }) {
     (async () => {
       setLoading(true);
       try {
-        const data = await fetchAdminRecords(domain);
+        const loader = DOMAIN_FETCH[domain] ?? (() => fetchAdminRecords(domain));
+        const data = await loader();
         if (!cancelled) {
           setRows(
             data.map((r) => ({

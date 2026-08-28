@@ -9,7 +9,7 @@ export const Route = createFileRoute("/admin/analytics/cohorts")({
 function Page() {
   return (
     <AnalyticsSectionShell active="/admin/analytics/cohorts" title="Cohorts" description="Retention by signup month.">
-      {(data, loading) => <AnalyticsCohortsBody data={data} loading={loading} />}
+      {() => <AnalyticsCohortsBody />}
     </AnalyticsSectionShell>
   );
 }

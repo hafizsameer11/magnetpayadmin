@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
 import { Card, SectionLabel } from "@/components/admin/Catalog";
-import { ListingHeader } from "@/components/admin/ListingProfile";
+import { ListingHeader, ListingPageActions, listingRefId } from "@/components/admin/ListingProfile";
 import { fetchAdminProduct } from "@/lib/api";
 import { toast } from "sonner";
 
@@ -29,7 +29,14 @@ function Page() {
 
   if (loading) {
     return (
-      <AdminShell title="Edit listing" breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Listings", to: "/admin/listings" }, { label: id.slice(0, 8) }]}>
+      <AdminShell
+        title="Edit listing"
+        breadcrumbs={[
+          { label: "Admin", to: "/admin" },
+          { label: "Listings", to: "/admin/listings" },
+          { label: listingRefId(id) },
+        ]}
+      >
         <div className="py-16 grid place-items-center" style={{ color: T.muted }}>
           <Loader2 className="size-5 animate-spin" />
         </div>
@@ -39,7 +46,14 @@ function Page() {
 
   if (!product) {
     return (
-      <AdminShell title="Edit listing" breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Listings", to: "/admin/listings" }, { label: id.slice(0, 8) }]}>
+      <AdminShell
+        title="Edit listing"
+        breadcrumbs={[
+          { label: "Admin", to: "/admin" },
+          { label: "Listings", to: "/admin/listings" },
+          { label: listingRefId(id) },
+        ]}
+      >
         <p className="text-[13px]" style={{ color: T.muted }}>Product not found.</p>
       </AdminShell>
     );
@@ -47,19 +61,20 @@ function Page() {
 
   return (
     <AdminShell
-      title=" "
+      title={product.title}
       breadcrumbs={[
         { label: "Admin", to: "/admin" },
         { label: "Listings", to: "/admin/listings" },
-        { label: product.title, to: `/admin/listings/${id}` as never },
+        { label: listingRefId(product.id), to: `/admin/listings/${product.id}` as never },
         { label: "Edit" },
       ]}
+      actions={<ListingPageActions id={product.id} active="edit" />}
     >
       <ListingHeader product={product} />
       <Card className="mt-4">
         <SectionLabel>Admin edit</SectionLabel>
         <p className="mt-2 text-[13px]" style={{ color: T.sub }}>
-          Catalog edits are performed by the seller in the mobile app. Staff can approve or hide listings from the Overview tab.
+          Catalog edits are performed by the seller in the mobile app. Staff can approve, pause, or delist from the overview quick actions.
         </p>
         <dl className="mt-4 grid grid-cols-2 gap-3 text-[12px]">
           <Field label="Title" value={product.title} />

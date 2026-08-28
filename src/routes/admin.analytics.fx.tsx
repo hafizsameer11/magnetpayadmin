@@ -9,7 +9,7 @@ export const Route = createFileRoute("/admin/analytics/fx")({
 function Page() {
   return (
     <AnalyticsSectionShell active="/admin/analytics/fx" title="FX" description="Corridor conversion and spread metrics.">
-      {(data, loading) => <AnalyticsFxBody data={data} loading={loading} />}
+      {() => <AnalyticsFxBody />}
     </AnalyticsSectionShell>
   );
 }

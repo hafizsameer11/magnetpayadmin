@@ -1,11 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { AdminRecordListPage } from "@/components/admin/AdminRecordPage";
+import { ReconciliationPage } from "@/components/admin/DomainListPages";
 
 export const Route = createFileRoute("/admin/reconciliation")({
   head: () => ({ meta: [{ title: "Reconciliation — MagnetPay Admin" }] }),
-  component: Page,
+  component: ReconciliationPage,
 });
-
-function Page() {
-  return <AdminRecordListPage domain="chargeback" />;
-}

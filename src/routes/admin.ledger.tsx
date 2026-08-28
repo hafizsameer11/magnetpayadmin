@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
 import { Pill } from "@/components/admin/UserProfile";
-import { fetchAdminLedger } from "@/lib/api";
+import { fetchAdminMoneyLedger } from "@/lib/api";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/ledger")({
@@ -31,7 +31,7 @@ function Page() {
   const [query, setQuery] = useState("");
 
   useEffect(() => {
-    void fetchAdminLedger()
+    void fetchAdminMoneyLedger()
       .then(setRows)
       .catch((e) => toast.error(e instanceof Error ? e.message : "Failed to load ledger"));
   }, []);
@@ -42,8 +42,8 @@ function Page() {
     const user = (r.user ?? {}) as Record<string, unknown>;
     const q = query.toLowerCase();
     return (
-      str(r.title).toLowerCase().includes(q) ||
-      str(r.kind).toLowerCase().includes(q) ||
+      str(r.description ?? r.title).toLowerCase().includes(q) ||
+      str(r.type ?? r.kind).toLowerCase().includes(q) ||
       str(r.id).toLowerCase().includes(q) ||
       str(user.name).toLowerCase().includes(q) ||
       str(r.amountDisplay).includes(q)
@@ -124,10 +124,10 @@ function Page() {
                 {str(r.id).slice(0, 8)}
               </span>
               <span className="text-[11px]" style={{ color: T.sub }}>
-                {str(r.kind)}
+                {str(r.type ?? r.kind)}
               </span>
               <div className="min-w-0">
-                <p className="font-medium truncate">{str(r.title)}</p>
+                <p className="font-medium truncate">{str(r.description ?? r.title)}</p>
                 <p className="text-[10.5px] truncate" style={{ color: T.muted }}>
                   {str(r.subtitle, "")}
                 </p>

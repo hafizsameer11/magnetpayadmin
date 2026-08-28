@@ -4,7 +4,7 @@ import { Loader2, RotateCcw } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
 import { Card } from "@/components/admin/Catalog";
 import { OrderHeader, type AdminOrderRow } from "@/components/admin/OrderProfile";
-import { fetchAdminOrder, fmtMoney } from "@/lib/api";
+import { fetchAdminOrder, fmtMoney, refundAdminOrder } from "@/lib/api";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/orders/$id/refund")({
@@ -17,6 +17,7 @@ function Page() {
   const [row, setRow] = useState<AdminOrderRow | null>(null);
   const [loading, setLoading] = useState(true);
   const [note, setNote] = useState("");
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     void fetchAdminOrder(id)
@@ -68,11 +69,26 @@ function Page() {
         />
         <button
           type="button"
-          onClick={() => toast.message("Refund API not wired — logged for ops", { description: note || "No note" })}
-          className="mt-3 h-9 px-4 rounded-lg text-[12px] font-bold text-white"
+          disabled={busy}
+          onClick={() => {
+            void (async () => {
+              setBusy(true);
+              try {
+                await refundAdminOrder(id, note.trim() || undefined);
+                toast.success("Refund processed");
+                const updated = await fetchAdminOrder(id);
+                setRow((updated ?? null) as AdminOrderRow | null);
+              } catch (e) {
+                toast.error(e instanceof Error ? e.message : "Refund failed");
+              } finally {
+                setBusy(false);
+              }
+            })();
+          }}
+          className="mt-3 h-9 px-4 rounded-lg text-[12px] font-bold text-white disabled:opacity-50"
           style={{ background: T.navy }}
         >
-          Queue refund
+          {busy ? "Processing…" : "Queue refund"}
         </button>
       </Card>
     </AdminShell>

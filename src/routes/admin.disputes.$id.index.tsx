@@ -5,7 +5,7 @@ import { AdminShell, T } from "@/components/admin/AdminShell";
 import { Card } from "@/components/admin/Catalog";
 import { DisputeEvidencePanel, DisputeHeader, DisputeRulingPanel } from "@/components/admin/DisputeProfile";
 import { Pill } from "@/components/admin/UserProfile";
-import { fetchAdminDisputes, fmtMoney, resolveEscrow, type AdminDispute } from "@/lib/api";
+import { fetchAdminDispute, fmtMoney, resolveEscrow, type AdminDispute } from "@/lib/api";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/disputes/$id/")({
@@ -25,8 +25,7 @@ function Page() {
   const load = async () => {
     setLoading(true);
     try {
-      const list = await fetchAdminDisputes();
-      setRow(list.find((d) => d.id === id) ?? null);
+      setRow(await fetchAdminDispute(id));
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to load dispute");
       setRow(null);

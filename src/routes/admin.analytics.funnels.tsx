@@ -9,7 +9,7 @@ export const Route = createFileRoute("/admin/analytics/funnels")({
 function Page() {
   return (
     <AnalyticsSectionShell active="/admin/analytics/funnels" title="Funnels" description="Conversion through checkout and KYC.">
-      {(data, loading) => <AnalyticsFunnelsBody data={data} loading={loading} />}
+      {() => <AnalyticsFunnelsBody />}
     </AnalyticsSectionShell>
   );
 }

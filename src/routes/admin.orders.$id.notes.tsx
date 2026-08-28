@@ -4,7 +4,7 @@ import { Loader2, StickyNote } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
 import { Card } from "@/components/admin/Catalog";
 import { OrderHeader, type AdminOrderRow } from "@/components/admin/OrderProfile";
-import { fetchAdminAudit, fetchAdminOrder } from "@/lib/api";
+import { fetchAdminOrder, fetchAdminOrderNotes, postAdminOrderNote } from "@/lib/api";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/orders/$id/notes")({
@@ -15,21 +15,26 @@ export const Route = createFileRoute("/admin/orders/$id/notes")({
 function Page() {
   const { id } = Route.useParams();
   const [row, setRow] = useState<AdminOrderRow | null>(null);
-  const [notes, setNotes] = useState<{ action: string; at: string }[]>([]);
+  const [notes, setNotes] = useState<{ id: string; body: string; createdAt: string; author?: { name: string } }[]>([]);
   const [loading, setLoading] = useState(true);
   const [draft, setDraft] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const loadNotes = async () => {
+    try {
+      setNotes(await fetchAdminOrderNotes(id));
+    } catch {
+      setNotes([]);
+    }
+  };
 
   useEffect(() => {
     void (async () => {
       setLoading(true);
       try {
-        const [order, audit] = await Promise.all([fetchAdminOrder(id), fetchAdminAudit()]);
+        const order = await fetchAdminOrder(id);
         setRow((order ?? null) as AdminOrderRow | null);
-        setNotes(
-          audit
-            .filter((a) => a.entity === "MarketOrder" && a.entityId === id)
-            .map((a) => ({ action: a.action, at: new Date(a.createdAt).toLocaleString() })),
-        );
+        await loadNotes();
       } catch {
         setRow(null);
         setNotes([]);
@@ -74,33 +79,44 @@ function Page() {
         />
         <button
           type="button"
+          disabled={saving || !draft.trim()}
           onClick={() => {
-            if (!draft.trim()) return;
-            toast.success("Note saved locally — wire to audit API when available");
-            setDraft("");
+            void (async () => {
+              setSaving(true);
+              try {
+                await postAdminOrderNote(id, draft.trim());
+                setDraft("");
+                toast.success("Note saved");
+                await loadNotes();
+              } catch (e) {
+                toast.error(e instanceof Error ? e.message : "Failed to save note");
+              } finally {
+                setSaving(false);
+              }
+            })();
           }}
-          className="mt-3 h-9 px-4 rounded-lg text-[12px] font-bold text-white"
+          className="mt-3 h-9 px-4 rounded-lg text-[12px] font-bold text-white disabled:opacity-50"
           style={{ background: T.navy }}
         >
-          Save note
+          {saving ? "Saving…" : "Save note"}
         </button>
       </Card>
       <Card className="mt-4" padded={false}>
         <div className="px-4 py-3" style={{ borderBottom: `1px solid ${T.border}` }}>
-          <p className="text-[12px] font-bold">Audit trail</p>
+          <p className="text-[12px] font-bold">Staff notes</p>
         </div>
         {notes.length ? (
           notes.map((n, i) => (
-            <div key={i} className="px-4 py-3 flex justify-between text-[12px]" style={{ borderBottom: i < notes.length - 1 ? `1px solid ${T.border}` : "none" }}>
-              <span className="font-semibold">{n.action}</span>
-              <span className="tabular-nums" style={{ color: T.muted, fontFamily: "'JetBrains Mono', monospace" }}>
-                {n.at}
-              </span>
+            <div key={n.id} className="px-4 py-3 text-[12px]" style={{ borderBottom: i < notes.length - 1 ? `1px solid ${T.border}` : "none" }}>
+              <p className="font-semibold">{n.body}</p>
+              <p className="mt-1 text-[11px]" style={{ color: T.muted }}>
+                {n.author?.name ?? "Staff"} · {new Date(n.createdAt).toLocaleString()}
+              </p>
             </div>
           ))
         ) : (
           <p className="p-6 text-center text-[12px]" style={{ color: T.muted }}>
-            No audit events for this order.
+            No notes yet.
           </p>
         )}
       </Card>

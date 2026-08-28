@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
 import {
-  ListingHeader,
-  ListingKPIs,
   ListingOverview,
+  ListingPageActions,
+  listingRefId,
 } from "@/components/admin/ListingProfile";
-import { fetchAdminProduct, moderateProduct } from "@/lib/api";
+import { fetchAdminProduct, fetchAdminProductStats, moderateProduct } from "@/lib/api";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/listings/$id/")({
@@ -18,13 +18,20 @@ export const Route = createFileRoute("/admin/listings/$id/")({
 function Page() {
   const { id } = Route.useParams();
   const [product, setProduct] = useState<Awaited<ReturnType<typeof fetchAdminProduct>> | null>(null);
+  const [stats, setStats] = useState<Awaited<ReturnType<typeof fetchAdminProductStats>> | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
 
   const load = async () => {
     setLoading(true);
     try {
-      setProduct(await fetchAdminProduct(id));
+      const p = await fetchAdminProduct(id);
+      setProduct(p);
+      try {
+        setStats(await fetchAdminProductStats(id));
+      } catch {
+        setStats(null);
+      }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to load product");
       setProduct(null);
@@ -42,7 +49,7 @@ function Page() {
     setBusy(true);
     try {
       await moderateProduct(id, status);
-      toast.success(status === "APPROVED" ? "Product approved" : status === "HIDDEN" ? "Product hidden" : "Product rejected");
+      toast.success(status === "APPROVED" ? "Product approved" : status === "HIDDEN" ? "Product paused" : "Product delisted");
       await load();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Moderation failed");
@@ -53,7 +60,14 @@ function Page() {
 
   if (loading) {
     return (
-      <AdminShell title="Listing" breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Listings", to: "/admin/listings" }, { label: id.slice(0, 8) }]}>
+      <AdminShell
+        title="Listing"
+        breadcrumbs={[
+          { label: "Admin", to: "/admin" },
+          { label: "Listings", to: "/admin/listings" },
+          { label: listingRefId(id) },
+        ]}
+      >
         <div className="py-16 grid place-items-center" style={{ color: T.muted }}>
           <Loader2 className="size-5 animate-spin" />
         </div>
@@ -63,7 +77,14 @@ function Page() {
 
   if (!product) {
     return (
-      <AdminShell title="Listing" breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Listings", to: "/admin/listings" }, { label: id.slice(0, 8) }]}>
+      <AdminShell
+        title="Listing"
+        breadcrumbs={[
+          { label: "Admin", to: "/admin" },
+          { label: "Listings", to: "/admin/listings" },
+          { label: listingRefId(id) },
+        ]}
+      >
         <p className="text-[13px]" style={{ color: T.muted }}>Product not found.</p>
       </AdminShell>
     );
@@ -71,16 +92,15 @@ function Page() {
 
   return (
     <AdminShell
-      title=" "
+      title={product.title}
       breadcrumbs={[
         { label: "Admin", to: "/admin" },
         { label: "Listings", to: "/admin/listings" },
-        { label: product.title },
+        { label: listingRefId(product.id) },
       ]}
+      actions={<ListingPageActions id={product.id} active="overview" />}
     >
-      <ListingHeader product={product} busy={busy} onModerate={(s) => void moderate(s)} />
-      <ListingKPIs product={product} />
-      <ListingOverview product={product} />
+      <ListingOverview product={product} stats={stats} busy={busy} onModerate={(s) => void moderate(s)} />
     </AdminShell>
   );
 }

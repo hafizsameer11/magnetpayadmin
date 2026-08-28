@@ -9,7 +9,7 @@ export const Route = createFileRoute("/admin/analytics/gmv")({
 function Page() {
   return (
     <AnalyticsSectionShell active="/admin/analytics/gmv" title="GMV" description="Gross merchandise volume trends.">
-      {(data, loading) => <AnalyticsGmvBody data={data} loading={loading} />}
+      {() => <AnalyticsGmvBody />}
     </AnalyticsSectionShell>
   );
 }

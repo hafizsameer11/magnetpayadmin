@@ -9,7 +9,7 @@ export const Route = createFileRoute("/admin/analytics/logistics")({
 function Page() {
   return (
     <AnalyticsSectionShell active="/admin/analytics/logistics" title="Logistics" description="Shipment pipeline health.">
-      {(data, loading) => <AnalyticsLogisticsBody data={data} loading={loading} />}
+      {() => <AnalyticsLogisticsBody />}
     </AnalyticsSectionShell>
   );
 }

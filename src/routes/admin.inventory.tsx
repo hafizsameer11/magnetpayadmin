@@ -1,11 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { AdminRecordListPage } from "@/components/admin/AdminRecordPage";
+import { InventoryAlertsPage } from "@/components/admin/DomainListPages";
 
 export const Route = createFileRoute("/admin/inventory")({
   head: () => ({ meta: [{ title: "Inventory — MagnetPay Admin" }] }),
-  component: Page,
+  component: InventoryAlertsPage,
 });
-
-function Page() {
-  return <AdminRecordListPage domain="collection" />;
-}
