@@ -12,4 +12,18 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  nitro: {
+    preset: "node-server",
+    // Prevent Rolldown from splitting the server entry into circular chunks (__exportAll crash).
+    rollupConfig: {
+      output: {
+        inlineDynamicImports: true,
+      },
+    },
+  },
+  vite: {
+    ssr: {
+      external: ["recharts"],
+    },
+  },
 });

@@ -8,7 +8,7 @@ import {
 import { useState, useEffect, type ReactNode } from "react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
-import { clearSession, getAccessToken } from "@/lib/api";
+import { clearSession, getAccessToken } from "@/lib/session";
 import {
   DropdownMenu,
   DropdownMenuContent,

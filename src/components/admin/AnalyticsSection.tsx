@@ -2,7 +2,8 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { Loader2, RotateCw } from "lucide-react";
 import { AdminShell, T } from "./AdminShell";
-import { KPI, Panel, TrendArea, BarBreakdown } from "./Analytics";
+import { KPI, Panel } from "./AnalyticsUI";
+import { ClientBarBreakdown, ClientTrendArea } from "./ClientCharts";
 import {
   fetchAdminAnalytics,
   fetchAdminAnalyticsGmv,
@@ -131,10 +132,10 @@ export function AnalyticsGmvBody() {
         <KPI label="Categories" value={String(data.byCategory.length)} tone="info" />
       </div>
       <Panel title="GMV trend" subtitle="14-day series from orders">
-        <div className="p-4"><TrendArea data={data.series.map((p) => ({ d: p.label, v: p.value }))} label="GMV" color={T.success} /></div>
+        <div className="p-4"><ClientTrendArea data={data.series.map((p) => ({ d: p.label, v: p.value }))} label="GMV" color={T.success} /></div>
       </Panel>
       <Panel title="By category" subtitle="Share of marketplace GMV">
-        <div className="p-4"><BarBreakdown data={data.byCategory.map((c) => ({ k: c.name, v: c.value }))} /></div>
+        <div className="p-4"><ClientBarBreakdown data={data.byCategory.map((c) => ({ k: c.name, v: c.value }))} /></div>
       </Panel>
     </div>
   );
@@ -156,7 +157,7 @@ export function AnalyticsUsersBody() {
         <KPI label="Signups trend" value={String(data?.series.length ?? 0)} tone="warn" />
       </div>
       <Panel title="Signups" subtitle="Daily registrations (30d)">
-        <div className="p-4"><TrendArea data={(data?.series ?? []).map((p) => ({ d: p.label, v: p.value }))} label="Users" color={T.info} /></div>
+        <div className="p-4"><ClientTrendArea data={(data?.series ?? []).map((p) => ({ d: p.label, v: p.value }))} label="Users" color={T.info} /></div>
       </Panel>
     </div>
   );
