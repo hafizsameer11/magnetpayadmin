@@ -214,6 +214,7 @@ export function DisputesListPage() {
 export function ShipmentsListPage() {
   const [rows, setRows] = useState<AdminShipment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState<"all" | "transit" | "customs" | "topup" | "delivered">("all");
 
   useEffect(() => {
     void fetchAdminShipments()
@@ -222,23 +223,41 @@ export function ShipmentsListPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const mapped: Shipment[] = rows.map((s) => ({
+  const filtered = rows.filter((s) => {
+    const st = s.status?.toUpperCase() ?? "";
+    if (tab === "transit") return ["IN_TRANSIT", "HOLD_LOCKED", "SETTLEMENT_PENDING", "READY_FOR_POD"].includes(st);
+    if (tab === "customs") return st === "CUSTOMS";
+    if (tab === "topup") return st === "TOP_UP_REQUIRED";
+    if (tab === "delivered") return st === "DELIVERED";
+    return true;
+  });
+
+  const mapStatus = (status: string): Shipment["status"] => {
+    const s = status.toUpperCase();
+    if (s === "IN_TRANSIT" || s === "HOLD_LOCKED" || s === "SETTLEMENT_PENDING" || s === "READY_FOR_POD") return "in_transit";
+    if (s === "CUSTOMS") return "customs";
+    if (s === "TOP_UP_REQUIRED") return "customs";
+    if (s === "DELIVERED") return "delivered";
+    return "label_created";
+  };
+
+  const mapped: Shipment[] = filtered.map((s) => ({
     id: s.id,
     orderId: s.id.slice(0, 8),
     buyer: s.user?.name ?? "Buyer",
     buyerCountry: "NG",
     seller: "Supplier",
-    carrier: "MagnetExpress Sea",
-    service: "Sea LCL",
-    tracking: s.trackingNumber ?? s.id.slice(0, 8),
+    carrier: "MagnetExpress",
+    service: s.mode ?? "SEA",
+    tracking: s.ref ?? s.id.slice(0, 8),
     weightKg: 0,
     pieces: 1,
     declaredValueNGN: 0,
-    costNGN: Number(s.hold?.amountMinor ?? 0) / 100,
-    status: (s.status === "IN_TRANSIT" ? "in_transit" : s.status === "CUSTOMS" ? "customs" : s.status === "DELIVERED" ? "delivered" : "label_created") as Shipment["status"],
-    origin: s.origin ?? "Guangzhou",
-    destination: s.destination ?? "Lagos",
-    pickup: s.origin ?? "Guangzhou",
+    costNGN: Number(s.hold?.lockedMinor ?? 0) / 100,
+    status: mapStatus(s.status),
+    origin: s.route?.split("→")[0]?.trim() ?? "Guangzhou",
+    destination: s.route?.split("→")[1]?.trim() ?? "Lagos",
+    pickup: s.route?.split("→")[0]?.trim() ?? "Guangzhou",
     eta: "—",
     legs: [],
     insurance: false,
@@ -246,11 +265,37 @@ export function ShipmentsListPage() {
 
   return (
     <AdminShell title="Shipments" description="Cross-border cargo in transit and customs." breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Shipments" }]}>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-5">
         <KPI label="Total" value={String(rows.length)} />
-        <KPI label="In transit" value={String(rows.filter((r) => ["IN_TRANSIT", "CUSTOMS"].includes(r.status)).length)} tone="info" />
+        <KPI label="In transit" value={String(rows.filter((r) => ["IN_TRANSIT", "HOLD_LOCKED", "SETTLEMENT_PENDING", "READY_FOR_POD"].includes(r.status)).length)} tone="info" />
+        <KPI label="Customs" value={String(rows.filter((r) => r.status === "CUSTOMS").length)} tone="warn" />
+        <KPI label="Top-up due" value={String(rows.filter((r) => r.status === "TOP_UP_REQUIRED").length)} tone="danger" />
         <KPI label="Delivered" value={String(rows.filter((r) => r.status === "DELIVERED").length)} tone="success" />
-        <KPI label="Exceptions" value={String(rows.filter((r) => ["EXCEPTION", "FAILED"].includes(r.status)).length)} tone="danger" />
+      </div>
+      <div className="flex flex-wrap gap-2 mb-4">
+        {(
+          [
+            ["all", "All"],
+            ["transit", "In transit"],
+            ["customs", "Customs"],
+            ["topup", "Top-up due"],
+            ["delivered", "Delivered"],
+          ] as const
+        ).map(([k, label]) => (
+          <button
+            key={k}
+            type="button"
+            onClick={() => setTab(k)}
+            className="h-8 px-3 rounded-lg text-[11.5px] font-semibold"
+            style={{
+              background: tab === k ? T.navy : T.surface,
+              border: `1px solid ${tab === k ? T.navy : T.border}`,
+              color: tab === k ? "#fff" : T.ink,
+            }}
+          >
+            {label}
+          </button>
+        ))}
       </div>
       {loading ? <Loader2 className="size-5 animate-spin mx-auto my-16" style={{ color: T.muted }} /> : <ShipmentTable rows={mapped} />}
     </AdminShell>

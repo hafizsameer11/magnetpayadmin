@@ -9,6 +9,7 @@ import {
   deleteAdminShipmentDocument,
   fetchAdminShipment,
   fetchAdminShipmentDocumentKinds,
+  fetchAdminShipmentFlow,
   fmtMoney,
   markAdminOrderShipped,
   resolveApiFileUrl,
@@ -43,6 +44,15 @@ const DEFAULT_COST_LINES = [
   { label: "Clearing agent", ngn: "" },
 ];
 
+function lockedMinor(row: AdminShipment | null): number {
+  return Number(row?.hold?.lockedMinor ?? 0);
+}
+
+function quoteEstimateMinor(row: AdminShipment | null): number {
+  const q = row?.quote as { estimatedMinor?: string | number } | undefined;
+  return Number(q?.estimatedMinor ?? row?.hold?.lockedMinor ?? 0);
+}
+
 function statusTone(status: string): "success" | "warn" | "danger" | "info" | "neutral" {
   const s = status.toUpperCase();
   if (s === "DELIVERED" || s === "COMPLETED") return "success";
@@ -75,13 +85,15 @@ function Page() {
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [forceAdvance, setForceAdvance] = useState(false);
   const [adminTracking, setAdminTracking] = useState("");
+  const [flowNext, setFlowNext] = useState<Record<string, string>>(NEXT);
 
   const load = async () => {
     setLoading(true);
     try {
-      const data = await fetchAdminShipment(id);
+      const [data, flow] = await Promise.all([fetchAdminShipment(id), fetchAdminShipmentFlow().catch(() => null)]);
       setRow(data);
-      const next = NEXT[data.status?.toUpperCase() ?? ""];
+      if (flow?.next) setFlowNext(flow.next as Record<string, string>);
+      const next = (flow?.next ?? NEXT)[data.status?.toUpperCase() ?? ""];
       if (next) setTargetStatus(next);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to load shipment");
@@ -241,10 +253,16 @@ function Page() {
   }
 
   const events = row.events ?? [];
-  const nextStatus = NEXT[row.status?.toUpperCase() ?? ""];
-  const canSettle = row.hold && !row.settlement;
-  const breakdown = row.settlement?.breakdown ?? [];
+  const nextStatus = flowNext[row.status?.toUpperCase() ?? ""];
+  const paidMinor = quoteEstimateMinor(row);
+  const locked = lockedMinor(row);
+  const canSettle =
+    row.hold &&
+    !row.settlement &&
+    ["CUSTOMS", "SETTLEMENT_PENDING"].includes(row.status?.toUpperCase() ?? "");
+  const settleDelta = costTotalMinor - locked;
   const order = row.marketOrder;
+  const breakdown = row.settlement?.breakdown ?? [];
   const sellerNotShipped =
     order != null && !["SHIPPED", "DELIVERED", "COMPLETED"].includes(String(order.status).toUpperCase());
   const needsSellerBeforeTransit = sellerNotShipped && (nextStatus === "IN_TRANSIT" || targetStatus === "IN_TRANSIT");
@@ -295,20 +313,40 @@ function Page() {
               {row.hold ? (
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-[0.16em]" style={{ color: T.muted }}>
-                    Hold locked
+                    Paid (estimate)
                   </p>
                   <p className="mt-1 font-semibold tabular-nums" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                    {fmtMoney(row.hold.currency ?? "NGN", row.hold.lockedMinor)}
+                    {fmtMoney(row.hold.currency ?? "NGN", paidMinor || row.hold.lockedMinor)}
                   </p>
                 </div>
               ) : null}
               {row.settlement ? (
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-[0.16em]" style={{ color: T.muted }}>
-                    Final settled
+                    Final (after customs)
                   </p>
                   <p className="mt-1 font-semibold tabular-nums" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
                     {fmtMoney(row.settlement.currency ?? "NGN", row.settlement.finalMinor)}
+                  </p>
+                </div>
+              ) : null}
+              {row.settlement && locked > 0 ? (
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.16em]" style={{ color: T.muted }}>
+                    Balance
+                  </p>
+                  <p
+                    className="mt-1 font-semibold tabular-nums"
+                    style={{
+                      fontFamily: "'JetBrains Mono', monospace",
+                      color: Number(row.settlement.topUpMinor) > 0 ? T.danger : T.success,
+                    }}
+                  >
+                    {Number(row.settlement.topUpMinor) > 0
+                      ? `−${fmtMoney("NGN", row.settlement.topUpMinor)} due`
+                      : Number(row.settlement.cashbackMinor) > 0
+                        ? `+${fmtMoney("NGN", row.settlement.cashbackMinor)} refunded`
+                        : "Settled"}
                   </p>
                 </div>
               ) : null}
@@ -579,10 +617,10 @@ function Page() {
 
           {canSettle ? (
             <div className="rounded-xl p-4 space-y-3" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
-              <p className="text-[12px] font-bold">Ops — customs cost & settlement</p>
+              <p className="text-[12px] font-bold">Ops — apply final total</p>
               <p className="text-[11px] leading-snug" style={{ color: T.sub }}>
-                Itemize clearing costs in ₦. Total is saved to the buyer shipment and drives cashback or top-up vs hold{" "}
-                {fmtMoney(row.hold?.currency ?? "NGN", row.hold?.lockedMinor)}.
+                Itemize clearing costs in ₦. Buyer paid estimate{" "}
+                {fmtMoney(row.hold?.currency ?? "NGN", paidMinor || row.hold?.lockedMinor)} — final total drives refund or top-up.
               </p>
               {costLines.map((line, i) => (
                 <div key={i} className="grid grid-cols-[1fr_100px_32px] gap-2 items-center">
@@ -627,6 +665,21 @@ function Page() {
                   {fmtMoney("NGN", costTotalMinor)}
                 </span>
               </div>
+              {costTotalMinor > 0 && locked > 0 ? (
+                <div
+                  className="rounded-lg px-3 py-2 text-[11px]"
+                  style={{
+                    background: settleDelta > 0 ? `${T.danger}08` : settleDelta < 0 ? `${T.success}08` : T.bg,
+                    border: `1px solid ${settleDelta > 0 ? T.danger : settleDelta < 0 ? T.success : T.border}33`,
+                  }}
+                >
+                  {settleDelta > 0
+                    ? `Buyer owes ${fmtMoney("NGN", settleDelta)} top-up before collection`
+                    : settleDelta < 0
+                      ? `${fmtMoney("NGN", Math.abs(settleDelta))} will be credited to buyer wallet`
+                      : "Final matches estimate — no adjustment"}
+                </div>
+              ) : null}
               <textarea
                 value={settleNotes}
                 onChange={(e) => setSettleNotes(e.target.value)}
@@ -641,7 +694,7 @@ function Page() {
                 className="w-full h-9 rounded-lg text-[12px] font-bold text-white disabled:opacity-60"
                 style={{ background: T.accent }}
               >
-                Record settlement & notify buyer
+                Apply final total & notify buyer
               </button>
             </div>
           ) : row.settlement ? (

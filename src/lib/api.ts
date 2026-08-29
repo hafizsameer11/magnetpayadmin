@@ -154,8 +154,27 @@ export type AdminShipment = {
     breakdown?: ShipmentCostLine[] | null;
     notes?: string | null;
   } | null;
-  quote?: unknown;
+  quote?: { estimatedMinor?: string | number } | null;
   marketOrder?: { id: string; status: string; tracking?: string | null; supplier?: string; escrowId?: string | null } | null;
+};
+
+export type AdminParcelType = {
+  id: string;
+  code: string;
+  name: string;
+  baseMinor: number;
+  ratePerKgMinor: number;
+  active: boolean;
+  sortOrder: number;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type AdminLogisticsEstimateConfig = {
+  id: string;
+  usdNgnEstimateRate: number;
+  estimateDisclaimer: string;
+  updatedAt: string;
 };
 
 export type AdminFreightPricing = {
@@ -184,6 +203,24 @@ export type AdminComplianceLimits = {
   updatedAt: string;
 };
 
+export type AdminLogisticsPartnerRate = {
+  id: string;
+  partnerId: string;
+  parcelTypeId?: string | null;
+  mode: "AIR" | "SEA" | "EXPRESS" | "CONSOLIDATED";
+  baseSurchargeMinor: number;
+  rateMultiplierBps: number;
+  etaLabel: string;
+  badgeLabel?: string | null;
+  includes?: string[];
+  ecoFriendly: boolean;
+  active: boolean;
+  sortOrder: number;
+  parcelType?: { id: string; code: string; name: string } | null;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
 export type AdminLogisticsPartner = {
   id: string;
   name: string;
@@ -197,6 +234,7 @@ export type AdminLogisticsPartner = {
   contactPhone?: string | null;
   contactEmail?: string | null;
   notes?: string | null;
+  rates?: AdminLogisticsPartnerRate[];
   createdAt: string;
   updatedAt: string;
 };
@@ -483,6 +521,46 @@ export async function settleAdminShipment(
 export async function fetchAdminFreightPricing() {
   return api<AdminFreightPricing>("/admin/logistics/pricing");
 }
+
+export async function fetchAdminLogisticsEstimateConfig() {
+  return api<AdminLogisticsEstimateConfig>("/admin/logistics/estimate-config");
+}
+
+export async function putAdminLogisticsEstimateConfig(body: {
+  usdNgnEstimateRate: number;
+  estimateDisclaimer: string;
+}) {
+  return api<AdminLogisticsEstimateConfig>("/admin/logistics/estimate-config", {
+    method: "PUT",
+    body: JSON.stringify(body),
+  });
+}
+
+export async function fetchAdminParcelTypes() {
+  return api<AdminParcelType[]>("/admin/logistics/parcel-types");
+}
+
+export async function createAdminParcelType(body: Omit<AdminParcelType, "id" | "createdAt" | "updatedAt">) {
+  return api<AdminParcelType>("/admin/logistics/parcel-types", { method: "POST", body: JSON.stringify(body) });
+}
+
+export async function patchAdminParcelType(id: string, body: Partial<Omit<AdminParcelType, "id" | "code" | "createdAt" | "updatedAt">>) {
+  return api<AdminParcelType>(`/admin/logistics/parcel-types/${id}`, { method: "PATCH", body: JSON.stringify(body) });
+}
+
+export async function previewAdminParcelEstimate(body: { parcelTypeId: string; weightKg: number; declaredUsd?: number }) {
+  return api<{ estimatedMinor: string | number; formula: string; baseMinor: string | number; weightChargeMinor: string | number }>(
+    "/admin/logistics/parcel-types/preview",
+    { method: "POST", body: JSON.stringify(body) },
+  );
+}
+
+export async function fetchAdminShipmentFlow() {
+  return api<{ next: Record<string, string>; parcelTypes: AdminParcelType[]; estimateConfig: AdminLogisticsEstimateConfig }>(
+    "/admin/logistics/shipment-flow",
+  );
+}
+
 export async function putAdminFreightPricing(body: Omit<AdminFreightPricing, "id" | "updatedAt">) {
   return api<AdminFreightPricing>("/admin/logistics/pricing", { method: "PUT", body: JSON.stringify(body) });
 }
@@ -503,6 +581,46 @@ export async function createAdminLogisticsPartner(body: Partial<AdminLogisticsPa
 }
 export async function patchAdminLogisticsPartner(id: string, body: Partial<AdminLogisticsPartner>) {
   return api<AdminLogisticsPartner>(`/admin/logistics/partners/${id}`, { method: "PATCH", body: JSON.stringify(body) });
+}
+
+export async function fetchAdminPartnerRates(partnerId: string) {
+  return api<AdminLogisticsPartnerRate[]>(`/admin/logistics/partners/${partnerId}/rates`);
+}
+
+export async function createAdminPartnerRate(
+  partnerId: string,
+  body: {
+    parcelTypeId?: string | null;
+    mode?: AdminLogisticsPartnerRate["mode"];
+    baseSurchargeMinor?: number;
+    rateMultiplierBps?: number;
+    etaLabel?: string;
+    badgeLabel?: string | null;
+    includes?: string[];
+    ecoFriendly?: boolean;
+    active?: boolean;
+    sortOrder?: number;
+  },
+) {
+  return api<AdminLogisticsPartnerRate>(`/admin/logistics/partners/${partnerId}/rates`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+export async function patchAdminPartnerRate(
+  partnerId: string,
+  rateId: string,
+  body: Partial<Omit<AdminLogisticsPartnerRate, "id" | "partnerId" | "parcelType" | "createdAt" | "updatedAt">>,
+) {
+  return api<AdminLogisticsPartnerRate>(`/admin/logistics/partners/${partnerId}/rates/${rateId}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+}
+
+export async function deleteAdminPartnerRate(partnerId: string, rateId: string) {
+  return api(`/admin/logistics/partners/${partnerId}/rates/${rateId}`, { method: "DELETE" });
 }
 
 export async function fetchAdminComplianceLimits() {

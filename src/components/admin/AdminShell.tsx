@@ -57,7 +57,7 @@ const NAV: NavItem[] = [
   { label: "Escrow", to: "/admin/escrow", I: Lock },
   { label: "Disputes", to: "/admin/disputes", I: Gavel },
   { label: "Shipments", to: "/admin/shipments", I: Truck },
-  { label: "Freight pricing", to: "/admin/logistics/pricing", I: Truck },
+  { label: "Estimate settings", to: "/admin/logistics/pricing", I: Truck },
   { label: "Logistics partners", to: "/admin/logistics/partners", I: Truck },
   { label: "Chats", to: "/admin/chats", I: MessageSquare },
   { label: "AML", to: "/admin/aml", I: AlertTriangle },
@@ -119,12 +119,7 @@ export function AdminShell({
         >
           <div className="px-4 pt-6 pb-6">
             <Link to="/admin" className="flex items-center gap-2">
-              <div
-                className="size-7 rounded-lg grid place-items-center text-[13px] font-bold"
-                style={{ background: T.accent, color: "#fff" }}
-              >
-                M
-              </div>
+              <img src="/logo.svg" alt="MagnetPay" className="h-7 w-auto" />
               <div>
                 <p className="text-[13px] font-bold leading-tight">MagnetPay</p>
                 <p

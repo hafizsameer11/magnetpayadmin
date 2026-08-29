@@ -30,12 +30,7 @@ export function AdminAuthLayout({
           style={{ background: T.navy, color: "#EFE9D9" }}
         >
           <Link to="/admin" className="flex items-center gap-2.5">
-            <div
-              className="size-9 rounded-lg grid place-items-center text-[15px] font-bold"
-              style={{ background: T.accent, color: "#fff" }}
-            >
-              M
-            </div>
+            <img src="/logo.svg" alt="MagnetPay" className="h-9 w-auto brightness-0 invert" />
             <div>
               <p className="text-[15px] font-bold leading-tight">MagnetPay</p>
               <p
@@ -96,12 +91,7 @@ export function AdminAuthLayout({
         <main className="flex-1 flex items-center justify-center p-6">
           <div className="w-full max-w-[400px]">
             <div className="md:hidden mb-8 flex items-center gap-2.5">
-              <div
-                className="size-9 rounded-lg grid place-items-center text-[15px] font-bold"
-                style={{ background: T.accent, color: "#fff" }}
-              >
-                M
-              </div>
+              <img src="/logo.svg" alt="MagnetPay" className="h-9 w-auto" />
               <div>
                 <p className="text-[14px] font-bold leading-tight">MagnetPay Admin</p>
               </div>
