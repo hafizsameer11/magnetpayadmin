@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { AdminShell, AdminCard, T } from "@/components/admin/AdminShell";
 import { ListingHeader, ListingPageActions, listingRefId } from "@/components/admin/ListingProfile";
-import { fetchAdminAudit, fetchAdminProduct } from "@/lib/api";
+import { fetchAdminAudit, fetchAdminProduct, moderateProduct, reportAdminProduct } from "@/lib/api";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/listings/$id/history")({
   head: () => ({ meta: [{ title: "Listing history — MagnetPay Admin" }] }),
@@ -15,6 +16,39 @@ function Page() {
   const [product, setProduct] = useState<Awaited<ReturnType<typeof fetchAdminProduct>> | null>(null);
   const [events, setEvents] = useState<{ action: string; at: string; note: string }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+
+  const reloadProduct = async () => {
+    const p = await fetchAdminProduct(id);
+    setProduct(p);
+    return p;
+  };
+
+  const moderate = async (status: "APPROVED" | "HIDDEN" | "REJECTED") => {
+    setBusy(true);
+    try {
+      await moderateProduct(id, status);
+      toast.success(status === "APPROVED" ? "Product approved" : status === "HIDDEN" ? "Product paused" : "Product delisted");
+      await reloadProduct();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Moderation failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const report = async () => {
+    if (!product) return;
+    setBusy(true);
+    try {
+      await reportAdminProduct(id, `Report: ${product.title}`);
+      toast.success("Listing reported — fraud case created");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Report failed");
+    } finally {
+      setBusy(false);
+    }
+  };
 
   useEffect(() => {
     void (async () => {
@@ -57,7 +91,7 @@ function Page() {
         </div>
       ) : product ? (
         <>
-          <ListingHeader product={product} />
+          <ListingHeader product={product} busy={busy} onModerate={(s) => void moderate(s)} onReport={() => void report()} />
           {events.length === 0 ? (
             <div className="mt-4">
               <AdminCard>

@@ -52,8 +52,8 @@ export function DisputeHeader({ row }: { row: AdminDispute }) {
               <h2 className="text-[18px] font-bold tabular-nums" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
                 {row.id}
               </h2>
-              {priorityPill("high")}
-              {row.outcome ? <Pill tone="success">{row.outcome}</Pill> : statusPillDispute("investigating")}
+              {priorityPill((row as { priority?: string }).priority ?? (row.outcome ? "normal" : "high"))}
+              {row.outcome ? <Pill tone="success">{row.outcome}</Pill> : statusPillDispute(row.outcome ? "resolved_buyer" : "investigating")}
             </div>
             <p className="mt-1 text-[12px]" style={{ color: T.sub }}>
               {(row.reason in { not_as_described: 1, not_received: 1, damaged: 1, counterfeit: 1, wrong_item: 1, late: 1, quality: 1, customs_hold: 1, chargeback: 1 }
@@ -78,7 +78,10 @@ export function DisputeHeader({ row }: { row: AdminDispute }) {
             <p className="text-[10px] font-bold uppercase tracking-[0.16em] mb-1" style={{ color: T.muted }}>
               SLA
             </p>
-            {slaBar({ age: 12, sla: 48 })}
+            {slaBar({
+              age: Math.floor((Date.now() - new Date(row.createdAt).getTime()) / 3600_000),
+              sla: Number((row as { slaHours?: number }).slaHours ?? 72),
+            })}
           </div>
           {row.escrowId ? (
             <div>

@@ -20,6 +20,7 @@ function primarySku(p: AdminProduct) {
 function Page() {
   const [rows, setRows] = useState<AdminProduct[]>([]);
   const [query, setQuery] = useState("");
+  const [tab, setTab] = useState<"all" | "active" | "hidden" | "reported">("all");
   const [busyId, setBusyId] = useState<string | null>(null);
 
   const load = async () => {
@@ -35,6 +36,10 @@ function Page() {
   }, []);
 
   const filtered = rows.filter((r) => {
+    const status = listingCatalogStatus(r);
+    if (tab === "active" && !r.active) return false;
+    if (tab === "hidden" && r.active) return false;
+    if (tab === "reported" && status !== "reported") return false;
     if (!query) return true;
     const q = query.toLowerCase();
     return (
@@ -95,6 +100,30 @@ function Page() {
             className="bg-transparent text-[12px] outline-none flex-1"
             style={{ color: T.ink }}
           />
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {(
+            [
+              ["all", "All"],
+              ["active", "Active"],
+              ["hidden", "Hidden"],
+              ["reported", "Reported"],
+            ] as const
+          ).map(([k, label]) => (
+            <button
+              key={k}
+              type="button"
+              onClick={() => setTab(k)}
+              className="h-8 px-3 rounded-lg text-[11.5px] font-semibold"
+              style={{
+                background: tab === k ? T.navy : T.surface,
+                border: `1px solid ${tab === k ? T.navy : T.border}`,
+                color: tab === k ? "#fff" : T.ink,
+              }}
+            >
+              {label}
+            </button>
+          ))}
         </div>
       </div>
 

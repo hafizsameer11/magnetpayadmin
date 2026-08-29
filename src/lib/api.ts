@@ -373,6 +373,9 @@ export async function fetchAdminUser(id: string) {
 export async function patchAdminUser(id: string, body: Record<string, unknown>) {
   return api(`/admin/users/${id}`, { method: "PATCH", body: JSON.stringify(body) });
 }
+export async function openAdminChatWithUser(userId: string) {
+  return api<{ conversationId: string; created: boolean }>(`/admin/users/${userId}/open-chat`, { method: "POST" });
+}
 export async function inviteAdminUser(phone: string, role = "BUYER") {
   return api("/admin/users/invite", { method: "POST", body: JSON.stringify({ phone, role }) });
 }
@@ -992,6 +995,15 @@ export async function createAdminRecord(body: {
   payload?: Record<string, unknown>;
 }) {
   return api<AdminRecord>("/admin/records", { method: "POST", body: JSON.stringify(body) });
+}
+export async function reportAdminProduct(productId: string, title: string) {
+  return createAdminRecord({
+    domain: "fraud",
+    title,
+    externalId: `LST-${productId.slice(0, 8).toUpperCase()}`,
+    status: "open",
+    payload: { productId, source: "admin_listing_flag" },
+  });
 }
 export async function fetchAdminReviews() {
   return api<unknown[]>("/admin/reviews");

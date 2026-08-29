@@ -129,6 +129,14 @@ export function TxnDetailBody({
   );
 }
 
+function riskFromAmount(currency: string, amountMinor: string | number, status: string) {
+  const major = Number(amountMinor) / 100;
+  const ngn = currency === "NGN" ? major : currency === "USD" ? major * 1600 : major * 229;
+  if (String(status).toUpperCase().includes("FAIL")) return { label: "High", tone: T.danger };
+  if (ngn >= 500_000) return { label: "Medium", tone: T.warn };
+  return { label: "Low", tone: T.success };
+}
+
 export function DepositDetailBody({
   row,
 }: {
@@ -175,7 +183,7 @@ export function DepositDetailBody({
         />
         <KV label="Phone" v={row.user?.phone ?? "—"} />
         <KV label="Provider ref" v={row.providerRef ?? "—"} />
-        <KV label="Risk score" v={<span style={{ color: T.success }}>Low · 12</span>} />
+        <KV label="Risk score" v={<span style={{ color: riskFromAmount(row.currency, row.amountMinor, row.status).tone }}>{riskFromAmount(row.currency, row.amountMinor, row.status).label}</span>} />
         <KV label="When" v={row.createdAt ? new Date(row.createdAt).toLocaleString() : "—"} />
       </KVGrid>
     </>
@@ -233,8 +241,8 @@ export function WithdrawalDetailBody({
             )
           }
         />
-        <KV label="Risk score" v={<span style={{ color: T.warn }}>Medium · 51</span>} />
-        <KV label="Review note" v="First withdrawal above threshold" />
+        <KV label="Risk score" v={<span style={{ color: riskFromAmount(row.currency, row.amountMinor, row.status).tone }}>{riskFromAmount(row.currency, row.amountMinor, row.status).label}</span>} />
+        <KV label="Review note" v={String(row.status).toUpperCase().includes("PEND") ? "Pending manual review" : "—"} />
         <KV label="Requested" v={row.createdAt ? new Date(row.createdAt).toLocaleString() : "—"} />
       </KVGrid>
     </>

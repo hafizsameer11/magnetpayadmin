@@ -7,7 +7,7 @@ import {
   ListingPageActions,
   listingRefId,
 } from "@/components/admin/ListingProfile";
-import { fetchAdminProduct, fetchAdminProductStats, moderateProduct } from "@/lib/api";
+import { fetchAdminProduct, fetchAdminProductStats, moderateProduct, reportAdminProduct } from "@/lib/api";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/listings/$id/")({
@@ -58,6 +58,19 @@ function Page() {
     }
   };
 
+  const report = async () => {
+    if (busy || !product) return;
+    setBusy(true);
+    try {
+      await reportAdminProduct(id, `Report: ${product.title}`);
+      toast.success("Listing reported — fraud case created");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Report failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   if (loading) {
     return (
       <AdminShell
@@ -100,7 +113,7 @@ function Page() {
       ]}
       actions={<ListingPageActions id={product.id} active="overview" />}
     >
-      <ListingOverview product={product} stats={stats} busy={busy} onModerate={(s) => void moderate(s)} />
+      <ListingOverview product={product} stats={stats} busy={busy} onModerate={(s) => void moderate(s)} onReport={() => void report()} />
     </AdminShell>
   );
 }

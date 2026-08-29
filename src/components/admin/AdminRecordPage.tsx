@@ -4,6 +4,7 @@ import { Loader2, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
 import { Pill } from "@/components/admin/UserProfile";
 import { fetchAdminRecords, fetchAdminTickets, fetchAdminWebhooks, fetchAdminFeatureFlags, fetchAdminJobs, fetchAdminIncidents, fetchAdminContentPages, fetchAdminHelpArticles, fetchAdminEmailTemplates, fetchAdminSmsTemplates, patchAdminRecord, createAdminRecord, type AdminRecord } from "@/lib/api";
+import { FilterSelect, applyAllFilter, uniqueOptions } from "./ListFilters";
 import { DOMAIN_CONFIG, type AdminRecordRow } from "@/components/admin/recordRegistry";
 import { toast } from "sonner";
 
@@ -53,6 +54,7 @@ export function AdminRecordListPage({ domain }: { domain: string }) {
   const [rows, setRows] = useState<AdminRecordRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("__all__");
   const [page, setPage] = useState(0);
   const [creating, setCreating] = useState(false);
   const [newTitle, setNewTitle] = useState("");
@@ -108,23 +110,25 @@ export function AdminRecordListPage({ domain }: { domain: string }) {
   }, [domain]);
 
   const filtered = useMemo(() => {
-    if (!query.trim()) return rows;
+    let list = rows;
+    list = applyAllFilter(list, statusFilter, (r) => r.status ?? "");
+    if (!query.trim()) return list;
     const q = query.toLowerCase();
-    return rows.filter(
+    return list.filter(
       (r) =>
         r.title.toLowerCase().includes(q) ||
         (r.subtitle ?? "").toLowerCase().includes(q) ||
         (r.externalId ?? "").toLowerCase().includes(q) ||
         (r.status ?? "").toLowerCase().includes(q),
     );
-  }, [rows, query]);
+  }, [rows, query, statusFilter]);
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const pageRows = filtered.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
 
   useEffect(() => {
     setPage(0);
-  }, [query, domain]);
+  }, [query, domain, statusFilter]);
 
   const kpis = config.kpi?.(rows) ?? [
     { label: "Total", val: String(rows.length) },
@@ -159,6 +163,7 @@ export function AdminRecordListPage({ domain }: { domain: string }) {
             style={{ color: T.ink }}
           />
         </div>
+        <FilterSelect label="Status" value={statusFilter} onChange={setStatusFilter} options={uniqueOptions(rows.map((r) => r.status ?? ""), "All")} />
         <button
           type="button"
           onClick={() => setCreating((v) => !v)}

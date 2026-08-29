@@ -40,6 +40,7 @@ export function BrandsListPage() {
   const [rows, setRows] = useState<AdminBrand[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
+  const [status, setStatus] = useState("__all__");
 
   useEffect(() => {
     void fetchAdminBrands()
@@ -48,7 +49,11 @@ export function BrandsListPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const filtered = rows.filter((r) => !query || r.name.toLowerCase().includes(query.toLowerCase()));
+  const filtered = rows.filter((r) => {
+    if (status !== "__all__" && r.status !== status) return false;
+    if (!query) return true;
+    return r.name.toLowerCase().includes(query.toLowerCase());
+  });
 
   return (
     <AdminShell title="Brands" description="Verified supplier brands on marketplace." breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Listings", to: "/admin/listings" }, { label: "Brands" }]}>
@@ -63,6 +68,7 @@ export function BrandsListPage() {
           <Search className="size-3.5" style={{ color: T.muted }} />
           <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search brand…" className="bg-transparent text-[12px] outline-none flex-1" />
         </div>
+        <FilterSelect label="Status" value={status} onChange={setStatus} options={uniqueOptions(rows.map((r) => r.status), "All")} />
       </FilterBar>
       <Card padded={false} className="mt-4">
         <div className="grid px-4 h-9 items-center text-[10px] font-bold uppercase tracking-[0.14em]" style={{ gridTemplateColumns: "1.5fr 1fr 1fr 1fr", color: T.muted, background: T.bg, borderBottom: `1px solid ${T.border}` }}>
@@ -173,6 +179,8 @@ export function EscrowListPage({ filter }: { filter?: string }) {
 export function DisputesListPage() {
   const [rows, setRows] = useState<AdminDispute[]>([]);
   const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState("__all__");
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
     void fetchAdminDisputes()
@@ -216,7 +224,14 @@ export function DisputesListPage() {
   };
   });
 
-  const open = mapped.filter((x) => !x.status.startsWith("resolved"));
+  const visible = mapped.filter((d) => {
+    if (statusFilter !== "__all__" && d.status !== statusFilter) return false;
+    if (!query.trim()) return true;
+    const q = query.toLowerCase();
+    return d.id.toLowerCase().includes(q) || d.buyer.toLowerCase().includes(q) || d.seller.toLowerCase().includes(q) || d.summary.toLowerCase().includes(q);
+  });
+
+  const open = visible.filter((x) => !x.status.startsWith("resolved"));
   const stats = {
     open: open.length,
     atStakeLabel: `₦${open.reduce((s, x) => s + x.amountNGN, 0).toLocaleString()}`,
@@ -232,7 +247,14 @@ export function DisputesListPage() {
         <KPI label="Over SLA" value={String(stats.overSla)} tone="danger" />
         <KPI label="Critical" value={String(stats.critical)} tone="info" />
       </div>
-      {loading ? <Loader2 className="size-5 animate-spin mx-auto my-16" style={{ color: T.muted }} /> : <DisputeTable rows={mapped} />}
+      <FilterBar>
+        <div className="flex items-center gap-2 h-9 px-3 rounded-lg w-[260px]" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
+          <Search className="size-3.5" style={{ color: T.muted }} />
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search disputes…" className="bg-transparent text-[12px] outline-none flex-1" />
+        </div>
+        <FilterSelect label="Status" value={statusFilter} onChange={setStatusFilter} options={uniqueOptions(mapped.map((d) => d.status), "All")} />
+      </FilterBar>
+      {loading ? <Loader2 className="size-5 animate-spin mx-auto my-16" style={{ color: T.muted }} /> : <DisputeTable rows={visible} />}
     </AdminShell>
   );
 }
@@ -357,6 +379,8 @@ function MoneyTablePage({
 }) {
   const [rows, setRows] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("__all__");
 
   useEffect(() => {
     void loader()
@@ -365,22 +389,37 @@ function MoneyTablePage({
       .finally(() => setLoading(false));
   }, []);
 
+  const filtered = rows.filter((r) => {
+    if (statusFilter !== "__all__" && String(r.status ?? "") !== statusFilter) return false;
+    if (!query.trim()) return true;
+    const q = query.toLowerCase();
+    const user = (r.user ?? {}) as Record<string, unknown>;
+    return String(r.id ?? "").toLowerCase().includes(q) || String(user.name ?? "").toLowerCase().includes(q);
+  });
+
   return (
     <AdminShell title={title} description={`Live ${title.toLowerCase()} from API.`} breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: title }]}>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
         <KPI label="Records" value={String(rows.length)} />
         <KPI label="Pending" value={String(rows.filter((r) => toneForStatus(String(r.status ?? "")) === "warn").length)} tone="warn" />
         <KPI label="Completed" value={String(rows.filter((r) => toneForStatus(String(r.status ?? "")) === "success").length)} tone="success" />
-        <KPI label="Failed" value={String(rows.filter((r) => toneForStatus(String(r.status ?? "")) === "danger").length)} tone="danger" />
+        <KPI label="Filtered" value={String(filtered.length)} tone="info" />
       </div>
-      <Card padded={false}>
+      <FilterBar>
+        <div className="flex items-center gap-2 h-9 px-3 rounded-lg w-[260px]" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
+          <Search className="size-3.5" style={{ color: T.muted }} />
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search ID or user…" className="bg-transparent text-[12px] outline-none flex-1" />
+        </div>
+        <FilterSelect label="Status" value={statusFilter} onChange={setStatusFilter} options={uniqueOptions(rows.map((r) => String(r.status ?? "")), "All")} />
+      </FilterBar>
+      <Card padded={false} className="mt-4">
         <div className="grid px-4 h-9 items-center text-[10px] font-bold uppercase tracking-[0.14em]" style={{ gridTemplateColumns: "1.2fr 1fr 1fr 1fr", color: T.muted, background: T.bg, borderBottom: `1px solid ${T.border}` }}>
           <span>ID</span><span>User</span><span>Status</span><span className="text-right">Amount</span>
         </div>
         {loading ? (
           <div className="py-12 grid place-items-center"><Loader2 className="size-5 animate-spin" style={{ color: T.muted }} /></div>
         ) : (
-          rows.slice(0, 50).map((r, i) => {
+          filtered.slice(0, 50).map((r, i) => {
             const id = String(r.id ?? i);
             const user = (r.user ?? {}) as Record<string, unknown>;
             return (
@@ -389,7 +428,7 @@ function MoneyTablePage({
                 to={`${path}/$id` as never}
                 params={{ id } as never}
                 className="grid px-4 h-[52px] items-center text-[12px] hover:opacity-90"
-                style={{ gridTemplateColumns: "1.2fr 1fr 1fr 1fr", borderBottom: i < Math.min(rows.length, 50) - 1 ? `1px solid ${T.border}` : "none" }}
+                style={{ gridTemplateColumns: "1.2fr 1fr 1fr 1fr", borderBottom: i < Math.min(filtered.length, 50) - 1 ? `1px solid ${T.border}` : "none" }}
               >
                 <span className="font-semibold tabular-nums truncate" style={{ color: T.navy, fontFamily: "'JetBrains Mono', monospace" }}>{id.slice(0, 10)}</span>
                 <span className="truncate">{String(user.name ?? "—")}</span>
@@ -408,6 +447,7 @@ function MoneyTablePage({
 
 export function InventoryAlertsPage() {
   const [rows, setRows] = useState<Record<string, unknown>[]>([]);
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
     void import("@/lib/api").then(({ fetchAdminProducts }) =>
@@ -420,15 +460,26 @@ export function InventoryAlertsPage() {
     return stock != null && stock < 100;
   });
 
+  const visible = low.filter((r) => {
+    if (!query.trim()) return true;
+    return String(r.title ?? "").toLowerCase().includes(query.toLowerCase());
+  });
+
   return (
     <AdminShell title="Inventory alerts" breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Listings", to: "/admin/listings" }, { label: "Inventory" }]}>
       <div className="grid grid-cols-3 gap-3 mb-4">
         <KPI label="Low stock" value={String(low.length)} tone="warn" />
         <KPI label="Out of stock" value={String(rows.filter((r) => r.stock === 0).length)} tone="danger" />
-        <KPI label="Total SKUs" value={String(rows.length)} />
+        <KPI label="Showing" value={String(visible.length)} />
       </div>
-      <Card padded={false}>
-        {low.slice(0, 30).map((r, i) => {
+      <FilterBar>
+        <div className="flex items-center gap-2 h-9 px-3 rounded-lg w-[260px]" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
+          <Search className="size-3.5" style={{ color: T.muted }} />
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search SKU…" className="bg-transparent text-[12px] outline-none flex-1" />
+        </div>
+      </FilterBar>
+      <Card padded={false} className="mt-4">
+        {visible.slice(0, 30).map((r, i) => {
           const id = String(r.id);
           const img = r.imageUrl ? resolveApiFileUrl(String(r.imageUrl)) : "";
           return (
@@ -503,6 +554,8 @@ export function ReconciliationPage() {
 export function SellerTiersPage() {
   const [rows, setRows] = useState<{ id: string; name: string; minOrders?: number; verified?: boolean; title?: string; status?: string }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState("");
+  const [verifiedOnly, setVerifiedOnly] = useState("__all__");
 
   useEffect(() => {
     void fetchAdminSellerTiers()
@@ -511,23 +564,47 @@ export function SellerTiersPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  const filtered = rows.filter((r) => {
+    if (verifiedOnly === "yes" && !r.verified) return false;
+    if (verifiedOnly === "no" && r.verified) return false;
+    if (!query.trim()) return true;
+    const q = query.toLowerCase();
+    return (r.name ?? r.title ?? r.id).toLowerCase().includes(q);
+  });
+
   return (
     <AdminShell title="Seller tiers" description="Tier thresholds and verification requirements." breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Sellers", to: "/admin/sellers" }, { label: "Tiers" }]}>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
         <KPI label="Tiers" value={String(rows.length)} />
         <KPI label="Verified tiers" value={String(rows.filter((r) => r.verified).length)} tone="success" />
         <KPI label="Min orders (max)" value={String(Math.max(0, ...rows.map((r) => r.minOrders ?? 0)))} tone="info" />
-        <KPI label="Active" value={String(rows.filter((r) => (r.status ?? "active") !== "inactive").length)} />
+        <KPI label="Filtered" value={String(filtered.length)} />
       </div>
-      <Card padded={false}>
+      <FilterBar>
+        <div className="flex items-center gap-2 h-9 px-3 rounded-lg w-[260px]" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
+          <Search className="size-3.5" style={{ color: T.muted }} />
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search tier…" className="bg-transparent text-[12px] outline-none flex-1" />
+        </div>
+        <FilterSelect
+          label="Verified"
+          value={verifiedOnly}
+          onChange={setVerifiedOnly}
+          options={[
+            { value: "__all__", label: "All" },
+            { value: "yes", label: "Verified" },
+            { value: "no", label: "Not verified" },
+          ]}
+        />
+      </FilterBar>
+      <Card padded={false} className="mt-4">
         <div className="grid px-4 h-9 items-center text-[10px] font-bold uppercase tracking-[0.14em]" style={{ gridTemplateColumns: "1.5fr 1fr 1fr 1fr", color: T.muted, background: T.bg, borderBottom: `1px solid ${T.border}` }}>
           <span>Tier</span><span>Min orders</span><span>Verified</span><span>Status</span>
         </div>
         {loading ? (
           <div className="py-12 grid place-items-center"><Loader2 className="size-5 animate-spin" style={{ color: T.muted }} /></div>
         ) : (
-          rows.map((r, i) => (
-            <div key={r.id} className="grid px-4 h-[52px] items-center text-[12px]" style={{ gridTemplateColumns: "1.5fr 1fr 1fr 1fr", borderBottom: i < rows.length - 1 ? `1px solid ${T.border}` : "none" }}>
+          filtered.map((r, i) => (
+            <div key={r.id} className="grid px-4 h-[52px] items-center text-[12px]" style={{ gridTemplateColumns: "1.5fr 1fr 1fr 1fr", borderBottom: i < filtered.length - 1 ? `1px solid ${T.border}` : "none" }}>
               <span className="font-semibold">{r.name ?? r.title ?? r.id}</span>
               <span className="tabular-nums" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{r.minOrders ?? 0}</span>
               <Pill tone={r.verified ? "success" : "neutral"}>{r.verified ? "Yes" : "No"}</Pill>

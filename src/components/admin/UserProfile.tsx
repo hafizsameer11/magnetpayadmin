@@ -1,8 +1,9 @@
-import { Link, useRouterState } from "@tanstack/react-router";
-import { ShieldCheck, Clock, Ban, Copy, MoreHorizontal, ChevronLeft, AlertTriangle } from "lucide-react";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { ShieldCheck, Clock, Ban, Copy, ChevronLeft, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { T } from "./AdminShell";
-import type { AdminUser } from "@/lib/api";
+import { ActionMenu } from "./ActionMenu";
+import { openAdminChatWithUser, patchAdminUser, type AdminUser } from "@/lib/api";
 
 type Tone = "success" | "warn" | "danger" | "info" | "neutral";
 
@@ -98,8 +99,13 @@ export function accountStatusPill(user: AdminUser) {
   return <Pill tone="warn">In review</Pill>;
 }
 
-export function riskTone(_user: AdminUser): Tone {
-  return "success";
+export function riskTone(user: AdminUser): Tone {
+  const kyc = kycStatus(user);
+  if (kyc === "REJECTED") return "danger";
+  const vol = walletVolumeUsd(user);
+  if (vol > 50_000) return "warn";
+  if (kyc === "APPROVED") return "success";
+  return "neutral";
 }
 
 export function riskDot(tone: Tone = "success") {
@@ -146,7 +152,41 @@ const USER_TAB_ROUTES = [
 
 export function UserHeader({ user }: { user: AdminUser }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
+  const navigate = useNavigate();
   const country = countryFromPhone(user.phone);
+
+  const openMessage = () => {
+    void (async () => {
+      try {
+        const { conversationId } = await openAdminChatWithUser(user.id);
+        void navigate({ to: "/admin/chats/$id", params: { id: conversationId } });
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "Could not open chat");
+      }
+    })();
+  };
+
+  const setRole = (role: "BUYER" | "SELLER" | "BOTH") => {
+    void (async () => {
+      try {
+        await patchAdminUser(user.id, { role });
+        toast.success(`Role updated to ${roleLabel(role)}`);
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "Update failed");
+      }
+    })();
+  };
+
+  const toggleSuspend = () => {
+    void (async () => {
+      try {
+        await patchAdminUser(user.id, { suspended: true });
+        toast.success("Suspension recorded in audit log");
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "Suspend failed");
+      }
+    })();
+  };
 
   return (
     <>
@@ -208,26 +248,66 @@ export function UserHeader({ user }: { user: AdminUser }) {
         <div className="flex items-center gap-2 shrink-0">
           <button
             type="button"
+            onClick={openMessage}
             className="h-9 px-3 rounded-lg text-[12px] font-semibold"
             style={{ background: T.surface, border: `1px solid ${T.border}`, color: T.ink }}
           >
             Message
           </button>
-          <button
-            type="button"
-            className="h-9 px-3 rounded-lg text-[12px] font-bold text-white"
+          <Link
+            to="/admin/users/$id/wallet"
+            params={{ id: user.id }}
+            className="h-9 px-3 rounded-lg text-[12px] font-bold text-white inline-flex items-center"
             style={{ background: T.navy }}
           >
-            Impersonate
-          </button>
-          <button
-            type="button"
-            className="size-9 grid place-items-center rounded-lg"
-            style={{ background: T.surface, border: `1px solid ${T.border}`, color: T.sub }}
-            aria-label="More actions"
-          >
-            <MoreHorizontal className="size-4" strokeWidth={2.2} />
-          </button>
+            Wallet
+          </Link>
+          <ActionMenu
+            label="More actions"
+            items={[
+              {
+                id: "tickets",
+                label: "View tickets",
+                onClick: () => void navigate({ to: "/admin/users/$id/tickets", params: { id: user.id } }),
+              },
+              {
+                id: "notes",
+                label: "Add note",
+                onClick: () => void navigate({ to: "/admin/users/$id/notes", params: { id: user.id } }),
+              },
+              {
+                id: "role-buyer",
+                label: "Set role · Importer",
+                onClick: () => setRole("BUYER"),
+              },
+              {
+                id: "role-seller",
+                label: "Set role · Supplier",
+                onClick: () => setRole("SELLER"),
+              },
+              {
+                id: "role-both",
+                label: "Set role · Merchant",
+                onClick: () => setRole("BOTH"),
+              },
+              {
+                id: "copy-phone",
+                label: "Copy phone",
+                onClick: () => {
+                  void navigator.clipboard.writeText(user.phone).then(
+                    () => toast.success("Phone copied"),
+                    () => toast.error("Could not copy"),
+                  );
+                },
+              },
+              {
+                id: "suspend",
+                label: "Record suspension",
+                danger: true,
+                onClick: toggleSuspend,
+              },
+            ]}
+          />
         </div>
       </div>
 

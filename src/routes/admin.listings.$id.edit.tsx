@@ -4,7 +4,7 @@ import { Loader2, Save } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
 import { Card, SectionLabel } from "@/components/admin/Catalog";
 import { ListingHeader, ListingPageActions, listingRefId } from "@/components/admin/ListingProfile";
-import { fetchAdminCategories, fetchAdminProduct, fromMinor, updateAdminProduct, type AdminProduct } from "@/lib/api";
+import { fetchAdminCategories, fetchAdminProduct, fromMinor, moderateProduct, reportAdminProduct, updateAdminProduct, type AdminProduct } from "@/lib/api";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/listings/$id/edit")({
@@ -18,6 +18,7 @@ function Page() {
   const { id } = Route.useParams();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [modBusy, setModBusy] = useState(false);
   const [product, setProduct] = useState<AdminProduct | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [title, setTitle] = useState("");
@@ -107,6 +108,32 @@ function Page() {
     }
   };
 
+  const moderate = async (status: "APPROVED" | "HIDDEN" | "REJECTED") => {
+    setModBusy(true);
+    try {
+      await moderateProduct(id, status);
+      toast.success(status === "APPROVED" ? "Product approved" : status === "HIDDEN" ? "Product paused" : "Product delisted");
+      await load();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Moderation failed");
+    } finally {
+      setModBusy(false);
+    }
+  };
+
+  const report = async () => {
+    if (!product) return;
+    setModBusy(true);
+    try {
+      await reportAdminProduct(id, `Report: ${product.title}`);
+      toast.success("Listing reported — fraud case created");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Report failed");
+    } finally {
+      setModBusy(false);
+    }
+  };
+
   if (loading) {
     return (
       <AdminShell
@@ -170,7 +197,7 @@ function Page() {
         </div>
       }
     >
-      <ListingHeader product={product} />
+      <ListingHeader product={product} busy={modBusy} onModerate={(s) => void moderate(s)} onReport={() => void report()} />
       <Card className="mt-4">
         <SectionLabel>Catalog fields</SectionLabel>
         <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-[12px]">

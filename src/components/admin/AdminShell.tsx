@@ -9,6 +9,7 @@ import { useState, useEffect, type ReactNode } from "react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { clearSession, getAccessToken } from "@/lib/session";
+import { fetchAdminFxRates } from "@/lib/api";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -120,6 +121,8 @@ export function AdminShell({
   );
   const [systemDark, setSystemDark] = useState(false);
   const [headerQ, setHeaderQ] = useState("");
+  const [fxLabel, setFxLabel] = useState("—");
+  const [fxUpdated, setFxUpdated] = useState("");
   const dark = appearance === "Dark" || (appearance === "System" && systemDark);
   const [, bumpTheme] = useState(0);
 
@@ -156,6 +159,28 @@ export function AdminShell({
   const goSearch = () => {
     navigate({ to: "/admin/search", search: headerQ.trim() ? { q: headerQ.trim() } : {} });
   };
+
+  useEffect(() => {
+    void fetchAdminFxRates()
+      .then((rows) => {
+        const cnyNgn = rows.find((r) => r.key.includes("cny") && r.key.includes("ngn"));
+        const usdNgn = rows.find((r) => r.key.includes("usd") && r.key.includes("ngn"));
+        const row = cnyNgn ?? usdNgn ?? rows[0];
+        if (!row) {
+          setFxLabel("No rates configured");
+          return;
+        }
+        const rate = Number(row.value) / 100;
+        if (row.key.includes("cny")) setFxLabel(`1 CNY = ₦${rate.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
+        else if (row.key.includes("usd")) setFxLabel(`1 USD = ₦${rate.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
+        else setFxLabel(`${row.key.replace(/^fx\./, "")} = ${rate}`);
+        setFxUpdated("Live from API");
+      })
+      .catch(() => {
+        setFxLabel("Rates unavailable");
+        setFxUpdated("");
+      });
+  }, []);
 
   useEffect(() => {
     const publicPaths = ["/admin/login", "/admin/forgot"];
@@ -243,10 +268,10 @@ export function AdminShell({
               className="mt-1 text-[14px] font-bold tabular-nums"
               style={{ fontFamily: "'JetBrains Mono', monospace" }}
             >
-              1 CNY = ₦229.04
+              {fxLabel}
             </p>
             <p className="text-[10px]" style={{ color: "#C8C2B0" }}>
-              Updated 2 min ago
+              {fxUpdated || "Configure in FX rates"}
             </p>
           </div>
         </aside>

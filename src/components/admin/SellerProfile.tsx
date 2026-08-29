@@ -1,11 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import {
-  ShieldCheck, Copy, MoreHorizontal, ChevronLeft, Building2, Star, Award, CheckCircle2,
+  ShieldCheck, Copy, ChevronLeft, Building2, Star, Award, CheckCircle2,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useNavigate } from "@tanstack/react-router";
 import { T } from "./AdminShell";
+import { ActionMenu } from "./ActionMenu";
 import { Pill, initials } from "./UserProfile";
-import type { AdminSeller } from "@/lib/api";
+import { openAdminChatWithUser, patchAdminSeller, type AdminSeller } from "@/lib/api";
 
 function copyId(id: string) {
   void navigator.clipboard.writeText(id).then(
@@ -28,6 +30,7 @@ function tierTone(label: string): "success" | "warn" | "info" | "neutral" {
 }
 
 export function SellerHeader({ seller, tab }: { seller: AdminSeller; tab?: string }) {
+  const navigate = useNavigate();
   const activeTab = tab ?? "overview";
   const owner = seller.user;
   const productCount = seller._count?.products ?? seller.products?.length ?? 0;
@@ -125,14 +128,54 @@ export function SellerHeader({ seller, tab }: { seller: AdminSeller; tab?: strin
               View owner
             </Link>
           ) : null}
-          <button
-            type="button"
-            className="size-9 grid place-items-center rounded-lg"
-            style={{ background: T.surface, border: `1px solid ${T.border}`, color: T.sub }}
-            aria-label="More actions"
-          >
-            <MoreHorizontal className="size-4" strokeWidth={2.2} />
-          </button>
+          <ActionMenu
+            label="More actions"
+            items={[
+              {
+                id: "listings",
+                label: "Browse listings",
+                onClick: () => void navigate({ to: "/admin/sellers/$id", params: { id: seller.id } }),
+              },
+              {
+                id: "verify",
+                label: seller.verified ? "Remove verification" : "Mark verified",
+                onClick: () => {
+                  void (async () => {
+                    try {
+                      await patchAdminSeller(seller.id, { verified: !seller.verified });
+                      toast.success(seller.verified ? "Verification removed" : "Seller verified");
+                      window.location.reload();
+                    } catch (e) {
+                      toast.error(e instanceof Error ? e.message : "Update failed");
+                    }
+                  })();
+                },
+              },
+              ...(owner
+                ? [
+                    {
+                      id: "message",
+                      label: "Message owner",
+                      onClick: () => {
+                        void (async () => {
+                          try {
+                            const { conversationId } = await openAdminChatWithUser(owner.id);
+                            void navigate({ to: "/admin/chats/$id", params: { id: conversationId } });
+                          } catch (e) {
+                            toast.error(e instanceof Error ? e.message : "Could not open chat");
+                          }
+                        })();
+                      },
+                    } as const,
+                  ]
+                : []),
+              {
+                id: "copy",
+                label: "Copy store ID",
+                onClick: () => copyId(seller.id),
+              },
+            ]}
+          />
         </div>
       </div>
 

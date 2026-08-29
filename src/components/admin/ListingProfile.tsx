@@ -240,10 +240,12 @@ export function ListingSidebar({
   product,
   busy,
   onModerate,
+  onReport,
 }: {
   product: AdminProduct;
   busy?: boolean;
   onModerate?: (status: "APPROVED" | "HIDDEN" | "REJECTED") => void;
+  onReport?: () => void;
 }) {
   const store = product.store;
 
@@ -287,20 +289,20 @@ export function ListingSidebar({
           <QuickAction
             I={Pause}
             label="Pause"
-            disabled={busy || !product.active}
+            disabled={busy || !product.active || !onModerate}
             onClick={() => onModerate?.("HIDDEN")}
           />
           <QuickAction
             I={Flag}
-            label="Flag"
-            disabled={busy || !onModerate}
-            onClick={() => onModerate?.("HIDDEN")}
+            label="Report"
+            disabled={busy || !onReport}
+            onClick={() => onReport?.()}
           />
           <QuickAction
             I={Trash2}
             label="Delist"
             danger
-            disabled={busy}
+            disabled={busy || !onModerate}
             onClick={() => onModerate?.("REJECTED")}
           />
         </div>
@@ -375,17 +377,19 @@ export function ListingHeader({
   product,
   busy,
   onModerate,
+  onReport,
 }: {
   product: AdminProduct;
   busy?: boolean;
   onModerate?: (status: "APPROVED" | "HIDDEN" | "REJECTED") => void;
+  onReport?: () => void;
 }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
       <div className="lg:col-span-2">
         <ListingHeroCard product={product} />
       </div>
-      <ListingSidebar product={product} busy={busy} onModerate={onModerate} />
+      <ListingSidebar product={product} busy={busy} onModerate={onModerate} onReport={onReport} />
     </div>
   );
 }
@@ -424,11 +428,13 @@ export function ListingOverview({
   stats,
   busy,
   onModerate,
+  onReport,
 }: {
   product: AdminProduct;
   stats?: AdminProductStats | null;
   busy?: boolean;
   onModerate?: (status: "APPROVED" | "HIDDEN" | "REJECTED") => void;
+  onReport?: () => void;
 }) {
   return (
     <>
@@ -489,7 +495,7 @@ export function ListingOverview({
           <ListingModerationPanel product={product} />
         </div>
 
-        <ListingSidebar product={product} busy={busy} onModerate={onModerate} />
+        <ListingSidebar product={product} busy={busy} onModerate={onModerate} onReport={onReport} />
       </div>
     </>
   );
