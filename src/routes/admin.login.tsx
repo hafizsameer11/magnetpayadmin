@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Eye, EyeOff, Mail, Lock, ArrowRight, KeyRound } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react";
 import { AdminAuthLayout } from "@/components/admin/AdminAuthLayout";
 import { T } from "@/components/admin/AdminShell";
 import { adminLogin } from "@/lib/api";
@@ -42,7 +42,7 @@ function AdminLogin() {
   return (
     <AdminAuthLayout
       title="Sign in to Admin"
-      subtitle="Use your MagnetPay staff credentials. SSO available for approved teams."
+      subtitle="Use your MagnetPay staff email and password."
       footer={
         <div className="flex items-center justify-between">
           <span>Need access?</span>
@@ -119,24 +119,6 @@ function AdminLogin() {
         >
           {submitting ? "Signing in…" : "Continue"}
           {!submitting && <ArrowRight className="size-4" strokeWidth={2.6} />}
-        </button>
-
-        <div className="flex items-center gap-3" aria-hidden>
-          <div className="flex-1 h-px" style={{ background: T.border }} />
-          <span className="text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: T.muted }}>
-            or
-          </span>
-          <div className="flex-1 h-px" style={{ background: T.border }} />
-        </div>
-
-        <button
-          type="button"
-          onClick={() => toast.message("SSO is managed by IT — use email + passcode or contact itsec@magnetpay.io")}
-          className="w-full h-11 rounded-lg flex items-center justify-center gap-2 text-[13px] font-semibold"
-          style={{ background: T.surface, border: `1px solid ${T.border}`, color: T.ink }}
-        >
-          <KeyRound className="size-4" strokeWidth={2.2} />
-          Continue with SSO
         </button>
       </form>
     </AdminAuthLayout>

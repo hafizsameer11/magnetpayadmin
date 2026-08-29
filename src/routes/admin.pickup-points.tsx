@@ -7,5 +7,5 @@ export const Route = createFileRoute("/admin/pickup-points")({
 });
 
 function Page() {
-  return <AdminRecordListPage domain="warehouse" />;
+  return <AdminRecordListPage domain="pickup-point" />;
 }

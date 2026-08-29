@@ -7,5 +7,5 @@ export const Route = createFileRoute("/admin/shipments/exceptions")({
 });
 
 function Page() {
-  return <AdminRecordListPage domain="warehouse" />;
+  return <AdminRecordListPage domain="shipment-exception" />;
 }

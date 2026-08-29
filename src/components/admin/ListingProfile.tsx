@@ -20,6 +20,8 @@ import { Pill, flaggedPill } from "./UserProfile";
 import { Card, SectionLabel, Thumb, fmtCNY, fmtNGN, statusPillCatalog } from "./Catalog";
 import { fmtMoney, fromMinor, resolveApiFileUrl, type AdminProduct, type AdminProductStats } from "@/lib/api";
 
+const WEB_BASE = import.meta.env.VITE_WEB_URL ?? import.meta.env.VITE_API_URL ?? "https://magnetpay.amctraders.online";
+
 export type ListingCatalogStatus = "active" | "pending" | "reported" | "draft" | "delisted";
 
 const CNY_NGN_RATE = 229.04;
@@ -280,7 +282,7 @@ export function ListingSidebar({
           <QuickAction
             I={ExternalLink}
             label="View public"
-            onClick={() => toast.message("Public listing preview is not linked in admin yet.")}
+            onClick={() => window.open(`${WEB_BASE}/market/product/${product.id}`, "_blank", "noopener,noreferrer")}
           />
           <QuickAction
             I={Pause}
@@ -288,7 +290,12 @@ export function ListingSidebar({
             disabled={busy || !product.active}
             onClick={() => onModerate?.("HIDDEN")}
           />
-          <QuickAction I={Flag} label="Flag" onClick={() => toast.message("Flag recorded for review queue.")} />
+          <QuickAction
+            I={Flag}
+            label="Flag"
+            disabled={busy || !onModerate}
+            onClick={() => onModerate?.("HIDDEN")}
+          />
           <QuickAction
             I={Trash2}
             label="Delist"

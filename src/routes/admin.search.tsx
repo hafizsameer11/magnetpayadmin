@@ -18,6 +18,9 @@ import {
 
 export const Route = createFileRoute("/admin/search")({
   head: () => ({ meta: [{ title: "Global search — MagnetPay Admin" }] }),
+  validateSearch: (search: Record<string, unknown>) => ({
+    q: typeof search.q === "string" ? search.q : "",
+  }),
   component: AdminSearch,
 });
 
@@ -62,10 +65,15 @@ function str(v: unknown, fallback = "") {
 }
 
 function AdminSearch() {
-  const [q, setQ] = useState("");
+  const { q: initialQ } = Route.useSearch();
+  const [q, setQ] = useState(initialQ);
   const [filter, setFilter] = useState<"all" | Kind>("all");
   const [index, setIndex] = useState<Hit[]>([]);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setQ(initialQ);
+  }, [initialQ]);
 
   useEffect(() => {
     void (async () => {

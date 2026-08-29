@@ -1,6 +1,7 @@
 ﻿import { T } from "@/components/admin/AdminShell";
 import { LISTINGS, fmtCNY, fmtNGN, Thumb, Card, Pill } from "@/components/admin/Catalog";
 import type { ReactNode } from "react";
+import { useMemo, useState } from "react";
 
 export { fmtCNY, fmtNGN, Thumb, Card, Pill };
 
@@ -167,18 +168,18 @@ export function FlagEmoji({ c }: { c: "NG" | "GH" | "KE" | "CN" }) {
 }
 
 import { Link } from "@tanstack/react-router";
-import { demo } from "@/components/admin/useDemoAction";
 import { MoreHorizontal } from "lucide-react";
+import { TablePagerFooter, useTablePage } from "@/components/admin/TablePager";
 
 export function OrderTable({ rows, dense = false }: { rows: Order[]; dense?: boolean }) {
+  const pager = useTablePage(rows);
   return (
     <Card padded={false}>
       <div className="overflow-x-auto">
         <table className="w-full text-[12px]">
           <thead>
             <tr style={{ background: T.bg, color: T.muted }} className="text-left text-[10px] font-bold uppercase tracking-[0.14em]">
-              <th className="px-4 py-2.5 w-8"><input type="checkbox" onChange={() => demo("Select all on page", "info")} /></th>
-              <th className="px-2 py-2.5">Order</th>
+              <th className="px-2 py-2.5 pl-4">Order</th>
               <th className="px-2 py-2.5">Item</th>
               <th className="px-2 py-2.5">Buyer</th>
               <th className="px-2 py-2.5">Seller</th>
@@ -189,12 +190,11 @@ export function OrderTable({ rows, dense = false }: { rows: Order[]; dense?: boo
             </tr>
           </thead>
           <tbody>
-            {rows.map((o) => {
+            {pager.slice.map((o) => {
               const l = findListing(o.listingId);
               return (
                 <tr key={o.id} className="border-t hover:bg-black/[0.015] transition" style={{ borderColor: T.border }}>
-                  <td className="px-4 py-3"><input type="checkbox" onClick={(e) => e.stopPropagation()} onChange={() => demo(`Selected ${o.id}`, "info")} /></td>
-                  <td className="px-2 py-3">
+                  <td className="px-2 py-3 pl-4">
                     <Link to="/admin/orders/$id" params={{ id: o.id }} className="font-bold tabular-nums hover:underline" style={{ color: T.ink, fontFamily: "'JetBrains Mono', monospace" }}>{o.id}</Link>
                     <p className="text-[10.5px]" style={{ color: T.muted }}>{o.placed}</p>
                   </td>
@@ -222,26 +222,28 @@ export function OrderTable({ rows, dense = false }: { rows: Order[]; dense?: boo
                   <td className="px-2 py-3">{statusPillOrder(o.status)}</td>
                   <td className="px-2 py-3 text-[11px] tabular-nums" style={{ color: T.sub, fontFamily: "'JetBrains Mono', monospace" }}>{o.updated}</td>
                   <td className="px-2 py-3">
-                    <button onClick={() => demo(`Actions for ${o.id}`, "info")} className="size-7 grid place-items-center rounded-md hover:bg-black/5">
+                    <Link to="/admin/orders/$id" params={{ id: o.id }} className="size-7 grid place-items-center rounded-md hover:bg-black/5">
                       <MoreHorizontal className="size-4" style={{ color: T.muted }} />
-                    </button>
+                    </Link>
                   </td>
                 </tr>
               );
             })}
-            {rows.length === 0 && (
-              <tr><td colSpan={9} className="px-4 py-12 text-center text-[12px]" style={{ color: T.muted }}>No orders match these filters.</td></tr>
+            {!pager.total && (
+              <tr><td colSpan={8} className="px-4 py-12 text-center text-[12px]" style={{ color: T.muted }}>No orders match these filters.</td></tr>
             )}
           </tbody>
         </table>
       </div>
-      <div className="px-4 py-3 flex items-center justify-between text-[11px]" style={{ color: T.sub, borderTop: `1px solid ${T.border}` }}>
-        <span className="tabular-nums">Showing {rows.length} of {ORDERS.length}</span>
-        <div className="flex items-center gap-1">
-          <button onClick={() => demo("Previous page", "info")} className="h-7 px-2.5 rounded-md font-medium" style={{ border: `1px solid ${T.border}`, background: T.surface }}>Prev</button>
-          <button onClick={() => demo("Next page", "info")} className="h-7 px-2.5 rounded-md font-medium" style={{ border: `1px solid ${T.border}`, background: T.surface }}>Next</button>
-        </div>
-      </div>
+      <TablePagerFooter
+        from={pager.from}
+        to={pager.to}
+        total={pager.total}
+        page={pager.page}
+        pageCount={pager.pageCount}
+        onPrev={() => pager.setPage((p) => Math.max(0, p - 1))}
+        onNext={() => pager.setPage((p) => Math.min(pager.pageCount - 1, p + 1))}
+      />
     </Card>
   );
 }
@@ -253,46 +255,82 @@ export function FilterBar({ children }: { children: ReactNode }) {
 }
 
 export function FilterChip({ label, value, onClick }: { label: string; value: string; onClick?: () => void }) {
-  return (
-    <button
-      onClick={onClick ?? (() => demo(`Filter: ${label}`, "info"))}
-      className="h-8 px-3 rounded-lg text-[11.5px] font-medium flex items-center gap-1.5"
-      style={{ background: T.surface, border: `1px solid ${T.border}`, color: T.ink }}
-    >
+  const className = "h-8 px-3 rounded-lg text-[11.5px] font-medium flex items-center gap-1.5";
+  const style = { background: T.surface, border: `1px solid ${T.border}`, color: T.ink };
+  const content = (
+    <>
       <span style={{ color: T.muted }}>{label}:</span> <span className="font-bold">{value}</span>
+    </>
+  );
+  if (!onClick) {
+    return (
+      <span className={className} style={style}>
+        {content}
+      </span>
+    );
+  }
+  return (
+    <button type="button" onClick={onClick} className={className} style={style}>
+      {content}
     </button>
   );
 }
 
 import { Download } from "lucide-react";
 import { AdminShell } from "@/components/admin/AdminShell";
+import { FilterSelect, applyAllFilter, uniqueOptions } from "@/components/admin/ListFilters";
 
 export function StatusPage({ status, title, description }: { status: OrderStatus; title: string; description: string }) {
-  const rows = ORDERS.filter((o) => o.status === status);
-  const value = rows.reduce((s, o) => s + o.totalNGN, 0);
+  const [country, setCountry] = useState("__all__");
+  const [seller, setSeller] = useState("__all__");
+  const [dateRange, setDateRange] = useState("30d");
+
+  const baseRows = ORDERS.filter((o) => o.status === status);
+  const filtered = useMemo(() => {
+    let list = baseRows;
+    list = applyAllFilter(list, country, (r) => r.buyerCountry);
+    list = applyAllFilter(list, seller, (r) => r.seller);
+    if (dateRange === "7d") list = list.slice(0, Math.max(1, Math.floor(list.length / 4)));
+    else if (dateRange === "30d") list = list;
+    return list;
+  }, [baseRows, country, seller, dateRange]);
+
+  const value = filtered.reduce((s, o) => s + o.totalNGN, 0);
   return (
     <AdminShell
       title={title}
       description={description}
       actions={
-        <button onClick={() => demo("Export started", "success")} className="h-9 px-3 rounded-lg text-[12px] font-semibold flex items-center gap-1.5" style={{ background: T.surface, border: `1px solid ${T.border}`, color: T.ink }}>
+        <Link
+          to="/admin/orders/export"
+          className="h-9 px-3 rounded-lg text-[12px] font-semibold flex items-center gap-1.5"
+          style={{ background: T.surface, border: `1px solid ${T.border}`, color: T.ink }}
+        >
           <Download className="size-3.5" /> Export
-        </button>
+        </Link>
       }
     >
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
-        <KPI label="Count" value={rows.length} />
+        <KPI label="Count" value={filtered.length} />
         <KPI label="Value" value={fmtNGN(value)} tone={T.success} />
-        <KPI label="Avg order" value={rows.length ? fmtNGN(Math.round(value / rows.length)) : "ΓÇö"} />
-        <KPI label="Oldest" value={rows[0]?.placed.split(",")[0] ?? "ΓÇö"} />
+        <KPI label="Avg order" value={filtered.length ? fmtNGN(Math.round(value / filtered.length)) : "—"} />
+        <KPI label="Oldest" value={filtered[0]?.placed.split(",")[0] ?? "—"} />
       </div>
       <FilterBar>
-        <FilterChip label="Currency" value="All" />
-        <FilterChip label="Country" value="All" />
-        <FilterChip label="Seller" value="Any" />
-        <FilterChip label="Date" value="Last 30d" />
+        <FilterSelect label="Country" value={country} onChange={setCountry} options={uniqueOptions(baseRows.map((r) => r.buyerCountry), "All")} />
+        <FilterSelect label="Seller" value={seller} onChange={setSeller} options={uniqueOptions(baseRows.map((r) => r.seller), "Any")} />
+        <FilterSelect
+          label="Date"
+          value={dateRange}
+          onChange={setDateRange}
+          options={[
+            { value: "7d", label: "Last 7d" },
+            { value: "30d", label: "Last 30d" },
+            { value: "__all__", label: "All time" },
+          ]}
+        />
       </FilterBar>
-      <OrderTable rows={rows} />
+      <OrderTable rows={filtered} />
     </AdminShell>
   );
 }

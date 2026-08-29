@@ -1,11 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { AdminRecordListPage } from "@/components/admin/AdminRecordPage";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/admin/carriers/")({
-  head: () => ({ meta: [{ title: "Carriers Index — MagnetPay Admin" }] }),
-  component: Page,
+  beforeLoad: () => {
+    throw redirect({ to: "/admin/logistics/partners" });
+  },
+  component: () => null,
 });
-
-function Page() {
-  return <AdminRecordListPage domain="carrier" />;
-}

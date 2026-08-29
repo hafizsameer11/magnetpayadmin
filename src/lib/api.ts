@@ -822,8 +822,11 @@ export async function fetchAdminSellerTiers() {
   return api<{ id: string; name: string; minOrders?: number; verified?: boolean; title?: string; status?: string }[]>("/admin/sellers/tiers");
 }
 
-export async function fetchAdminTickets(status?: string) {
-  const q = status ? `?status=${encodeURIComponent(status)}` : "";
+export async function fetchAdminTickets(status?: string, userId?: string) {
+  const params = new URLSearchParams();
+  if (status) params.set("status", status);
+  if (userId) params.set("userId", userId);
+  const q = params.toString() ? `?${params.toString()}` : "";
   return api<AdminRecordRow[]>(`/admin/tickets${q}`);
 }
 
@@ -862,6 +865,27 @@ export async function fetchAdminSmsTemplates() {
 export async function moderateProduct(id: string, status: "APPROVED" | "HIDDEN" | "REJECTED") {
   return api(`/admin/products/${id}/moderate`, { method: "POST", body: JSON.stringify({ status }) });
 }
+
+export type AdminProductUpdate = {
+  title?: string;
+  description?: string | null;
+  priceMinor?: string | number;
+  moq?: string;
+  categoryId?: string | null;
+  active?: boolean;
+  stock?: number | null;
+  cbmPerUnit?: number | null;
+  weightKgPerUnit?: number | null;
+  originHub?: string | null;
+  leadTimeMin?: number | null;
+  leadTimeMax?: number | null;
+  packagingType?: string | null;
+  defaultIncoterm?: string | null;
+};
+
+export async function updateAdminProduct(id: string, data: AdminProductUpdate) {
+  return api<AdminProduct>(`/admin/products/${id}`, { method: "PATCH", body: JSON.stringify(data) });
+}
 export async function fetchAdminCategories() {
   return api<unknown[]>("/admin/categories");
 }
@@ -872,7 +896,21 @@ export async function fetchAdminReview(id: string) {
   return api<Record<string, unknown>>(`/admin/reviews/${id}`);
 }
 export async function fetchAdminConversation(id: string) {
-  return api<AdminConversation & { messages?: { id: string; body: string; createdAt: string }[] }>(`/admin/conversations/${id}`);
+  return api<AdminConversation & { messages?: { id: string; body: string; createdAt: string; senderId?: string }[] }>(`/admin/conversations/${id}`);
+}
+
+export async function postAdminConversationMessage(conversationId: string, body: string) {
+  return api<{ id: string; body: string; createdAt: string }>(`/admin/conversations/${conversationId}/messages`, {
+    method: "POST",
+    body: JSON.stringify({ body }),
+  });
+}
+
+export async function postAdminTicketMessage(ticketId: string, body: string, author?: string) {
+  return api<AdminRecord>(`/admin/tickets/${ticketId}/messages`, {
+    method: "POST",
+    body: JSON.stringify({ body, author }),
+  });
 }
 export async function fetchAdminUserNotes(userId: string) {
   return api<{ id: string; body: string; createdAt: string; author?: { name: string } }[]>(`/admin/users/${userId}/notes`);
@@ -943,6 +981,17 @@ export async function fetchAdminRecord(id: string) {
 
 export async function patchAdminRecord(id: string, body: Partial<Pick<AdminRecord, "title" | "subtitle" | "status" | "payload">>) {
   return api<AdminRecord>(`/admin/records/${id}`, { method: "PATCH", body: JSON.stringify(body) });
+}
+
+export async function createAdminRecord(body: {
+  domain: string;
+  externalId?: string;
+  title: string;
+  subtitle?: string;
+  status?: string;
+  payload?: Record<string, unknown>;
+}) {
+  return api<AdminRecord>("/admin/records", { method: "POST", body: JSON.stringify(body) });
 }
 export async function fetchAdminReviews() {
   return api<unknown[]>("/admin/reviews");

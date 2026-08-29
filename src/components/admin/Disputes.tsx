@@ -3,7 +3,7 @@ import { MoreHorizontal } from "lucide-react";
 import type { ReactNode } from "react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
 import { Card, fmtNGN, KPI, FlagEmoji, FilterBar, FilterChip, findListing } from "@/components/admin/Orders";
-import { demo } from "@/components/admin/useDemoAction";
+import { TablePagerFooter, useTablePage } from "@/components/admin/TablePager";
 
 export { Card, fmtNGN, KPI, FlagEmoji, FilterBar, FilterChip };
 
@@ -236,14 +236,14 @@ export function slaBar({ age, sla }: { age: number; sla: number }) {
 }
 
 export function DisputeTable({ rows }: { rows: Dispute[] }) {
+  const pager = useTablePage(rows);
   return (
     <Card padded={false}>
       <div className="overflow-x-auto">
         <table className="w-full text-[12px]">
           <thead>
             <tr style={{ background: T.bg, color: T.muted }} className="text-left text-[10px] font-bold uppercase tracking-[0.14em]">
-              <th className="px-4 py-2.5 w-8"><input type="checkbox" onChange={() => demo("Select all on page", "info")} /></th>
-              <th className="px-2 py-2.5">Dispute</th>
+              <th className="px-2 py-2.5 pl-4">Dispute</th>
               <th className="px-2 py-2.5">Reason</th>
               <th className="px-2 py-2.5">Parties</th>
               <th className="px-2 py-2.5 text-right">At stake</th>
@@ -254,15 +254,14 @@ export function DisputeTable({ rows }: { rows: Dispute[] }) {
             </tr>
           </thead>
           <tbody>
-            {rows.map((d) => (
+            {pager.slice.map((d) => (
               <tr key={d.id} className="border-t hover:bg-black/[0.015] transition" style={{ borderColor: T.border }}>
-                <td className="px-4 py-3"><input type="checkbox" onClick={(e) => e.stopPropagation()} onChange={() => demo(`Selected ${d.id}`, "info")} /></td>
-                <td className="px-2 py-3">
+                <td className="px-2 py-3 pl-4">
                   <div className="flex items-center gap-1.5">
                     <Link to="/admin/disputes/$id" params={{ id: d.id }} className="font-bold tabular-nums hover:underline" style={{ color: T.ink, fontFamily: "'JetBrains Mono', monospace" }}>{d.id.slice(0, 8).toUpperCase()}</Link>
                     {priorityPill(d.priority)}
                   </div>
-                  <p className="text-[10.5px] tabular-nums" style={{ color: T.muted, fontFamily: "'JetBrains Mono', monospace" }}>{d.orderId} ┬╖ {d.openedAt}</p>
+                  <p className="text-[10.5px] tabular-nums" style={{ color: T.muted, fontFamily: "'JetBrains Mono', monospace" }}>{d.orderId} · {d.openedAt}</p>
                 </td>
                 <td className="px-2 py-3">
                   <p className="font-medium">{REASON_LABEL[d.reason]}</p>
@@ -280,25 +279,27 @@ export function DisputeTable({ rows }: { rows: Dispute[] }) {
                 <td className="px-2 py-3">{slaBar({ age: d.ageHours, sla: d.slaHours })}</td>
                 <td className="px-2 py-3 text-[11.5px]">{d.assignee ?? <span style={{ color: T.muted }}>Unassigned</span>}</td>
                 <td className="px-2 py-3">
-                  <button onClick={() => demo(`Actions for ${d.id}`, "info")} className="size-7 grid place-items-center rounded-md hover:bg-black/5">
+                  <Link to="/admin/disputes/$id" params={{ id: d.id }} className="size-7 grid place-items-center rounded-md hover:bg-black/5">
                     <MoreHorizontal className="size-4" style={{ color: T.muted }} />
-                  </button>
+                  </Link>
                 </td>
               </tr>
             ))}
-            {rows.length === 0 && (
-              <tr><td colSpan={9} className="px-4 py-12 text-center text-[12px]" style={{ color: T.muted }}>No disputes match these filters.</td></tr>
+            {!pager.total && (
+              <tr><td colSpan={8} className="px-4 py-12 text-center text-[12px]" style={{ color: T.muted }}>No disputes match these filters.</td></tr>
             )}
           </tbody>
         </table>
       </div>
-      <div className="px-4 py-3 flex items-center justify-between text-[11px]" style={{ color: T.sub, borderTop: `1px solid ${T.border}` }}>
-        <span className="tabular-nums">Showing {rows.length} of {DISPUTES.length}</span>
-        <div className="flex items-center gap-1">
-          <button onClick={() => demo("Previous page", "info")} className="h-7 px-2.5 rounded-md font-medium" style={{ border: `1px solid ${T.border}`, background: T.surface }}>Prev</button>
-          <button onClick={() => demo("Next page", "info")} className="h-7 px-2.5 rounded-md font-medium" style={{ border: `1px solid ${T.border}`, background: T.surface }}>Next</button>
-        </div>
-      </div>
+      <TablePagerFooter
+        from={pager.from}
+        to={pager.to}
+        total={pager.total}
+        page={pager.page}
+        pageCount={pager.pageCount}
+        onPrev={() => pager.setPage((p) => Math.max(0, p - 1))}
+        onNext={() => pager.setPage((p) => Math.min(pager.pageCount - 1, p + 1))}
+      />
     </Card>
   );
 }

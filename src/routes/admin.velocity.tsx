@@ -7,5 +7,5 @@ export const Route = createFileRoute("/admin/velocity")({
 });
 
 function Page() {
-  return <AdminRecordListPage domain="risk-rule" />;
+  return <AdminRecordListPage domain="velocity-rule" />;
 }

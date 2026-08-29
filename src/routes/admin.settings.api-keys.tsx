@@ -7,5 +7,5 @@ export const Route = createFileRoute("/admin/settings/api-keys")({
 });
 
 function Page() {
-  return <AdminRecordListPage domain="webhook" />;
+  return <AdminRecordListPage domain="api-key" />;
 }

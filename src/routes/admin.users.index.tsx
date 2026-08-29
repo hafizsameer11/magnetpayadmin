@@ -1,9 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import {
-  Search, Filter, Download, Plus, MoreHorizontal, ChevronDown,
+  Search, Download, Plus, MoreHorizontal,
   ShieldCheck, Clock, AlertTriangle, Ban, ArrowUpDown,
-  Loader2, ChevronLeft, ChevronRight,
+  Loader2,
 } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
 import {
@@ -18,6 +18,8 @@ import {
   walletVolumeUsd,
 } from "@/components/admin/UserProfile";
 import { fetchAdminUsers, type AdminUser } from "@/lib/api";
+import { useTablePage, TablePagerFooter } from "@/components/admin/TablePager";
+import { downloadClientCsv } from "@/lib/csv";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/users/")({
@@ -31,11 +33,16 @@ function kycStatus(u: AdminUser) {
   return u.kycApplications?.[0]?.status?.toUpperCase() ?? "";
 }
 
+type SortKey = "name" | "wallet" | "joined";
+
 function AdminUsersList() {
   const [rows, setRows] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [tab, setTab] = useState<FilterTab>("all");
+  const [exporting, setExporting] = useState(false);
+  const [sortKey, setSortKey] = useState<SortKey>("joined");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
   useEffect(() => {
     let cancelled = false;
@@ -91,6 +98,57 @@ function AdminUsersList() {
     );
   }, [rows, query, tab]);
 
+  const sorted = useMemo(() => {
+    const list = [...filtered];
+    const dir = sortDir === "asc" ? 1 : -1;
+    list.sort((a, b) => {
+      if (sortKey === "name") return a.name.localeCompare(b.name) * dir;
+      if (sortKey === "wallet") return (walletVolumeUsd(a) - walletVolumeUsd(b)) * dir;
+      return (new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()) * dir;
+    });
+    return list;
+  }, [filtered, sortKey, sortDir]);
+
+  const pager = useTablePage(sorted, 25);
+
+  useEffect(() => {
+    pager.setPage(0);
+  }, [tab, query, sortKey, sortDir]);
+
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    else {
+      setSortKey(key);
+      setSortDir(key === "name" ? "asc" : "desc");
+    }
+  };
+
+  const onExport = () => {
+    if (!filtered.length) {
+      toast.message("Nothing to export");
+      return;
+    }
+    setExporting(true);
+    try {
+      downloadClientCsv(
+        `magnetpay-users-${new Date().toISOString().slice(0, 10)}.csv`,
+        ["id", "name", "email", "phone", "role", "kycStatus", "createdAt"],
+        filtered.map((u) => ({
+          id: u.id,
+          name: u.name,
+          email: u.email ?? "",
+          phone: u.phone,
+          role: u.role,
+          kycStatus: kycStatus(u),
+          createdAt: u.createdAt,
+        })),
+      );
+      toast.success("CSV downloaded");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   const kycPillRow = (u: AdminUser) => {
     const tone = kycTone(u);
     const k = kycStatus(u);
@@ -136,10 +194,13 @@ function AdminUsersList() {
         <>
           <button
             type="button"
-            className="h-9 px-3 rounded-lg flex items-center gap-1.5 text-[12px] font-semibold"
+            onClick={onExport}
+            disabled={exporting || loading}
+            className="h-9 px-3 rounded-lg flex items-center gap-1.5 text-[12px] font-semibold disabled:opacity-50"
             style={{ background: T.surface, border: `1px solid ${T.border}`, color: T.ink }}
           >
-            <Download className="size-3.5" strokeWidth={2.4} /> Export
+            {exporting ? <Loader2 className="size-3.5 animate-spin" /> : <Download className="size-3.5" strokeWidth={2.4} />}
+            Export
           </button>
           <Link
             to="/admin/users/invites"
@@ -198,13 +259,6 @@ function AdminUsersList() {
               style={{ color: T.ink }}
             />
           </div>
-          <button
-            type="button"
-            className="h-8 px-3 rounded-lg text-[11.5px] font-semibold flex items-center gap-1.5"
-            style={{ background: T.surface, border: `1px solid ${T.border}`, color: T.sub }}
-          >
-            <Filter className="size-3.5" strokeWidth={2.2} /> Filters <ChevronDown className="size-3" strokeWidth={2.4} />
-          </button>
         </div>
       </div>
 
@@ -219,14 +273,14 @@ function AdminUsersList() {
           }}
         >
           <span />
-          <button type="button" className="flex items-center gap-1 text-left">
+          <button type="button" onClick={() => toggleSort("name")} className="flex items-center gap-1 text-left">
             User <ArrowUpDown className="size-2.5" strokeWidth={2.6} />
           </button>
           <span>Role</span>
           <span>Country</span>
           <span>KYC</span>
           <span>Risk</span>
-          <button type="button" className="flex items-center gap-1 text-right justify-end">
+          <button type="button" onClick={() => toggleSort("wallet")} className="flex items-center gap-1 text-right justify-end">
             Wallet (est.) <ArrowUpDown className="size-2.5" strokeWidth={2.6} />
           </button>
           <span>Joined</span>
@@ -241,7 +295,7 @@ function AdminUsersList() {
         ) : filtered.length === 0 ? (
           <p className="p-6 text-center text-[12px]" style={{ color: T.muted }}>No users found.</p>
         ) : (
-          filtered.map((u, i) => {
+          pager.slice.map((u, i) => {
             const country = countryFromPhone(u.phone);
             const vol = walletVolumeUsd(u);
             return (
@@ -250,7 +304,7 @@ function AdminUsersList() {
                 className="grid items-center px-4 h-[52px] text-[12px] hover:bg-[rgba(14,59,46,0.02)] transition"
                 style={{
                   gridTemplateColumns: "24px 2.2fr 1fr 0.9fr 1fr 0.9fr 1.1fr 0.9fr 1fr 32px",
-                  borderBottom: i < filtered.length - 1 ? `1px solid ${T.border}` : "none",
+                  borderBottom: i < pager.slice.length - 1 ? `1px solid ${T.border}` : "none",
                 }}
               >
                 <span />
@@ -312,28 +366,15 @@ function AdminUsersList() {
         )}
 
         {!loading && filtered.length > 0 ? (
-          <div
-            className="px-4 h-12 flex items-center justify-between text-[11.5px]"
-            style={{ background: T.bg, borderTop: `1px solid ${T.border}`, color: T.sub }}
-          >
-            <span>
-              Showing <span className="font-semibold" style={{ color: T.ink }}>{filtered.length}</span> of{" "}
-              <span className="font-semibold tabular-nums" style={{ color: T.ink, fontFamily: "'JetBrains Mono', monospace" }}>
-                {rows.length}
-              </span>
-            </span>
-            <div className="flex items-center gap-1">
-              <button type="button" className="size-7 grid place-items-center rounded-md opacity-50" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
-                <ChevronLeft className="size-3.5" strokeWidth={2.4} />
-              </button>
-              <button type="button" className="h-7 min-w-7 px-2 rounded-md text-[11px] font-semibold tabular-nums text-white" style={{ background: T.navy, border: `1px solid ${T.navy}`, fontFamily: "'JetBrains Mono', monospace" }}>
-                1
-              </button>
-              <button type="button" className="size-7 grid place-items-center rounded-md opacity-50" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
-                <ChevronRight className="size-3.5" strokeWidth={2.4} />
-              </button>
-            </div>
-          </div>
+          <TablePagerFooter
+            from={pager.from}
+            to={pager.to}
+            total={pager.total}
+            page={pager.page}
+            pageCount={pager.pageCount}
+            onPrev={() => pager.setPage((p) => Math.max(0, p - 1))}
+            onNext={() => pager.setPage((p) => Math.min(pager.pageCount - 1, p + 1))}
+          />
         ) : null}
       </div>
     </AdminShell>

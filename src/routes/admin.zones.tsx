@@ -7,5 +7,5 @@ export const Route = createFileRoute("/admin/zones")({
 });
 
 function Page() {
-  return <AdminRecordListPage domain="carrier" />;
+  return <AdminRecordListPage domain="shipping-zone" />;
 }

@@ -3,7 +3,11 @@ import { MoreHorizontal, Download } from "lucide-react";
 import type { ReactNode } from "react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
 import { Card, Pill, fmtCNY, fmtNGN, KPI, FlagEmoji, FilterBar, FilterChip, findListing } from "@/components/admin/Orders";
-import { demo } from "@/components/admin/useDemoAction";
+import { TablePagerFooter, useTablePage } from "@/components/admin/TablePager";
+import { downloadClientCsv } from "@/lib/csv";
+import { FilterSelect, applyAllFilter, uniqueOptions } from "@/components/admin/ListFilters";
+import { toast } from "sonner";
+import { useMemo, useState } from "react";
 
 export { Card, Pill, fmtCNY, fmtNGN, KPI, FlagEmoji, FilterBar, FilterChip, findListing };
 
@@ -202,15 +206,15 @@ export function statusPillEscrow(s: EscrowStatus) {
 }
 
 export function EscrowTable({ rows }: { rows: EscrowContract[] }) {
+  const pager = useTablePage(rows);
   return (
     <Card padded={false}>
       <div className="overflow-x-auto">
         <table className="w-full text-[12px]">
           <thead>
             <tr style={{ background: T.bg, color: T.muted }} className="text-left text-[10px] font-bold uppercase tracking-[0.14em]">
-              <th className="px-4 py-2.5 w-8"><input type="checkbox" onChange={() => demo("Select all on page", "info")} /></th>
-              <th className="px-2 py-2.5">Contract</th>
-              <th className="px-2 py-2.5">Order</th>
+              <th className="px-2 py-2.5 pl-4">Contract</th>
+              <th className="px-2 py-2.5">Ref</th>
               <th className="px-2 py-2.5">Buyer</th>
               <th className="px-2 py-2.5">Seller</th>
               <th className="px-2 py-2.5 text-right">Held</th>
@@ -221,19 +225,18 @@ export function EscrowTable({ rows }: { rows: EscrowContract[] }) {
             </tr>
           </thead>
           <tbody>
-            {rows.map((e) => {
+            {pager.slice.map((e) => {
               const released = e.milestones.filter((m) => m.status === "released").length;
               const total = e.milestones.length;
-              const pct = Math.round((e.releasedNGN / e.totalNGN) * 100);
+              const pct = e.totalNGN > 0 ? Math.round((e.releasedNGN / e.totalNGN) * 100) : 0;
               return (
                 <tr key={e.id} className="border-t hover:bg-black/[0.015] transition" style={{ borderColor: T.border }}>
-                  <td className="px-4 py-3"><input type="checkbox" onClick={(ev) => ev.stopPropagation()} onChange={() => demo(`Selected ${e.id}`, "info")} /></td>
-                  <td className="px-2 py-3">
+                  <td className="px-2 py-3 pl-4">
                     <Link to="/admin/escrow/$id" params={{ id: e.id }} className="font-bold tabular-nums hover:underline" style={{ color: T.ink, fontFamily: "'JetBrains Mono', monospace" }}>{e.id.slice(0, 12).toUpperCase()}</Link>
                     <p className="text-[10.5px]" style={{ color: T.muted }}>{e.template}</p>
                   </td>
                   <td className="px-2 py-3">
-                    <Link to="/admin/orders/$id" params={{ id: e.orderId }} className="font-medium tabular-nums hover:underline" style={{ color: T.info, fontFamily: "'JetBrains Mono', monospace" }}>{e.orderId}</Link>
+                    <span className="font-medium tabular-nums" style={{ color: T.sub, fontFamily: "'JetBrains Mono', monospace" }}>{e.orderId}</span>
                     <p className="text-[10.5px]" style={{ color: T.muted }}>{e.fundedAt}</p>
                   </td>
                   <td className="px-2 py-3">
@@ -252,33 +255,35 @@ export function EscrowTable({ rows }: { rows: EscrowContract[] }) {
                     <div className="h-1.5 rounded-full overflow-hidden" style={{ background: T.border }}>
                       <div className="h-full" style={{ width: `${pct}%`, background: T.success }} />
                     </div>
-                    <p className="mt-1 text-[10.5px] tabular-nums" style={{ color: T.muted, fontFamily: "'JetBrains Mono', monospace" }}>{released}/{total} milestones ┬╖ {pct}%</p>
+                    <p className="mt-1 text-[10.5px] tabular-nums" style={{ color: T.muted, fontFamily: "'JetBrains Mono', monospace" }}>{released}/{total} milestones · {pct}%</p>
                   </td>
                   <td className="px-2 py-3">{statusPillEscrow(e.status)}</td>
                   <td className="px-2 py-3 text-[11px] tabular-nums" style={{ color: e.daysLeft < 0 ? T.danger : e.daysLeft <= 3 ? T.warn : T.sub, fontFamily: "'JetBrains Mono', monospace" }}>
                     {e.daysLeft < 0 ? `${Math.abs(e.daysLeft)}d overdue` : e.daysLeft === 0 ? "completed" : `${e.daysLeft}d left`}
                   </td>
                   <td className="px-2 py-3">
-                    <button onClick={() => demo(`Actions for ${e.id}`, "info")} className="size-7 grid place-items-center rounded-md hover:bg-black/5">
+                    <Link to="/admin/escrow/$id" params={{ id: e.id }} className="size-7 grid place-items-center rounded-md hover:bg-black/5">
                       <MoreHorizontal className="size-4" style={{ color: T.muted }} />
-                    </button>
+                    </Link>
                   </td>
                 </tr>
               );
             })}
-            {rows.length === 0 && (
-              <tr><td colSpan={10} className="px-4 py-12 text-center text-[12px]" style={{ color: T.muted }}>No escrow contracts match these filters.</td></tr>
+            {!pager.total && (
+              <tr><td colSpan={9} className="px-4 py-12 text-center text-[12px]" style={{ color: T.muted }}>No escrow contracts match these filters.</td></tr>
             )}
           </tbody>
         </table>
       </div>
-      <div className="px-4 py-3 flex items-center justify-between text-[11px]" style={{ color: T.sub, borderTop: `1px solid ${T.border}` }}>
-        <span className="tabular-nums">Showing {rows.length} of {ESCROWS.length}</span>
-        <div className="flex items-center gap-1">
-          <button onClick={() => demo("Previous page", "info")} className="h-7 px-2.5 rounded-md font-medium" style={{ border: `1px solid ${T.border}`, background: T.surface }}>Prev</button>
-          <button onClick={() => demo("Next page", "info")} className="h-7 px-2.5 rounded-md font-medium" style={{ border: `1px solid ${T.border}`, background: T.surface }}>Next</button>
-        </div>
-      </div>
+      <TablePagerFooter
+        from={pager.from}
+        to={pager.to}
+        total={pager.total}
+        page={pager.page}
+        pageCount={pager.pageCount}
+        onPrev={() => pager.setPage((p) => Math.max(0, p - 1))}
+        onNext={() => pager.setPage((p) => Math.min(pager.pageCount - 1, p + 1))}
+      />
     </Card>
   );
 }
@@ -286,31 +291,70 @@ export function EscrowTable({ rows }: { rows: EscrowContract[] }) {
 export function EscrowQueuePage({
   title, description, rows, emptyHint,
 }: { title: string; description: string; rows: EscrowContract[]; emptyHint?: string }) {
-  const held = rows.reduce((s, e) => s + e.heldNGN, 0);
-  const oldest = rows.reduce((acc, e) => Math.max(acc, Math.abs(e.daysLeft)), 0);
+  const [country, setCountry] = useState("__all__");
+  const [seller, setSeller] = useState("__all__");
+  const [template, setTemplate] = useState("__all__");
+
+  const filtered = useMemo(() => {
+    let list = rows;
+    list = applyAllFilter(list, country, (r) => r.buyerCountry);
+    list = applyAllFilter(list, seller, (r) => r.seller);
+    list = applyAllFilter(list, template, (r) => r.template);
+    return list;
+  }, [rows, country, seller, template]);
+
+  const held = filtered.reduce((s, e) => s + e.heldNGN, 0);
+  const oldest = filtered.reduce((acc, e) => Math.max(acc, Math.abs(e.daysLeft)), 0);
+
+  const onExport = () => {
+    if (!filtered.length) {
+      toast.message("Nothing to export");
+      return;
+    }
+    downloadClientCsv(
+      `magnetpay-escrow-${new Date().toISOString().slice(0, 10)}.csv`,
+      ["id", "ref", "buyer", "seller", "heldNGN", "totalNGN", "status", "fundedAt"],
+      filtered.map((e) => ({
+        id: e.id,
+        ref: e.orderId,
+        buyer: e.buyer,
+        seller: e.seller,
+        heldNGN: e.heldNGN,
+        totalNGN: e.totalNGN,
+        status: e.status,
+        fundedAt: e.fundedAt,
+      })),
+    );
+    toast.success("CSV downloaded");
+  };
+
   return (
     <AdminShell
       title={title}
       description={description}
       actions={
-        <button onClick={() => demo("Export queued ΓÇö CSV will be ready in ~30s", "success")} className="h-9 px-3 rounded-lg text-[12px] font-semibold flex items-center gap-1.5" style={{ background: T.surface, border: `1px solid ${T.border}`, color: T.ink }}>
+        <button
+          type="button"
+          onClick={onExport}
+          className="h-9 px-3 rounded-lg text-[12px] font-semibold flex items-center gap-1.5"
+          style={{ background: T.surface, border: `1px solid ${T.border}`, color: T.ink }}
+        >
           <Download className="size-3.5" /> Export
         </button>
       }
     >
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
-        <KPI label="Contracts" value={rows.length} />
+        <KPI label="Contracts" value={filtered.length} />
         <KPI label="Funds held" value={fmtNGN(held)} tone={T.warn} />
-        <KPI label="Avg held" value={rows.length ? fmtNGN(Math.round(held / rows.length)) : "ΓÇö"} />
+        <KPI label="Avg held" value={filtered.length ? fmtNGN(Math.round(held / filtered.length)) : "—"} />
         <KPI label="Oldest" value={`${oldest}d`} hint={emptyHint} />
       </div>
       <FilterBar>
-        <FilterChip label="Currency" value="All" />
-        <FilterChip label="Country" value="All" />
-        <FilterChip label="Seller" value="Any" />
-        <FilterChip label="Template" value="All" />
+        <FilterSelect label="Country" value={country} onChange={setCountry} options={uniqueOptions(rows.map((r) => r.buyerCountry), "All")} />
+        <FilterSelect label="Seller" value={seller} onChange={setSeller} options={uniqueOptions(rows.map((r) => r.seller), "Any")} />
+        <FilterSelect label="Template" value={template} onChange={setTemplate} options={uniqueOptions(rows.map((r) => r.template), "All")} />
       </FilterBar>
-      <EscrowTable rows={rows} />
+      <EscrowTable rows={filtered} />
     </AdminShell>
   );
 }

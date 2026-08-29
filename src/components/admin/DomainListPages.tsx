@@ -1,9 +1,10 @@
 import { Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Loader2, Search } from "lucide-react";
 import { AdminShell, T } from "./AdminShell";
 import { Pill } from "./UserProfile";
-import { KPI, FilterBar, FilterChip, Card } from "./Orders";
+import { KPI, FilterBar, Card } from "./Orders";
+import { FilterSelect, applyAllFilter, uniqueOptions } from "./ListFilters";
 import { EscrowTable, type EscrowContract } from "./Escrow";
 import { DisputeTable, type Dispute } from "./Disputes";
 import { ShipmentTable, type Shipment } from "./Logistics";
@@ -87,6 +88,9 @@ export function BrandsListPage() {
 export function EscrowListPage({ filter }: { filter?: string }) {
   const [rows, setRows] = useState<AdminEscrow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [country, setCountry] = useState("__all__");
+  const [seller, setSeller] = useState("__all__");
+  const [template, setTemplate] = useState("__all__");
 
   useEffect(() => {
     void fetchAdminEscrows()
@@ -130,9 +134,15 @@ export function EscrowListPage({ filter }: { filter?: string }) {
     };
   });
 
-  const filtered = filter
-    ? mapped.filter((r) => r.status === filter || (filter === "pending-release" && r.status === "pending_release"))
-    : mapped;
+  const filtered = useMemo(() => {
+    let list = filter
+      ? mapped.filter((r) => r.status === filter || (filter === "pending-release" && r.status === "pending_release"))
+      : mapped;
+    list = applyAllFilter(list, country, (r) => r.buyerCountry);
+    list = applyAllFilter(list, seller, (r) => r.seller);
+    list = applyAllFilter(list, template, (r) => r.template);
+    return list;
+  }, [mapped, filter, country, seller, template]);
 
   const held = filtered.reduce((s, e) => s + e.heldNGN, 0);
   const stats = {
@@ -150,6 +160,11 @@ export function EscrowListPage({ filter }: { filter?: string }) {
         <KPI label="Avg held" value={`${stats.avgDays}d`} tone="info" />
         <KPI label="Oldest" value={stats.oldest} tone="danger" />
       </div>
+      <FilterBar>
+        <FilterSelect label="Country" value={country} onChange={setCountry} options={uniqueOptions(mapped.map((r) => r.buyerCountry), "All")} />
+        <FilterSelect label="Seller" value={seller} onChange={setSeller} options={uniqueOptions(mapped.map((r) => r.seller), "Any")} />
+        <FilterSelect label="Template" value={template} onChange={setTemplate} options={uniqueOptions(mapped.map((r) => r.template), "All")} />
+      </FilterBar>
       {loading ? <Loader2 className="size-5 animate-spin mx-auto my-16" style={{ color: T.muted }} /> : <EscrowTable rows={filtered} />}
     </AdminShell>
   );

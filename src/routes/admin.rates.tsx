@@ -7,5 +7,5 @@ export const Route = createFileRoute("/admin/rates")({
 });
 
 function Page() {
-  return <AdminRecordListPage domain="risk-rule" />;
+  return <AdminRecordListPage domain="fx-rate" />;
 }

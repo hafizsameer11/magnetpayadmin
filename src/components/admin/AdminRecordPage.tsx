@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Loader2, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
 import { Pill } from "@/components/admin/UserProfile";
-import { fetchAdminRecords, fetchAdminTickets, fetchAdminWebhooks, fetchAdminFeatureFlags, fetchAdminJobs, fetchAdminIncidents, fetchAdminContentPages, fetchAdminHelpArticles, fetchAdminEmailTemplates, fetchAdminSmsTemplates, type AdminRecord } from "@/lib/api";
+import { fetchAdminRecords, fetchAdminTickets, fetchAdminWebhooks, fetchAdminFeatureFlags, fetchAdminJobs, fetchAdminIncidents, fetchAdminContentPages, fetchAdminHelpArticles, fetchAdminEmailTemplates, fetchAdminSmsTemplates, patchAdminRecord, createAdminRecord, type AdminRecord } from "@/lib/api";
 import { DOMAIN_CONFIG, type AdminRecordRow } from "@/components/admin/recordRegistry";
 import { toast } from "sonner";
 
@@ -54,11 +54,33 @@ export function AdminRecordListPage({ domain }: { domain: string }) {
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(0);
+  const [creating, setCreating] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
+  const [newExtId, setNewExtId] = useState("");
   const PAGE_SIZE = 25;
+
+  const reload = async () => {
+    setLoading(true);
+    try {
+      const loader = DOMAIN_FETCH[domain] ?? (() => fetchAdminRecords(domain));
+      const data = await loader();
+      setRows(
+        data.map((r) => ({
+          ...r,
+          payload: (r.payload ?? {}) as Record<string, unknown>,
+        })),
+      );
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to load");
+      setRows([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
-    (async () => {
+    void (async () => {
       setLoading(true);
       try {
         const loader = DOMAIN_FETCH[domain] ?? (() => fetchAdminRecords(domain));
@@ -137,7 +159,65 @@ export function AdminRecordListPage({ domain }: { domain: string }) {
             style={{ color: T.ink }}
           />
         </div>
+        <button
+          type="button"
+          onClick={() => setCreating((v) => !v)}
+          className="h-9 px-3 rounded-lg text-[12px] font-semibold"
+          style={{ background: T.navy, color: "#fff" }}
+        >
+          {creating ? "Cancel" : "New record"}
+        </button>
       </div>
+
+      {creating ? (
+        <div className="rounded-xl p-4 mb-4 flex flex-wrap items-end gap-3" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
+          <label className="flex flex-col gap-1 text-[11px]" style={{ color: T.sub }}>
+            Title
+            <input
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+              className="h-9 px-3 rounded-lg text-[12px] min-w-[200px]"
+              style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.ink }}
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-[11px]" style={{ color: T.sub }}>
+            External ID
+            <input
+              value={newExtId}
+              onChange={(e) => setNewExtId(e.target.value)}
+              className="h-9 px-3 rounded-lg text-[12px] min-w-[140px]"
+              style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.ink }}
+            />
+          </label>
+          <button
+            type="button"
+            disabled={!newTitle.trim()}
+            onClick={() => {
+              void (async () => {
+                try {
+                  await createAdminRecord({
+                    domain,
+                    title: newTitle.trim(),
+                    externalId: newExtId.trim() || undefined,
+                    status: "active",
+                  });
+                  toast.success("Record created");
+                  setNewTitle("");
+                  setNewExtId("");
+                  setCreating(false);
+                  await reload();
+                } catch (e) {
+                  toast.error(e instanceof Error ? e.message : "Create failed");
+                }
+              })();
+            }}
+            className="h-9 px-4 rounded-lg text-[12px] font-semibold disabled:opacity-50"
+            style={{ background: T.accent, color: "#fff" }}
+          >
+            Create
+          </button>
+        </div>
+      ) : null}
 
       <div className="rounded-xl overflow-hidden" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
         <div
@@ -233,13 +313,21 @@ export function AdminRecordDetailPage({ domain, id }: { domain: string; id: stri
   const config = DOMAIN_CONFIG[domain];
   const [row, setRow] = useState<AdminRecord | null>(null);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+  const [editSubtitle, setEditSubtitle] = useState("");
+  const [editStatus, setEditStatus] = useState("");
 
   useEffect(() => {
     void (async () => {
       setLoading(true);
       try {
         const { fetchAdminRecord } = await import("@/lib/api");
-        setRow(await fetchAdminRecord(id));
+        const data = await fetchAdminRecord(id);
+        setRow(data);
+        setEditTitle(data.title);
+        setEditSubtitle(data.subtitle ?? "");
+        setEditStatus(data.status ?? "");
       } catch (e) {
         toast.error(e instanceof Error ? e.message : "Failed to load");
         setRow(null);
@@ -248,6 +336,24 @@ export function AdminRecordDetailPage({ domain, id }: { domain: string; id: stri
       }
     })();
   }, [id]);
+
+  const save = async () => {
+    if (!row) return;
+    setSaving(true);
+    try {
+      const updated = await patchAdminRecord(row.id, {
+        title: editTitle.trim() || row.title,
+        subtitle: editSubtitle.trim() || undefined,
+        status: editStatus.trim() || undefined,
+      });
+      setRow(updated);
+      toast.success("Saved");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Save failed");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -278,16 +384,49 @@ export function AdminRecordDetailPage({ domain, id }: { domain: string; id: stri
         {row.externalId ? (
           <span className="text-[11px] tabular-nums font-semibold" style={{ color: T.muted, fontFamily: "'JetBrains Mono', monospace" }}>{row.externalId}</span>
         ) : null}
+        <button
+          type="button"
+          disabled={saving}
+          onClick={() => void save()}
+          className="ml-auto h-8 px-3 rounded-lg text-[11.5px] font-semibold disabled:opacity-50"
+          style={{ background: T.navy, color: "#fff" }}
+        >
+          {saving ? "Saving…" : "Save changes"}
+        </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
         <div className="rounded-xl p-4" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
-          <p className="text-[10px] font-bold uppercase tracking-[0.16em] mb-3" style={{ color: T.muted }}>Summary</p>
-          <dl className="space-y-2 text-[12px]">
-            <div className="flex justify-between gap-3"><dt style={{ color: T.sub }}>Title</dt><dd className="font-semibold text-right">{row.title}</dd></div>
-            {row.subtitle ? <div className="flex justify-between gap-3"><dt style={{ color: T.sub }}>Details</dt><dd className="text-right">{row.subtitle}</dd></div> : null}
-            <div className="flex justify-between gap-3"><dt style={{ color: T.sub }}>Created</dt><dd className="tabular-nums" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{new Date(row.createdAt).toLocaleString()}</dd></div>
-          </dl>
+          <p className="text-[10px] font-bold uppercase tracking-[0.16em] mb-3" style={{ color: T.muted }}>Edit</p>
+          <div className="space-y-3 text-[12px]">
+            <label className="block">
+              <span style={{ color: T.sub }}>Title</span>
+              <input
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                className="mt-1 w-full h-9 px-3 rounded-lg"
+                style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.ink }}
+              />
+            </label>
+            <label className="block">
+              <span style={{ color: T.sub }}>Details</span>
+              <input
+                value={editSubtitle}
+                onChange={(e) => setEditSubtitle(e.target.value)}
+                className="mt-1 w-full h-9 px-3 rounded-lg"
+                style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.ink }}
+              />
+            </label>
+            <label className="block">
+              <span style={{ color: T.sub }}>Status</span>
+              <input
+                value={editStatus}
+                onChange={(e) => setEditStatus(e.target.value)}
+                className="mt-1 w-full h-9 px-3 rounded-lg"
+                style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.ink }}
+              />
+            </label>
+          </div>
         </div>
         <div className="rounded-xl p-4" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
           <p className="text-[10px] font-bold uppercase tracking-[0.16em] mb-3" style={{ color: T.muted }}>Payload</p>

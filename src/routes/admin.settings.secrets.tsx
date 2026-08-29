@@ -7,5 +7,5 @@ export const Route = createFileRoute("/admin/settings/secrets")({
 });
 
 function Page() {
-  return <AdminRecordListPage domain="webhook" />;
+  return <AdminRecordListPage domain="platform-secret" />;
 }

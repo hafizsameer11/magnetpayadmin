@@ -3,7 +3,7 @@ import { MoreHorizontal, MessageSquare, Mail, Phone, Megaphone, Bell, Shield, Ta
 import type { ReactNode } from "react";
 import { T } from "@/components/admin/AdminShell";
 import { Card, fmtNGN, FlagEmoji, KPI, FilterBar, FilterChip } from "@/components/admin/Orders";
-import { demo } from "@/components/admin/useDemoAction";
+import { TablePagerFooter, useTablePage } from "@/components/admin/TablePager";
 
 export { Card, fmtNGN, FlagEmoji, KPI, FilterBar, FilterChip };
 
@@ -184,14 +184,14 @@ export function ticketStats() {
 }
 
 export function TicketTable({ rows }: { rows: Ticket[] }) {
+  const pager = useTablePage(rows);
   return (
     <Card padded={false}>
       <div className="overflow-x-auto">
         <table className="w-full text-[12px]">
           <thead>
             <tr style={{ background: T.bg, color: T.muted }} className="text-left text-[10px] font-bold uppercase tracking-[0.14em]">
-              <th className="px-4 py-2.5 w-8"><input type="checkbox" onChange={() => demo("Select all on page", "info")} /></th>
-              <th className="px-2 py-2.5">Ticket</th>
+              <th className="px-2 py-2.5 pl-4">Ticket</th>
               <th className="px-2 py-2.5">Customer</th>
               <th className="px-2 py-2.5">Queue</th>
               <th className="px-2 py-2.5">Status</th>
@@ -202,10 +202,9 @@ export function TicketTable({ rows }: { rows: Ticket[] }) {
             </tr>
           </thead>
           <tbody>
-            {rows.map((t) => (
+            {pager.slice.map((t) => (
               <tr key={t.id} className="border-t hover:bg-black/[0.015] transition" style={{ borderColor: T.border }}>
-                <td className="px-4 py-3"><input type="checkbox" onClick={(e) => e.stopPropagation()} onChange={() => demo(`Selected ${t.id}`, "info")} /></td>
-                <td className="px-2 py-3">
+                <td className="px-2 py-3 pl-4">
                   <div className="flex items-center gap-1.5">
                     {channelIcon(t.channel)}
                     <Link to="/admin/tickets/$id" params={{ id: t.id }} className="font-bold tabular-nums hover:underline" style={{ color: T.ink, fontFamily: "'JetBrains Mono', monospace" }}>{t.id}</Link>
@@ -224,25 +223,27 @@ export function TicketTable({ rows }: { rows: Ticket[] }) {
                 <td className="px-2 py-3">{slaBarTck({ age: t.ageHours, sla: t.slaHours })}</td>
                 <td className="px-2 py-3 text-[11.5px]">{t.assignee ?? <span style={{ color: T.muted }}>Unassigned</span>}</td>
                 <td className="px-2 py-3">
-                  <button onClick={() => demo(`Actions for ${t.id}`, "info")} className="size-7 grid place-items-center rounded-md hover:bg-black/5">
+                  <Link to="/admin/tickets/$id" params={{ id: t.id }} className="size-7 grid place-items-center rounded-md hover:bg-black/5">
                     <MoreHorizontal className="size-4" style={{ color: T.muted }} />
-                  </button>
+                  </Link>
                 </td>
               </tr>
             ))}
-            {rows.length === 0 && (
-              <tr><td colSpan={9} className="px-4 py-12 text-center text-[12px]" style={{ color: T.muted }}>No tickets match these filters.</td></tr>
+            {!pager.total && (
+              <tr><td colSpan={8} className="px-4 py-12 text-center text-[12px]" style={{ color: T.muted }}>No tickets match these filters.</td></tr>
             )}
           </tbody>
         </table>
       </div>
-      <div className="px-4 py-3 flex items-center justify-between text-[11px]" style={{ color: T.sub, borderTop: `1px solid ${T.border}` }}>
-        <span className="tabular-nums">Showing {rows.length} of {TICKETS.length}</span>
-        <div className="flex items-center gap-1">
-          <button onClick={() => demo("Previous page", "info")} className="h-7 px-2.5 rounded-md font-medium" style={{ border: `1px solid ${T.border}`, background: T.surface }}>Prev</button>
-          <button onClick={() => demo("Next page", "info")} className="h-7 px-2.5 rounded-md font-medium" style={{ border: `1px solid ${T.border}`, background: T.surface }}>Next</button>
-        </div>
-      </div>
+      <TablePagerFooter
+        from={pager.from}
+        to={pager.to}
+        total={pager.total}
+        page={pager.page}
+        pageCount={pager.pageCount}
+        onPrev={() => pager.setPage((p) => Math.max(0, p - 1))}
+        onNext={() => pager.setPage((p) => Math.min(pager.pageCount - 1, p + 1))}
+      />
     </Card>
   );
 }

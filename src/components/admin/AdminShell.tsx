@@ -23,8 +23,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 
-// MagnetPay Hub tokens
-export const T = {
+// MagnetPay Hub tokens (light defaults; dark applied via proxy when appearance changes)
+const LIGHT_T = {
   navy: "#0E3B2E",
   bg: "#F6F1E7",
   surface: "#FFFFFF",
@@ -38,6 +38,36 @@ export const T = {
   danger: "#B91C1C",
   info: "#1D4ED8",
 };
+
+const DARK_T = {
+  navy: "#1A4D3A",
+  bg: "#12110F",
+  surface: "#1B1A17",
+  border: "#3D3830",
+  ink: "#F6F1E7",
+  sub: "#C4BCA8",
+  muted: "#8A8472",
+  accent: "#EA580C",
+  success: "#14B8A6",
+  warn: "#F59E0B",
+  danger: "#EF4444",
+  info: "#60A5FA",
+};
+
+let _activeTokens: typeof LIGHT_T = LIGHT_T;
+
+/** Theme tokens — reads active light/dark palette after AdminShell sets appearance. */
+export const T = new Proxy({} as typeof LIGHT_T, {
+  get(_target, prop: string) {
+    return _activeTokens[prop as keyof typeof LIGHT_T];
+  },
+});
+
+export const ADMIN_LIGHT_T = LIGHT_T;
+export const ADMIN_DARK_T = DARK_T;
+
+const LANG_KEY = "mp-admin-language";
+const THEME_KEY = "mp-admin-appearance";
 
 type NavItem = { label: string; to: string; I: typeof Users };
 
@@ -84,8 +114,48 @@ export function AdminShell({
   const path = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
   const crumbs = breadcrumbs ?? [{ label: "Admin", to: "/admin" }, { label: title }];
-  const [language, setLanguage] = useState("English");
-  const [appearance, setAppearance] = useState<"Light" | "Dark" | "System">("Light");
+  const [language, setLanguage] = useState(() => localStorage.getItem(LANG_KEY) ?? "English");
+  const [appearance, setAppearance] = useState<"Light" | "Dark" | "System">(
+    () => (localStorage.getItem(THEME_KEY) as "Light" | "Dark" | "System" | null) ?? "Light",
+  );
+  const [systemDark, setSystemDark] = useState(false);
+  const [headerQ, setHeaderQ] = useState("");
+  const dark = appearance === "Dark" || (appearance === "System" && systemDark);
+  const [, bumpTheme] = useState(0);
+
+  useEffect(() => {
+    localStorage.setItem(LANG_KEY, language);
+  }, [language]);
+
+  useEffect(() => {
+    localStorage.setItem(THEME_KEY, appearance);
+    _activeTokens = dark ? DARK_T : LIGHT_T;
+    document.documentElement.dataset.adminTheme = dark ? "dark" : "light";
+    bumpTheme((n) => n + 1);
+  }, [appearance, dark]);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const sync = () => setSystemDark(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        navigate({ to: "/admin/search", search: headerQ.trim() ? { q: headerQ.trim() } : {} });
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [navigate, headerQ]);
+
+  const goSearch = () => {
+    navigate({ to: "/admin/search", search: headerQ.trim() ? { q: headerQ.trim() } : {} });
+  };
 
   useEffect(() => {
     const publicPaths = ["/admin/login", "/admin/forgot"];
@@ -209,12 +279,19 @@ export function AdminShell({
               >
                 <Search className="size-3.5" strokeWidth={2.2} style={{ color: T.muted }} />
                 <input
+                  value={headerQ}
+                  onChange={(e) => setHeaderQ(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") goSearch();
+                  }}
                   placeholder="Search anything…"
                   className="bg-transparent text-[12px] outline-none flex-1 placeholder:opacity-60"
                   style={{ color: T.ink }}
                 />
-                <kbd
-                  className="text-[9.5px] px-1 py-0.5 rounded font-bold"
+                <button
+                  type="button"
+                  onClick={goSearch}
+                  className="text-[9.5px] px-1 py-0.5 rounded font-bold cursor-pointer"
                   style={{
                     background: T.bg,
                     color: T.muted,
@@ -223,7 +300,7 @@ export function AdminShell({
                   }}
                 >
                   ⌘K
-                </kbd>
+                </button>
               </div>
               <Link
                 to="/admin/notifications"
@@ -303,13 +380,16 @@ export function AdminShell({
                         {["English", "Français", "中文 (简体)", "Yorùbá", "Hausa"].map((l) => (
                           <DropdownMenuItem
                             key={l}
-                            onClick={() => { setLanguage(l); toast.success(`Language: ${l}`); }}
+                            onClick={() => setLanguage(l)}
                             className="text-[12.5px] gap-2 cursor-pointer"
                           >
                             {l}
                             {language === l && <Check className="ml-auto size-3.5" style={{ color: T.success }} />}
                           </DropdownMenuItem>
                         ))}
+                        <DropdownMenuItem disabled className="text-[10px]" style={{ color: T.muted }}>
+                          Admin UI is English-only for now
+                        </DropdownMenuItem>
                       </DropdownMenuSubContent>
                     </DropdownMenuPortal>
                   </DropdownMenuSub>
@@ -323,7 +403,7 @@ export function AdminShell({
                         {(["Light", "Dark", "System"] as const).map((m) => (
                           <DropdownMenuItem
                             key={m}
-                            onClick={() => { setAppearance(m); toast.success(`Appearance: ${m}`); }}
+                            onClick={() => setAppearance(m)}
                             className="text-[12.5px] gap-2 cursor-pointer"
                           >
                             {m}

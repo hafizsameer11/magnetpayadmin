@@ -1,12 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { CarrierDetailPage } from "@/components/admin/CaseDetailPage";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/admin/carriers/$id")({
-  head: () => ({ meta: [{ title: "Carrier — MagnetPay Admin" }] }),
-  component: Page,
+  beforeLoad: () => {
+    throw redirect({ to: "/admin/logistics/partners" });
+  },
+  component: () => null,
 });
-
-function Page() {
-  const { id } = Route.useParams();
-  return <CarrierDetailPage id={id} />;
-}

@@ -7,5 +7,5 @@ export const Route = createFileRoute("/admin/settings/general")({
 });
 
 function Page() {
-  return <AdminRecordListPage domain="feature-flag" />;
+  return <AdminRecordListPage domain="platform-config" />;
 }

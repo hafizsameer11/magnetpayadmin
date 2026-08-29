@@ -7,5 +7,5 @@ export const Route = createFileRoute("/admin/corridors")({
 });
 
 function Page() {
-  return <AdminRecordListPage domain="risk-rule" />;
+  return <AdminRecordListPage domain="fx-corridor" />;
 }

@@ -408,6 +408,44 @@ export const DOMAIN_CONFIG: Record<string, DomainConfig> = {
       { key: "status", label: "Status" },
     ],
   },
+  "shipment-exception": {
+    domain: "shipment-exception",
+    title: "Shipment exceptions",
+    description: "Customs holds, address issues, and delivery exceptions.",
+    breadcrumbs: [{ label: "Admin", to: "/admin" }, { label: "Logistics", to: "/admin/shipments" }, { label: "Exceptions" }],
+    columns: [
+      { key: "externalId", label: "Case", mono: true },
+      { key: "title", label: "Shipment" },
+      { key: "subtitle", label: "Route" },
+      { key: "reason", label: "Reason", render: (r) => p(r, "reason") },
+      { key: "status", label: "Status" },
+    ],
+  },
+  "platform-config": {
+    domain: "platform-config",
+    title: "General settings",
+    description: "Platform-wide configuration values.",
+    breadcrumbs: [{ label: "Admin", to: "/admin" }, { label: "Settings" }, { label: "General" }],
+    columns: [
+      { key: "externalId", label: "Key", mono: true },
+      { key: "title", label: "Setting" },
+      { key: "value", label: "Value", render: (r) => p(r, "value") },
+      { key: "status", label: "Status" },
+    ],
+  },
+  "fx-currency": {
+    domain: "fx-currency",
+    title: "Currencies",
+    description: "Supported wallet and settlement currencies.",
+    breadcrumbs: [{ label: "Admin", to: "/admin" }, { label: "FX", to: "/admin/fx/rates" }, { label: "Currencies" }],
+    columns: [
+      { key: "externalId", label: "Code", mono: true },
+      { key: "title", label: "Name" },
+      { key: "symbol", label: "Symbol", render: (r) => p(r, "symbol") },
+      { key: "enabled", label: "Enabled", render: (r) => (r.payload.enabled ? "Yes" : "No") },
+      { key: "status", label: "Status" },
+    ],
+  },
 };
 
 /** Map route filename stem to admin record domain (or null = skip / custom). */
@@ -436,8 +474,6 @@ export const ROUTE_FILE_DOMAIN: Record<string, string | null> = {
   "admin.roles": "team-member",
   "admin.warehouses.index": "warehouse",
   "admin.warehouses.$id": "warehouse",
-  "admin.carriers.index": "carrier",
-  "admin.carriers.$id": "carrier",
   "admin.escrow.templates": "escrow-template",
   "admin.risk-rules": "risk-rule",
   "admin.allowlist": "allowlist",
@@ -465,25 +501,28 @@ export const ROUTE_FILE_DOMAIN: Record<string, string | null> = {
   "admin.jobs.$id": "incident",
   "admin.reports.index": "incident",
   "admin.reports.$id": "incident",
-  "admin.customs": "warehouse",
-  "admin.labels": "carrier",
-  "admin.pickup-points": "warehouse",
-  "admin.zones": "carrier",
-  "admin.corridors": "risk-rule",
-  "admin.currencies": "risk-rule",
-  "admin.rates": "risk-rule",
+  "admin.customs": "customs-config",
+  "admin.shipments.exceptions": "shipment-exception",
+  "admin.labels": "shipping-label",
+  "admin.pickup-points": "pickup-point",
+  "admin.zones": "shipping-zone",
+  "admin.corridors": "fx-corridor",
+  "admin.currencies": "fx-currency",
+  "admin.rates": "fx-rate",
   "admin.reconciliation": "chargeback",
-  "admin.velocity": "risk-rule",
-  "admin.disputes.sla": "risk-rule",
+  "admin.velocity": "velocity-rule",
+  "admin.disputes.sla": "dispute-sla",
   "admin.disputes.$id.evidence": "fraud",
   "admin.disputes.$id.ruling": "fraud",
-  "admin.settings.general": "feature-flag",
+  "admin.settings.general": "platform-config",
   "admin.settings.branding": "banner",
   "admin.settings.locales": "legal-page",
-  "admin.settings.api-keys": "webhook",
-  "admin.settings.secrets": "webhook",
-  "admin.settings.integrations": "webhook",
-  "admin.security": "risk-rule",
+  "admin.settings.api-keys": "api-key",
+  "admin.settings.secrets": "platform-secret",
+  "admin.settings.integrations": "integration",
+  "admin.security": "security-policy",
+  "admin.carriers.index": null,
+  "admin.carriers.$id": null,
   "admin.2fa": "team-member",
   "admin.workspaces": "team-member",
   "admin.me": null,
@@ -502,7 +541,10 @@ function inferDomain(stem: string) {
   if (stem.includes("analytics")) return "incident";
   if (stem.includes("listing") && !stem.includes("history")) return "brand";
   if (stem.includes("order") && stem !== "admin.orders.index" && !stem.includes("orders.$id.index")) return "chargeback";
-  if (stem.includes("shipment") && stem !== "admin.shipments.index" && stem !== "admin.shipments.$id") return "warehouse";
+  if (stem.includes("shipment") && stem !== "admin.shipments.index" && stem !== "admin.shipments.$id") {
+    if (stem.includes("exceptions")) return "shipment-exception";
+    return "warehouse";
+  }
   if (stem.includes("seller") && !stem.includes("sellers.$id") && stem !== "admin.sellers.index" && stem !== "admin.sellers.applications") return "seller-tier";
   if (stem.includes("chat")) return "ticket";
   return "incident";

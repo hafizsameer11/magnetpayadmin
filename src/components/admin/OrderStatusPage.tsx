@@ -1,8 +1,10 @@
 import { Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
 import { Pill } from "@/components/admin/UserProfile";
+import { FilterBar } from "@/components/admin/Orders";
+import { FilterSelect, applyAllFilter, uniqueOptions } from "@/components/admin/ListFilters";
 import { fetchAdminOrders, fmtMoney } from "@/lib/api";
 import { toast } from "sonner";
 
@@ -46,6 +48,9 @@ export function OrderStatusPage({
 }) {
   const [rows, setRows] = useState<unknown[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currency, setCurrency] = useState("__all__");
+  const [supplier, setSupplier] = useState("__all__");
+  const [dateRange, setDateRange] = useState("__all__");
 
   useEffect(() => {
     void (async () => {
@@ -62,11 +67,40 @@ export function OrderStatusPage({
     })();
   }, [status]);
 
-  const totalMinor = rows.reduce((sum, raw) => {
-    const n = Number((raw as Record<string, unknown>).totalMinor ?? 0);
+  const filtered = useMemo(() => {
+    let list = rows as Record<string, unknown>[];
+    list = applyAllFilter(list, currency, (r) => str(r.currency, "NGN"));
+    list = applyAllFilter(list, supplier, (r) => str(r.supplier, "—"));
+    if (dateRange !== "__all__") {
+      const days = dateRange === "7d" ? 7 : 30;
+      const cutoff = Date.now() - days * 86_400_000;
+      list = list.filter((r) => {
+        const t = r.createdAt ? new Date(String(r.createdAt)).getTime() : 0;
+        return t >= cutoff;
+      });
+    }
+    return list;
+  }, [rows, currency, supplier, dateRange]);
+
+  const totalMinor = filtered.reduce((sum, raw) => {
+    const n = Number(raw.totalMinor ?? 0);
     return sum + (Number.isFinite(n) ? n : 0);
   }, 0);
-  const currency = str((rows[0] as Record<string, unknown> | undefined)?.currency, "NGN");
+  const displayCurrency = str((filtered[0] as Record<string, unknown> | undefined)?.currency, "NGN");
+
+  const currencyOptions = uniqueOptions(
+    (rows as Record<string, unknown>[]).map((r) => str(r.currency, "NGN")),
+    "All",
+  );
+  const supplierOptions = uniqueOptions(
+    (rows as Record<string, unknown>[]).map((r) => str(r.supplier, "—")),
+    "Any",
+  );
+  const dateOptions = [
+    { value: "__all__", label: "All time" },
+    { value: "7d", label: "Last 7d" },
+    { value: "30d", label: "Last 30d" },
+  ];
 
   return (
     <AdminShell
@@ -82,12 +116,12 @@ export function OrderStatusPage({
         <>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-5">
             {[
-              { label: "Count", val: rows.length },
-              { label: "Total value", val: fmtMoney(currency, totalMinor), tone: T.success },
+              { label: "Count", val: filtered.length },
+              { label: "Total value", val: fmtMoney(displayCurrency, totalMinor), tone: T.success },
               {
                 label: "Latest",
-                val: rows[0]
-                  ? new Date(String((rows[0] as Record<string, unknown>).createdAt)).toLocaleDateString()
+                val: filtered[0]
+                  ? new Date(String(filtered[0].createdAt)).toLocaleDateString()
                   : "—",
               },
             ].map((s) => (
@@ -101,6 +135,12 @@ export function OrderStatusPage({
               </div>
             ))}
           </div>
+
+          <FilterBar>
+            <FilterSelect label="Currency" value={currency} onChange={setCurrency} options={currencyOptions} />
+            <FilterSelect label="Supplier" value={supplier} onChange={setSupplier} options={supplierOptions} />
+            <FilterSelect label="Date" value={dateRange} onChange={setDateRange} options={dateOptions} />
+          </FilterBar>
 
           <div className="rounded-xl overflow-hidden" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
             <div
@@ -119,8 +159,8 @@ export function OrderStatusPage({
               <span>Status</span>
               <span>When</span>
             </div>
-            {rows.map((raw, i) => {
-              const r = raw as Record<string, unknown>;
+            {filtered.map((raw, i) => {
+              const r = raw;
               const user = (r.user ?? {}) as Record<string, unknown>;
               const id = str(r.id);
               const orderStatus = str(r.status);
@@ -131,7 +171,7 @@ export function OrderStatusPage({
                   className="grid items-center px-4 h-[58px] text-[12px]"
                   style={{
                     gridTemplateColumns: "1.1fr 1.4fr 1.2fr 1fr 1fr 1.1fr",
-                    borderBottom: i < rows.length - 1 ? `1px solid ${T.border}` : "none",
+                    borderBottom: i < filtered.length - 1 ? `1px solid ${T.border}` : "none",
                   }}
                 >
                   <div>
@@ -161,7 +201,7 @@ export function OrderStatusPage({
                 </div>
               );
             })}
-            {!rows.length ? (
+            {!filtered.length ? (
               <p className="p-6 text-center text-[12px]" style={{ color: T.muted }}>
                 No orders in this status.
               </p>

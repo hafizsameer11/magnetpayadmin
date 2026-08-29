@@ -7,5 +7,5 @@ export const Route = createFileRoute("/admin/disputes/sla")({
 });
 
 function Page() {
-  return <AdminRecordListPage domain="risk-rule" />;
+  return <AdminRecordListPage domain="dispute-sla" />;
 }
