@@ -1,5 +1,6 @@
-﻿import { T } from "@/components/admin/AdminShell";
-import type { ReactNode } from "react";
+﻿import type { ReactNode } from "react";
+import { T } from "@/components/admin/AdminShell";
+import { StatusBadge, StatusBadgeCustom, formatStatusLabel, type BadgeTone } from "./StatusBadge";
 import imgCharger from "@/assets/listings/charger.jpg";
 import imgAnkara from "@/assets/listings/ankara.jpg";
 import imgSurge from "@/assets/listings/surge.jpg";
@@ -131,33 +132,35 @@ export function fmtNGN(n: number) {
 }
 
 export function statusPillCatalog(s: Listing["status"]) {
-  const map: Record<Listing["status"], { c: string; bg: string; label: string }> = {
-    active:    { c: T.success, bg: `${T.success}14`, label: "Active" },
-    pending:   { c: T.warn,    bg: `${T.warn}14`,    label: "Pending" },
-    reported:  { c: T.danger,  bg: `${T.danger}14`,  label: "Reported" },
-    draft:     { c: T.muted,   bg: `${T.muted}14`,   label: "Draft" },
-    delisted:  { c: T.muted,   bg: `${T.muted}14`,   label: "Delisted" },
+  const map: Record<Listing["status"], { tone: BadgeTone; label: string }> = {
+    active: { tone: "success", label: "Active" },
+    pending: { tone: "warn", label: "Pending" },
+    reported: { tone: "danger", label: "Reported" },
+    draft: { tone: "neutral", label: "Draft" },
+    delisted: { tone: "neutral", label: "Delisted" },
   };
   const m = map[s];
-  return (
-    <span
-      className="inline-flex items-center gap-1 px-2 h-5 rounded-md text-[10.5px] font-bold uppercase tracking-wider"
-      style={{ background: m.bg, color: m.c }}
-    >
-      <span className="size-1.5 rounded-full" style={{ background: m.c }} /> {m.label}
-    </span>
-  );
+  return <StatusBadge tone={m.tone}>{m.label}</StatusBadge>;
 }
 
-export function Pill({ tone, children }: { tone: string; children: ReactNode }) {
-  return (
-    <span
-      className="inline-flex items-center gap-1 px-2 h-5 rounded-md text-[10.5px] font-bold uppercase tracking-wider"
-      style={{ background: `${tone}14`, color: tone }}
-    >
-      <span className="size-1.5 rounded-full" style={{ background: tone }} /> {children}
-    </span>
-  );
+export function Pill({ tone, children }: { tone: BadgeTone | string; children: ReactNode }) {
+  const mapped: Record<string, BadgeTone> = {
+    success: "success",
+    warn: "warn",
+    danger: "danger",
+    info: "info",
+    neutral: "neutral",
+    [T.success]: "success",
+    [T.warn]: "warn",
+    [T.danger]: "danger",
+    [T.info]: "info",
+    [T.muted]: "neutral",
+    [T.sub]: "neutral",
+  };
+  const key = String(tone);
+  const label = typeof children === "string" ? formatStatusLabel(children) : children;
+  if (mapped[key]) return <StatusBadge tone={mapped[key]} dot={false}>{label}</StatusBadge>;
+  return <StatusBadgeCustom color={key} label={typeof children === "string" ? formatStatusLabel(children) : String(children)} />;
 }
 
 export function Thumb({ src, alt = "", size = 36 }: { src: string; alt?: string; size?: number }) {

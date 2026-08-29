@@ -79,6 +79,7 @@ function Page() {
   const [targetStatus, setTargetStatus] = useState("");
   const [message, setMessage] = useState("");
   const [settleNotes, setSettleNotes] = useState("");
+  const [finalTotalNgn, setFinalTotalNgn] = useState("");
   const [costLines, setCostLines] = useState(DEFAULT_COST_LINES.map((l) => ({ ...l })));
   const [docKind, setDocKind] = useState("customs_clearance");
   const [docNote, setDocNote] = useState("");
@@ -112,12 +113,16 @@ function Page() {
 
   const documents = (row?.documents ?? []) as AdminShipmentDocument[];
   const costTotalMinor = useMemo(() => {
+    const fromField = Number(String(finalTotalNgn).replace(/,/g, ""));
+    if (Number.isFinite(fromField) && fromField > 0) {
+      return Math.round(fromField * 100);
+    }
     return costLines.reduce((sum, line) => {
       const n = Number(String(line.ngn).replace(/,/g, ""));
       if (!Number.isFinite(n) || n <= 0) return sum;
       return sum + Math.round(n * 100);
     }, 0);
-  }, [costLines]);
+  }, [costLines, finalTotalNgn]);
 
   const advance = async (useNext?: boolean) => {
     setBusy(true);
@@ -158,27 +163,42 @@ function Page() {
   };
 
   const settle = async () => {
-    const breakdown: ShipmentCostLine[] = costLines
+    const lineBreakdown: ShipmentCostLine[] = costLines
       .map((l) => ({
         label: l.label.trim(),
         amountMinor: Math.round(Number(String(l.ngn).replace(/,/g, "")) * 100),
       }))
       .filter((l) => l.label && l.amountMinor > 0);
 
-    if (breakdown.length === 0) {
-      toast.error("Add at least one cost line with an amount");
+    const lineSum = lineBreakdown.reduce((s, l) => s + l.amountMinor, 0);
+    const fromField = finalTotalNgn.trim() ? costTotalMinor : 0;
+
+    if (fromField <= 0 && lineSum <= 0) {
+      toast.error("Enter the final shipping cost (₦) or itemize costs below");
       return;
     }
+
+    if (fromField > 0 && lineSum > 0 && lineSum !== fromField) {
+      toast.error("Final total must match the sum of itemized lines, or clear the lines to use final total only");
+      return;
+    }
+
+    const finalMinor = fromField > 0 ? fromField : lineSum;
+    const breakdown =
+      lineBreakdown.length > 0 && lineSum === finalMinor
+        ? lineBreakdown
+        : [{ label: "Final customs & shipping", amountMinor: finalMinor }];
 
     setBusy(true);
     try {
       await settleAdminShipment(id, {
         breakdown,
         notes: settleNotes.trim() || undefined,
-        finalMinor: costTotalMinor,
+        finalMinor,
       });
-      toast.success("Customs settlement recorded");
+      toast.success("Final shipping cost applied");
       setSettleNotes("");
+      setFinalTotalNgn("");
       await load();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Settle failed");
@@ -617,10 +637,25 @@ function Page() {
 
           {canSettle ? (
             <div className="rounded-xl p-4 space-y-3" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
-              <p className="text-[12px] font-bold">Ops — apply final total</p>
+              <p className="text-[12px] font-bold">Apply final shipping cost</p>
               <p className="text-[11px] leading-snug" style={{ color: T.sub }}>
-                Itemize clearing costs in ₦. Buyer paid estimate{" "}
-                {fmtMoney(row.hold?.currency ?? "NGN", paidMinor || row.hold?.lockedMinor)} — final total drives refund or top-up.
+                Enter the actual customs-cleared total for this shipment. Buyer paid estimate{" "}
+                {fmtMoney(row.hold?.currency ?? "NGN", paidMinor || row.hold?.lockedMinor)} — difference becomes refund or top-up.
+              </p>
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-[0.14em]" style={{ color: T.muted }}>
+                  Final total (₦)
+                </label>
+                <input
+                  value={finalTotalNgn}
+                  onChange={(e) => setFinalTotalNgn(e.target.value)}
+                  placeholder="e.g. 500000"
+                  className="mt-1 w-full h-10 px-3 rounded-md text-[14px] font-bold tabular-nums"
+                  style={{ background: T.bg, border: `1px solid ${T.border}`, fontFamily: "'JetBrains Mono', monospace", color: T.ink }}
+                />
+              </div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: T.muted }}>
+                Optional itemization (for records)
               </p>
               {costLines.map((line, i) => (
                 <div key={i} className="grid grid-cols-[1fr_100px_32px] gap-2 items-center">
@@ -674,9 +709,9 @@ function Page() {
                   }}
                 >
                   {settleDelta > 0
-                    ? `Buyer owes ${fmtMoney("NGN", settleDelta)} top-up before collection`
+                    ? `Outstanding shipping balance: ${fmtMoney("NGN", settleDelta)} — buyer must top up before collection`
                     : settleDelta < 0
-                      ? `${fmtMoney("NGN", Math.abs(settleDelta))} will be credited to buyer wallet`
+                      ? `Shipping adjustment refund: ${fmtMoney("NGN", Math.abs(settleDelta))} will credit buyer wallet`
                       : "Final matches estimate — no adjustment"}
                 </div>
               ) : null}
@@ -694,7 +729,7 @@ function Page() {
                 className="w-full h-9 rounded-lg text-[12px] font-bold text-white disabled:opacity-60"
                 style={{ background: T.accent }}
               >
-                Apply final total & notify buyer
+                Apply final shipping cost & notify buyer
               </button>
             </div>
           ) : row.settlement ? (

@@ -2,6 +2,7 @@
 import { MoreHorizontal, MessageSquare, Mail, Phone, Megaphone, Bell, Shield, Tag, ChevronRight } from "lucide-react";
 import type { ReactNode } from "react";
 import { T } from "@/components/admin/AdminShell";
+import { StatusBadge, StatusBadgeCustom, formatStatusLabel } from "@/components/admin/StatusBadge";
 import { Card, fmtNGN, FlagEmoji, KPI, FilterBar, FilterChip } from "@/components/admin/Orders";
 import { TablePagerFooter, useTablePage } from "@/components/admin/TablePager";
 
@@ -142,16 +143,12 @@ export const TCK_STATUS_META: Record<TicketStatus, { c: string; label: string }>
 
 export function statusPillTicket(s: TicketStatus) {
   const m = TCK_STATUS_META[s];
-  return (
-    <span className="inline-flex items-center gap-1 px-2 h-5 rounded-md text-[10.5px] font-bold uppercase tracking-wider" style={{ background: `${m.c}14`, color: m.c }}>
-      <span className="size-1.5 rounded-full" style={{ background: m.c }} /> {m.label}
-    </span>
-  );
+  return <StatusBadgeCustom color={m.c} label={m.label} />;
 }
 
 export function priorityDot(p: TicketPriority) {
-  const c = p === "urgent" ? T.danger : p === "high" ? T.warn : p === "normal" ? T.info : T.muted;
-  return <span className="inline-flex items-center gap-1 text-[10.5px] font-bold uppercase tracking-wider" style={{ color: c }}><span className="size-1.5 rounded-full" style={{ background: c }} />{p}</span>;
+  const tone = p === "urgent" ? "danger" : p === "high" ? "warn" : p === "normal" ? "info" : "neutral";
+  return <StatusBadge tone={tone as "danger" | "warn" | "info" | "neutral"} dot={false}>{formatStatusLabel(p)}</StatusBadge>;
 }
 
 export function channelIcon(c: TicketChannel) {
@@ -386,13 +383,12 @@ export function findChat(id: string | undefined) {
 
 export function chatStatePill(s: ChatThread["state"]) {
   const map = { active: T.success, flagged: T.danger, frozen: T.warn, closed: T.muted };
-  const c = map[s];
-  return <span className="inline-flex items-center gap-1 px-2 h-5 rounded-md text-[10.5px] font-bold uppercase tracking-wider" style={{ background: `${c}14`, color: c }}><span className="size-1.5 rounded-full" style={{ background: c }} />{s}</span>;
+  return <StatusBadgeCustom color={map[s]} label={formatStatusLabel(s)} />;
 }
 
 export function riskPill(score: number) {
   const c = score >= 75 ? T.danger : score >= 40 ? T.warn : T.success;
-  return <span className="inline-flex items-center px-1.5 h-5 rounded-md text-[10.5px] font-bold tabular-nums" style={{ background: `${c}14`, color: c, fontFamily: "'JetBrains Mono', monospace" }}>{score}</span>;
+  return <StatusBadgeCustom color={c} label={String(score)} dot={false} />;
 }
 
 /* ===== Announcements ===== */
@@ -428,8 +424,7 @@ export function findAnnouncement(id: string | undefined) {
 
 export function annStatusPill(s: Announcement["status"]) {
   const map: Record<Announcement["status"], string> = { draft: T.muted, scheduled: T.info, sending: T.warn, sent: T.success, archived: T.muted };
-  const c = map[s];
-  return <span className="inline-flex items-center gap-1 px-2 h-5 rounded-md text-[10.5px] font-bold uppercase tracking-wider" style={{ background: `${c}14`, color: c }}><span className="size-1.5 rounded-full" style={{ background: c }} />{s}</span>;
+  return <StatusBadgeCustom color={map[s]} label={formatStatusLabel(s)} />;
 }
 
 /* ===== Templates ===== */

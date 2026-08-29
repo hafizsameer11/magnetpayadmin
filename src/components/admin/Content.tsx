@@ -1,4 +1,5 @@
 ﻿import { T } from "./AdminShell";
+import { StatusBadgeCustom, formatStatusLabel } from "./StatusBadge";
 import { FileText, BookOpen, Scale, Sparkles } from "lucide-react";
 import type { ReactNode } from "react";
 
@@ -198,22 +199,16 @@ export const CHANGELOG: ChangelogEntry[] = [
 
 // ---------- UI primitives ----------
 export function statusPillCms(s: CmsPage["status"] | HelpArticle["status"] | ChangelogEntry["status"] | LegalDoc["status"]) {
-  const map: Record<string, { bg: string; fg: string }> = {
-    Published: { bg: `${T.success}14`, fg: T.success },
-    Active:    { bg: `${T.success}14`, fg: T.success },
-    Draft:     { bg: `${T.muted}1F`,   fg: T.sub },
-    Review:    { bg: `${T.info}14`,    fg: T.info },
-    Scheduled: { bg: `${T.warn}18`,    fg: T.warn },
-    Superseded:{ bg: `${T.muted}1F`,   fg: T.muted },
+  const map: Record<string, string> = {
+    Published: T.success,
+    Active: T.success,
+    Draft: T.sub,
+    Review: T.info,
+    Scheduled: T.warn,
+    Superseded: T.muted,
   };
-  const c = map[s] ?? map.Draft;
-  return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-bold uppercase tracking-wide"
-      style={{ background: c.bg, color: c.fg }}>
-      <span className="size-1.5 rounded-full" style={{ background: c.fg }} />
-      {s}
-    </span>
-  );
+  const c = map[s] ?? T.sub;
+  return <StatusBadgeCustom color={c} label={formatStatusLabel(s)} />;
 }
 
 export function LocaleChips({ locales }: { locales: string[] }) {

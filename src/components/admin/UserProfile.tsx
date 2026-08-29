@@ -4,23 +4,13 @@ import { toast } from "sonner";
 import { T } from "./AdminShell";
 import { ActionMenu } from "./ActionMenu";
 import { openAdminChatWithUser, patchAdminUser, type AdminUser } from "@/lib/api";
+import { StatusBadge, StatusBadgeCustom, formatStatusLabel, type BadgeTone } from "./StatusBadge";
 
-type Tone = "success" | "warn" | "danger" | "info" | "neutral";
+type Tone = BadgeTone;
 
 export function Pill({ tone, children }: { tone: Tone; children: React.ReactNode }) {
-  const c =
-    tone === "success" ? T.success :
-    tone === "warn" ? T.warn :
-    tone === "danger" ? T.danger :
-    tone === "info" ? T.info : T.sub;
-  return (
-    <span
-      className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9.5px] font-bold uppercase tracking-[0.12em]"
-      style={{ background: `${c}18`, color: c, border: `1px solid ${c}26` }}
-    >
-      {children}
-    </span>
-  );
+  const label = typeof children === "string" ? formatStatusLabel(children) : children;
+  return <StatusBadge tone={tone} dot={false}>{label}</StatusBadge>;
 }
 
 export function initials(name: string) {

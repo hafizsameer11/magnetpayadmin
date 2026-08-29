@@ -1,4 +1,5 @@
 ﻿import { T } from "./AdminShell";
+import { StatusBadgeCustom, formatStatusLabel } from "./StatusBadge";
 import type { ReactNode } from "react";
 
 // ============== Types ==============
@@ -397,20 +398,14 @@ export function cohortColor(v: number) {
 }
 
 export function statusPillReport(s: ReportJob["lastStatus"]) {
-  const map: Record<string, { bg: string; fg: string }> = {
-    Success: { bg: `${T.success}14`, fg: T.success },
-    Failed:  { bg: `${T.danger}14`,  fg: T.danger },
-    Running: { bg: `${T.info}14`,    fg: T.info },
-    Queued:  { bg: `${T.muted}1F`,   fg: T.sub },
+  const map: Record<string, string> = {
+    Success: T.success,
+    Failed: T.danger,
+    Running: T.info,
+    Queued: T.sub,
   };
-  const c = map[s] ?? map.Queued;
-  return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-bold uppercase tracking-wide"
-      style={{ background: c.bg, color: c.fg }}>
-      <span className="size-1.5 rounded-full" style={{ background: c.fg }} />
-      {s}
-    </span>
-  );
+  const c = map[s] ?? T.sub;
+  return <StatusBadgeCustom color={c} label={formatStatusLabel(s)} />;
 }
 
 // Formatters

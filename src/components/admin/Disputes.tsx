@@ -2,6 +2,7 @@
 import { MoreHorizontal } from "lucide-react";
 import type { ReactNode } from "react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
+import { StatusBadge, StatusBadgeCustom } from "@/components/admin/StatusBadge";
 import { Card, fmtNGN, KPI, FlagEmoji, FilterBar, FilterChip, findListing } from "@/components/admin/Orders";
 import { TablePagerFooter, useTablePage } from "@/components/admin/TablePager";
 
@@ -203,20 +204,15 @@ export const DSP_STATUS_META: Record<DisputeStatus, { c: string; label: string }
 
 export function statusPillDispute(s: DisputeStatus) {
   const m = DSP_STATUS_META[s];
-  return (
-    <span className="inline-flex items-center gap-1 px-2 h-5 rounded-md text-[10.5px] font-bold uppercase tracking-wider" style={{ background: `${m.c}14`, color: m.c }}>
-      <span className="size-1.5 rounded-full" style={{ background: m.c }} /> {m.label}
-    </span>
-  );
+  return <StatusBadgeCustom color={m.c} label={m.label} />;
 }
 
 export function reasonLabel(r: DisputeReason) { return REASON_LABEL[r]; }
 
 export function priorityPill(p: Dispute["priority"]) {
   const c = p === "critical" ? T.danger : p === "high" ? T.warn : p === "normal" ? T.info : T.muted;
-  return (
-    <span className="inline-flex items-center px-1.5 h-4 rounded text-[9.5px] font-bold uppercase tracking-wider" style={{ background: `${c}14`, color: c }}>{p}</span>
-  );
+  const tone = p === "critical" ? "danger" : p === "high" ? "warn" : p === "normal" ? "info" : "neutral";
+  return <StatusBadge tone={tone as "danger" | "warn" | "info" | "neutral"} dot={false}>{p}</StatusBadge>;
 }
 
 export function slaBar({ age, sla }: { age: number; sla: number }) {

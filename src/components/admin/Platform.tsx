@@ -1,6 +1,7 @@
 ﻿import { T } from "./AdminShell";
 import type { ReactNode, CSSProperties } from "react";
 import { Link } from "@tanstack/react-router";
+import { StatusBadge, formatStatusLabel, type BadgeTone } from "./StatusBadge";
 import {
   Activity, AlertTriangle, CheckCircle2, Clock, Database, Globe,
   Webhook, Key, Lock, Cpu, Server, Calendar, FileText, Flag,
@@ -301,20 +302,16 @@ export function KPI({ label, value, sub, tone }: { label: string; value: string;
 }
 
 export function Pill({ children, tone = "default" }: { children: ReactNode; tone?: "default" | "good" | "bad" | "warn" | "info" | "muted" }) {
-  const map: Record<string, { bg: string; fg: string }> = {
-    default: { bg: T.bg, fg: T.ink },
-    good:    { bg: "#E6F4F1", fg: T.success },
-    bad:     { bg: "#FCE8E8", fg: T.danger },
-    warn:    { bg: "#FBEBD7", fg: T.warn },
-    info:    { bg: "#E0EAFC", fg: T.info },
-    muted:   { bg: T.bg, fg: T.muted },
+  const map: Record<string, BadgeTone> = {
+    default: "neutral",
+    good: "success",
+    bad: "danger",
+    warn: "warn",
+    info: "info",
+    muted: "neutral",
   };
-  const s = map[tone];
-  return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-semibold" style={{ background: s.bg, color: s.fg }}>
-      {children}
-    </span>
-  );
+  const label = typeof children === "string" ? formatStatusLabel(children) : children;
+  return <StatusBadge tone={map[tone]} dot={false}>{label}</StatusBadge>;
 }
 
 export function statusDot(color: string) {

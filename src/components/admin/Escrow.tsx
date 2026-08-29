@@ -6,6 +6,7 @@ import { Card, Pill, fmtCNY, fmtNGN, KPI, FlagEmoji, FilterBar, FilterChip, find
 import { TablePagerFooter, useTablePage } from "@/components/admin/TablePager";
 import { downloadClientCsv } from "@/lib/csv";
 import { FilterSelect, applyAllFilter, uniqueOptions } from "@/components/admin/ListFilters";
+import { StatusBadgeCustom } from "@/components/admin/StatusBadge";
 import { toast } from "sonner";
 import { useMemo, useState } from "react";
 
@@ -195,14 +196,7 @@ export const ESC_STATUS_META: Record<EscrowStatus, { c: string; label: string }>
 
 export function statusPillEscrow(s: EscrowStatus) {
   const m = ESC_STATUS_META[s];
-  return (
-    <span
-      className="inline-flex items-center gap-1 px-2 h-5 rounded-md text-[10.5px] font-bold uppercase tracking-wider"
-      style={{ background: `${m.c}14`, color: m.c }}
-    >
-      <span className="size-1.5 rounded-full" style={{ background: m.c }} /> {m.label}
-    </span>
-  );
+  return <StatusBadgeCustom color={m.c} label={m.label} />;
 }
 
 export function EscrowTable({ rows }: { rows: EscrowContract[] }) {

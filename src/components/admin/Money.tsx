@@ -1,4 +1,5 @@
 ﻿import { T } from "@/components/admin/AdminShell";
+import { StatusBadge, StatusBadgeCustom, formatStatusLabel } from "@/components/admin/StatusBadge";
 import { Card, Pill, fmtCNY, fmtNGN, KPI, FlagEmoji, FilterBar, FilterChip } from "@/components/admin/Orders";
 
 export { Card, Pill, fmtCNY, fmtNGN, KPI, FlagEmoji, FilterBar, FilterChip };
@@ -111,20 +112,12 @@ export const TXN_STATUS_COLOR: Record<TxnStatus, string> = {
 
 export function txnPill(s: TxnStatus) {
   const c = TXN_STATUS_COLOR[s];
-  return (
-    <span className="inline-flex items-center gap-1 px-2 h-5 rounded-md text-[10.5px] font-bold uppercase tracking-wider" style={{ background: `${c}14`, color: c }}>
-      <span className="size-1.5 rounded-full" style={{ background: c }} /> {s}
-    </span>
-  );
+  return <StatusBadgeCustom color={c} label={formatStatusLabel(s)} />;
 }
 
 export function txnTypePill(t: TxnType) {
   const m = TXN_META[t];
-  return (
-    <span className="inline-flex items-center px-2 h-5 rounded-md text-[10.5px] font-bold uppercase tracking-wider" style={{ background: `${m.c}14`, color: m.c }}>
-      {m.label}
-    </span>
-  );
+  return <StatusBadgeCustom color={m.c} label={m.label} dot={false} />;
 }
 
 // FX
@@ -205,11 +198,7 @@ export const STATUS_COLORS: Record<string, string> = {
 
 export function statusPill(s: string) {
   const c = STATUS_COLORS[s] ?? T.muted;
-  return (
-    <span className="inline-flex items-center gap-1 px-2 h-5 rounded-md text-[10.5px] font-bold uppercase tracking-wider" style={{ background: `${c}14`, color: c }}>
-      <span className="size-1.5 rounded-full" style={{ background: c }} /> {s}
-    </span>
-  );
+  return <StatusBadgeCustom color={c} label={formatStatusLabel(s)} />;
 }
 
 // Chargebacks

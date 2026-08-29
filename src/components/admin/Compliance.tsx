@@ -1,4 +1,5 @@
 ﻿import { T } from "@/components/admin/AdminShell";
+import { StatusBadge, StatusBadgeCustom, formatStatusLabel } from "@/components/admin/StatusBadge";
 import { Card, KPI, FilterBar, FilterChip, FlagEmoji, fmtNGN, Pill } from "@/components/admin/Money";
 import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
@@ -10,21 +11,13 @@ export const MONO = mono;
 
 // ---------- shared pills ----------
 export function sevPill(s: "low" | "medium" | "high" | "critical") {
-  const c = s === "critical" ? T.danger : s === "high" ? T.accent : s === "medium" ? T.warn : T.muted;
-  return (
-    <span className="inline-flex items-center gap-1 px-2 h-5 rounded-md text-[10.5px] font-bold uppercase tracking-wider" style={{ background: `${c}14`, color: c }}>
-      <span className="size-1.5 rounded-full" style={{ background: c }} /> {s}
-    </span>
-  );
+  const tone = s === "critical" ? "danger" : s === "high" ? "warn" : s === "medium" ? "warn" : "neutral";
+  return <StatusBadge tone={tone}>{formatStatusLabel(s)}</StatusBadge>;
 }
 
 export function statePill(s: string, color?: string) {
-  const c = color ?? T.info;
-  return (
-    <span className="inline-flex items-center gap-1 px-2 h-5 rounded-md text-[10.5px] font-bold uppercase tracking-wider" style={{ background: `${c}14`, color: c }}>
-      <span className="size-1.5 rounded-full" style={{ background: c }} /> {s.replace(/_/g, " ")}
-    </span>
-  );
+  if (color) return <StatusBadgeCustom color={color} label={formatStatusLabel(s.replace(/_/g, " "))} />;
+  return <StatusBadge tone="info">{formatStatusLabel(s.replace(/_/g, " "))}</StatusBadge>;
 }
 
 export function riskBar(score: number) {
@@ -239,11 +232,7 @@ export const LIST_KIND_COLOR: Record<ListKind, string> = {
 
 export function listKindPill(k: ListKind) {
   const c = LIST_KIND_COLOR[k];
-  return (
-    <span className="inline-flex items-center px-2 h-5 rounded-md text-[10.5px] font-bold uppercase tracking-wider" style={{ background: `${c}14`, color: c }}>
-      {k.replace("_", " ")}
-    </span>
-  );
+  return <StatusBadgeCustom color={c} label={formatStatusLabel(k.replace("_", " "))} dot={false} />;
 }
 
 // ====================================================================

@@ -1,4 +1,5 @@
 ﻿import { T } from "@/components/admin/AdminShell";
+import { StatusBadgeCustom } from "@/components/admin/StatusBadge";
 import { LISTINGS, fmtCNY, fmtNGN, Thumb, Card, Pill } from "@/components/admin/Catalog";
 import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
@@ -142,14 +143,7 @@ export const STATUS_META: Record<OrderStatus, { c: string; label: string }> = {
 
 export function statusPillOrder(s: OrderStatus) {
   const m = STATUS_META[s];
-  return (
-    <span
-      className="inline-flex items-center gap-1 px-2 h-5 rounded-md text-[10.5px] font-bold uppercase tracking-wider"
-      style={{ background: `${m.c}14`, color: m.c }}
-    >
-      <span className="size-1.5 rounded-full" style={{ background: m.c }} /> {m.label}
-    </span>
-  );
+  return <StatusBadgeCustom color={m.c} label={m.label} />;
 }
 
 export function KPI({ label, value, hint, tone = T.ink }: { label: string; value: ReactNode; hint?: string; tone?: string }) {

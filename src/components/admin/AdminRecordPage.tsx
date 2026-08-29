@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Loader2, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
 import { Pill } from "@/components/admin/UserProfile";
+import { StatusCell } from "@/components/admin/StatusBadge";
 import { fetchAdminRecords, fetchAdminTickets, fetchAdminWebhooks, fetchAdminFeatureFlags, fetchAdminJobs, fetchAdminIncidents, fetchAdminContentPages, fetchAdminHelpArticles, fetchAdminEmailTemplates, fetchAdminSmsTemplates, patchAdminRecord, createAdminRecord, type AdminRecord } from "@/lib/api";
 import { FilterSelect, applyAllFilter, uniqueOptions } from "./ListFilters";
 import { DOMAIN_CONFIG, type AdminRecordRow } from "@/components/admin/recordRegistry";
@@ -257,9 +258,9 @@ export function AdminRecordListPage({ domain }: { domain: string }) {
                 const content = col.render ? col.render(row) : cellValue(row, col.key);
                 if (col.key === "status") {
                   return (
-                    <span key={col.key}>
+                    <StatusCell key={col.key}>
                       <Pill tone={statusTone(row.status)}>{String(row.status ?? "—")}</Pill>
-                    </span>
+                    </StatusCell>
                   );
                 }
                 return (

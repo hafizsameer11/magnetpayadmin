@@ -1,6 +1,7 @@
 ﻿import { Link } from "@tanstack/react-router";
 import { MoreHorizontal } from "lucide-react";
 import { T } from "@/components/admin/AdminShell";
+import { StatusBadgeCustom } from "@/components/admin/StatusBadge";
 import { Card, fmtNGN, KPI, FlagEmoji, FilterBar, FilterChip } from "@/components/admin/Orders";
 import { TablePagerFooter, useTablePage } from "@/components/admin/TablePager";
 
@@ -157,11 +158,7 @@ export const STATUS_META: Record<ShipmentStatus, { c: string; label: string }> =
 
 export function statusPillShip(s: ShipmentStatus) {
   const m = STATUS_META[s];
-  return (
-    <span className="inline-flex items-center gap-1 px-2 h-5 rounded-md text-[10.5px] font-bold uppercase tracking-wider" style={{ background: `${m.c}14`, color: m.c }}>
-      <span className="size-1.5 rounded-full" style={{ background: m.c }} /> {m.label}
-    </span>
-  );
+  return <StatusBadgeCustom color={m.c} label={m.label} />;
 }
 
 export function ShipmentTable({ rows }: { rows: Shipment[] }) {
