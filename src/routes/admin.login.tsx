@@ -131,6 +131,7 @@ function AdminLogin() {
 
         <button
           type="button"
+          onClick={() => toast.message("SSO is managed by IT — use email + passcode or contact itsec@magnetpay.io")}
           className="w-full h-11 rounded-lg flex items-center justify-center gap-2 text-[13px] font-semibold"
           style={{ background: T.surface, border: `1px solid ${T.border}`, color: T.ink }}
         >

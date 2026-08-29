@@ -5,7 +5,8 @@ import { AdminShell, T } from "./AdminShell";
 import { Card } from "./Catalog";
 import { sevPill, statePill, riskBar, SectionTitle } from "./Compliance";
 import { Pill } from "./UserProfile";
-import { fetchAdminRecord, type AdminRecord } from "@/lib/api";
+import { fetchAdminRecord, patchAdminRecord, type AdminRecord } from "@/lib/api";
+import { getSessionUser } from "@/lib/session";
 import { toast } from "sonner";
 
 function p(row: AdminRecord, key: string) {
@@ -29,16 +30,50 @@ export function CaseDetailPage({
 }) {
   const [row, setRow] = useState<AdminRecord | null>(null);
   const [loading, setLoading] = useState(true);
+  const [acting, setActing] = useState<string | null>(null);
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      setRow(await fetchAdminRecord(id));
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to load case");
+      setRow(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    void fetchAdminRecord(id)
-      .then(setRow)
-      .catch((e) => {
-        toast.error(e instanceof Error ? e.message : "Failed to load case");
-        setRow(null);
-      })
-      .finally(() => setLoading(false));
+    void load();
   }, [id]);
+
+  const runAction = async (action: "assign" | "escalate" | "clear") => {
+    if (!row || acting) return;
+    setActing(action);
+    try {
+      const me = getSessionUser();
+      const payload = { ...(row.payload as Record<string, unknown>) };
+      if (action === "assign") {
+        payload.assignee = me?.name ?? "Admin";
+        await patchAdminRecord(row.id, { status: "investigating", payload });
+        toast.success("Case assigned to you");
+      } else if (action === "escalate") {
+        payload.escalatedAt = new Date().toISOString();
+        await patchAdminRecord(row.id, { status: "escalated", payload });
+        toast.success("Case escalated");
+      } else {
+        payload.clearedAt = new Date().toISOString();
+        await patchAdminRecord(row.id, { status: "cleared", payload });
+        toast.success("Case cleared");
+      }
+      await load();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Action failed");
+    } finally {
+      setActing(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -120,14 +155,32 @@ export function CaseDetailPage({
           <Card>
             <SectionTitle title="Actions" />
             <div className="mt-3 flex flex-col gap-2">
-              <button type="button" className="h-9 px-3 rounded-lg text-[12px] font-semibold text-white" style={{ background: T.navy }}>
-                Assign to me
+              <button
+                type="button"
+                disabled={!!acting}
+                onClick={() => void runAction("assign")}
+                className="h-9 px-3 rounded-lg text-[12px] font-semibold text-white disabled:opacity-60"
+                style={{ background: T.navy }}
+              >
+                {acting === "assign" ? "Assigning…" : "Assign to me"}
               </button>
-              <button type="button" className="h-9 px-3 rounded-lg text-[12px] font-semibold" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
-                Escalate
+              <button
+                type="button"
+                disabled={!!acting}
+                onClick={() => void runAction("escalate")}
+                className="h-9 px-3 rounded-lg text-[12px] font-semibold disabled:opacity-60"
+                style={{ background: T.surface, border: `1px solid ${T.border}` }}
+              >
+                {acting === "escalate" ? "Escalating…" : "Escalate"}
               </button>
-              <button type="button" className="h-9 px-3 rounded-lg text-[12px] font-semibold" style={{ background: `${T.success}18`, color: T.success }}>
-                Clear case
+              <button
+                type="button"
+                disabled={!!acting}
+                onClick={() => void runAction("clear")}
+                className="h-9 px-3 rounded-lg text-[12px] font-semibold disabled:opacity-60"
+                style={{ background: `${T.success}18`, color: T.success }}
+              >
+                {acting === "clear" ? "Clearing…" : "Clear case"}
               </button>
             </div>
           </Card>

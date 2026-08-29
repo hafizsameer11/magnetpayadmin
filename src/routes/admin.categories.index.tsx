@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
@@ -130,9 +130,11 @@ function Page() {
           const r = raw as Record<string, unknown>;
           const count = (r._count as { products?: number } | undefined)?.products ?? 0;
           return (
-            <div
+            <Link
               key={str(r.id)}
-              className="grid items-center px-4 h-12 text-[12px]"
+              to="/admin/categories/$id"
+              params={{ id: str(r.id) }}
+              className="grid items-center px-4 h-12 text-[12px] hover:bg-[rgba(14,59,46,0.02)] transition"
               style={{
                 gridTemplateColumns: "2fr 1.4fr 1fr 1.2fr",
                 borderBottom: i < rows.length - 1 ? `1px solid ${T.border}` : "none",
@@ -148,7 +150,7 @@ function Page() {
               <span className="tabular-nums text-[10.5px]" style={{ color: T.muted, fontFamily: "'JetBrains Mono', monospace" }}>
                 {str(r.id).slice(0, 8)}
               </span>
-            </div>
+            </Link>
           );
         })}
         {!rows.length ? (

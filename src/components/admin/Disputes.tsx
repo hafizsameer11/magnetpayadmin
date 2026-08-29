@@ -259,7 +259,7 @@ export function DisputeTable({ rows }: { rows: Dispute[] }) {
                 <td className="px-4 py-3"><input type="checkbox" onClick={(e) => e.stopPropagation()} onChange={() => demo(`Selected ${d.id}`, "info")} /></td>
                 <td className="px-2 py-3">
                   <div className="flex items-center gap-1.5">
-                    <Link to="/admin/disputes/$id" params={{ id: d.id }} className="font-bold tabular-nums hover:underline" style={{ color: T.ink, fontFamily: "'JetBrains Mono', monospace" }}>{d.id}</Link>
+                    <Link to="/admin/disputes/$id" params={{ id: d.id }} className="font-bold tabular-nums hover:underline" style={{ color: T.ink, fontFamily: "'JetBrains Mono', monospace" }}>{d.id.slice(0, 8).toUpperCase()}</Link>
                     {priorityPill(d.priority)}
                   </div>
                   <p className="text-[10.5px] tabular-nums" style={{ color: T.muted, fontFamily: "'JetBrains Mono', monospace" }}>{d.orderId} ┬╖ {d.openedAt}</p>
@@ -274,7 +274,7 @@ export function DisputeTable({ rows }: { rows: Dispute[] }) {
                 </td>
                 <td className="px-2 py-3 text-right">
                   <p className="font-bold tabular-nums" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{fmtNGN(d.amountNGN)}</p>
-                  <Link to="/admin/escrow/$id" params={{ id: d.escrowId }} className="text-[10.5px] tabular-nums hover:underline" style={{ color: T.info, fontFamily: "'JetBrains Mono', monospace" }}>{d.escrowId}</Link>
+                  <Link to="/admin/escrow/$id" params={{ id: d.escrowId }} className="text-[10.5px] tabular-nums hover:underline" style={{ color: T.info, fontFamily: "'JetBrains Mono', monospace" }}>{d.escrowId.slice(0, 12).toUpperCase()}</Link>
                 </td>
                 <td className="px-2 py-3">{statusPillDispute(d.status)}</td>
                 <td className="px-2 py-3">{slaBar({ age: d.ageHours, sla: d.slaHours })}</td>

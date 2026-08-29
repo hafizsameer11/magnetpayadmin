@@ -100,9 +100,9 @@ export function EscrowListPage({ filter }: { filter?: string }) {
     const ms = (e.milestones ?? []) as { id: string; title: string; amountMinor: string | number; amountBps: number; status: string }[];
     const released = ms.filter((m) => m.status === "RELEASED").reduce((s, m) => s + Number(m.amountMinor), 0);
     return {
-      id: e.id.slice(0, 12).toUpperCase(),
-      orderId: e.id.slice(0, 8),
-      listingId: e.id.slice(0, 8),
+      id: e.id,
+      orderId: e.id.slice(0, 8).toUpperCase(),
+      listingId: e.id.slice(0, 8).toUpperCase(),
       buyer: e.buyer?.name ?? "Buyer",
       buyerId: e.buyer?.id ?? "—",
       buyerCountry: "NG",
@@ -166,10 +166,20 @@ export function DisputesListPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const mapped: Dispute[] = rows.map((d) => ({
-    id: d.id.slice(0, 8).toUpperCase(),
-    orderId: d.escrowId.slice(0, 8),
-    escrowId: d.escrowId.slice(0, 8),
+  const mapped: Dispute[] = rows.map((d) => {
+    const rawStatus = String((d as { status?: string }).status ?? "OPEN").toLowerCase();
+    const status: Dispute["status"] =
+      d.outcome || rawStatus.includes("resolved")
+        ? "resolved_buyer"
+        : rawStatus.includes("escalat")
+          ? "escalated"
+          : rawStatus.includes("invest")
+            ? "investigating"
+            : "new";
+    return {
+    id: d.id,
+    orderId: d.escrowId.slice(0, 8).toUpperCase(),
+    escrowId: d.escrowId,
     listingId: "—",
     amountNGN: Math.round(Number(d.escrow?.amountMinor ?? 0) / 100 * 229),
     buyer: d.openedBy?.name ?? "Buyer",
@@ -178,17 +188,18 @@ export function DisputesListPage() {
     seller: d.escrow?.seller?.name ?? "Seller",
     sellerId: d.escrow?.seller?.id ?? "—",
     reason: "not_as_described",
-    status: "investigating",
-    priority: "normal",
+    status,
+    priority: ((d as { priority?: string }).priority ?? "normal") as Dispute["priority"],
     openedAt: new Date(d.createdAt).toLocaleDateString(),
     openedBy: "buyer",
     ageHours: Math.floor((Date.now() - new Date(d.createdAt).getTime()) / 3600_000),
     slaHours: 72,
     lastActivity: new Date(d.updatedAt ?? d.createdAt).toLocaleDateString(),
-    assignee: undefined,
+    assignee: (d as { assignee?: { name?: string } }).assignee?.name,
     evidence: [],
     summary: d.reason,
-  }));
+  };
+  });
 
   const open = mapped.filter((x) => !x.status.startsWith("resolved"));
   const stats = {

@@ -3,7 +3,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { Loader2 } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
 import { DisputeHeader, DisputeRulingPanel } from "@/components/admin/DisputeProfile";
-import { fetchAdminDisputes, resolveEscrow, type AdminDispute } from "@/lib/api";
+import { fetchAdminDispute, resolveEscrow, type AdminDispute } from "@/lib/api";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/disputes/$id/ruling")({
@@ -22,8 +22,7 @@ function Page() {
 
   const load = async () => {
     try {
-      const list = await fetchAdminDisputes();
-      setRow(list.find((d) => d.id === id) ?? null);
+      setRow(await fetchAdminDispute(id));
     } catch {
       setRow(null);
     } finally {

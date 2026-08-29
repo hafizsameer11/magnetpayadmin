@@ -229,7 +229,7 @@ export function EscrowTable({ rows }: { rows: EscrowContract[] }) {
                 <tr key={e.id} className="border-t hover:bg-black/[0.015] transition" style={{ borderColor: T.border }}>
                   <td className="px-4 py-3"><input type="checkbox" onClick={(ev) => ev.stopPropagation()} onChange={() => demo(`Selected ${e.id}`, "info")} /></td>
                   <td className="px-2 py-3">
-                    <Link to="/admin/escrow/$id" params={{ id: e.id }} className="font-bold tabular-nums hover:underline" style={{ color: T.ink, fontFamily: "'JetBrains Mono', monospace" }}>{e.id}</Link>
+                    <Link to="/admin/escrow/$id" params={{ id: e.id }} className="font-bold tabular-nums hover:underline" style={{ color: T.ink, fontFamily: "'JetBrains Mono', monospace" }}>{e.id.slice(0, 12).toUpperCase()}</Link>
                     <p className="text-[10.5px]" style={{ color: T.muted }}>{e.template}</p>
                   </td>
                   <td className="px-2 py-3">

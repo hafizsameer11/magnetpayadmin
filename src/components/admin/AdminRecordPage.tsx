@@ -53,6 +53,8 @@ export function AdminRecordListPage({ domain }: { domain: string }) {
   const [rows, setRows] = useState<AdminRecordRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
+  const [page, setPage] = useState(0);
+  const PAGE_SIZE = 25;
 
   useEffect(() => {
     let cancelled = false;
@@ -94,6 +96,13 @@ export function AdminRecordListPage({ domain }: { domain: string }) {
         (r.status ?? "").toLowerCase().includes(q),
     );
   }, [rows, query]);
+
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const pageRows = filtered.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
+
+  useEffect(() => {
+    setPage(0);
+  }, [query, domain]);
 
   const kpis = config.kpi?.(rows) ?? [
     { label: "Total", val: String(rows.length) },
@@ -147,7 +156,7 @@ export function AdminRecordListPage({ domain }: { domain: string }) {
         ) : filtered.length === 0 ? (
           <p className="p-8 text-center text-[13px]" style={{ color: T.muted }}>No records yet.</p>
         ) : (
-          filtered.map((row, i) => (
+          pageRows.map((row, i) => (
             <Link
               key={row.id}
               to="/admin/records/$id"
@@ -156,7 +165,7 @@ export function AdminRecordListPage({ domain }: { domain: string }) {
               className="grid items-center px-4 h-[52px] text-[12px] hover:bg-[rgba(14,59,46,0.02)] transition"
               style={{
                 gridTemplateColumns: gridCols,
-                borderBottom: i < filtered.length - 1 ? `1px solid ${T.border}` : "none",
+                borderBottom: i < pageRows.length - 1 ? `1px solid ${T.border}` : "none",
               }}
             >
               {config.columns.map((col) => {
@@ -188,12 +197,30 @@ export function AdminRecordListPage({ domain }: { domain: string }) {
         {!loading && filtered.length > 0 ? (
           <div className="px-4 h-12 flex items-center justify-between text-[11.5px]" style={{ background: T.bg, borderTop: `1px solid ${T.border}`, color: T.sub }}>
             <span>
-              Showing <span className="font-semibold" style={{ color: T.ink }}>{filtered.length}</span> records
+              Showing <span className="font-semibold" style={{ color: T.ink }}>{page * PAGE_SIZE + 1}–{Math.min(filtered.length, page * PAGE_SIZE + pageRows.length)}</span> of {filtered.length}
             </span>
-            <div className="flex items-center gap-1 opacity-50">
-              <span className="size-7 grid place-items-center rounded-md" style={{ background: T.surface, border: `1px solid ${T.border}` }}><ChevronLeft className="size-3.5" /></span>
-              <span className="size-7 grid place-items-center rounded-md text-white" style={{ background: T.navy }}>1</span>
-              <span className="size-7 grid place-items-center rounded-md" style={{ background: T.surface, border: `1px solid ${T.border}` }}><ChevronRight className="size-3.5" /></span>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                disabled={page <= 0}
+                onClick={() => setPage((p) => Math.max(0, p - 1))}
+                className="size-7 grid place-items-center rounded-md disabled:opacity-40"
+                style={{ background: T.surface, border: `1px solid ${T.border}` }}
+              >
+                <ChevronLeft className="size-3.5" />
+              </button>
+              <span className="size-7 grid place-items-center rounded-md text-white text-[11px] font-bold" style={{ background: T.navy }}>
+                {page + 1}
+              </span>
+              <button
+                type="button"
+                disabled={page >= pageCount - 1}
+                onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
+                className="size-7 grid place-items-center rounded-md disabled:opacity-40"
+                style={{ background: T.surface, border: `1px solid ${T.border}` }}
+              >
+                <ChevronRight className="size-3.5" />
+              </button>
             </div>
           </div>
         ) : null}

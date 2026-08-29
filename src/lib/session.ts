@@ -18,3 +18,13 @@ export function clearSession() {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
 }
+
+export function getSessionUser(): { id?: string; name?: string; platformRole?: string; phone?: string; email?: string } | null {
+  try {
+    const raw = localStorage.getItem(USER_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as { id?: string; name?: string; platformRole?: string; phone?: string; email?: string };
+  } catch {
+    return null;
+  }
+}

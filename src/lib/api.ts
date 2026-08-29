@@ -1,6 +1,6 @@
 import { clearSession, getAccessToken, setSession } from "./session";
 
-export { clearSession, getAccessToken, setSession } from "./session";
+export { clearSession, getAccessToken, setSession, getSessionUser } from "./session";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "https://magnetpay.amctraders.online";
 
@@ -243,12 +243,15 @@ export type AdminDispute = {
   id: string;
   escrowId: string;
   reason: string;
+  status?: string;
+  priority?: string;
   outcome?: string | null;
   evidence?: unknown;
   createdAt: string;
   updatedAt?: string;
   escrow?: AdminEscrow | null;
   openedBy?: { id: string; name: string; phone: string };
+  assignee?: { id: string; name: string; phone: string } | null;
 };
 
 export type AdminFxConversion = {
@@ -420,6 +423,26 @@ export async function downloadTransfersCsv() {
   const a = document.createElement("a");
   a.href = url;
   a.download = `magnetpay-transfers-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+export async function downloadOrdersCsv() {
+  const token = getAccessToken();
+  const res = await fetch(`${API_URL}/admin/export/orders.csv`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) {
+    const json = await res.json().catch(() => ({}));
+    const msg =
+      (json as { error?: { message?: string } }).error?.message || res.statusText || "Export failed";
+    throw new Error(msg);
+  }
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `magnetpay-orders-${new Date().toISOString().slice(0, 10)}.csv`;
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -841,6 +864,21 @@ export async function moderateProduct(id: string, status: "APPROVED" | "HIDDEN" 
 }
 export async function fetchAdminCategories() {
   return api<unknown[]>("/admin/categories");
+}
+export async function fetchAdminCategory(id: string) {
+  return api<Record<string, unknown>>(`/admin/categories/${id}`);
+}
+export async function fetchAdminReview(id: string) {
+  return api<Record<string, unknown>>(`/admin/reviews/${id}`);
+}
+export async function fetchAdminConversation(id: string) {
+  return api<AdminConversation & { messages?: { id: string; body: string; createdAt: string }[] }>(`/admin/conversations/${id}`);
+}
+export async function fetchAdminUserNotes(userId: string) {
+  return api<{ id: string; body: string; createdAt: string; author?: { name: string } }[]>(`/admin/users/${userId}/notes`);
+}
+export async function postAdminUserNote(userId: string, body: string) {
+  return api(`/admin/users/${userId}/notes`, { method: "POST", body: JSON.stringify({ body }) });
 }
 export async function createAdminCategory(body: Record<string, unknown>) {
   return api("/admin/categories", { method: "POST", body: JSON.stringify(body) });
