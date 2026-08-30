@@ -14,6 +14,10 @@ export const Route = createFileRoute("/admin/sellers/")({
 
 type Tone = "success" | "warn" | "danger" | "info" | "neutral";
 
+const SELLER_GRID =
+  "minmax(200px,2.2fr) 0.55fr 0.75fr 0.85fr 0.75fr 0.9fr 0.65fr minmax(96px,0.95fr) 52px";
+const SELLER_TABLE_MIN = 1040;
+
 function fmtCompactUsd(minor: string | number) {
   const n = fromMinor(minor);
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(2)}M`;
@@ -141,15 +145,15 @@ function Page() {
         </div>
       </div>
 
-      <div className="rounded-xl overflow-hidden" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
+      <div className="rounded-xl overflow-x-auto" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
+        <div style={{ minWidth: SELLER_TABLE_MIN }}>
         <div
-          className="grid items-center px-4 h-9 text-[10px] font-bold uppercase tracking-[0.14em] overflow-x-auto"
+          className="grid items-center px-4 h-9 text-[10px] font-bold uppercase tracking-[0.14em]"
           style={{
             color: T.muted,
             background: T.bg,
             borderBottom: `1px solid ${T.border}`,
-            gridTemplateColumns: "minmax(200px,2.2fr) 0.6fr 0.8fr 0.9fr 0.8fr 1fr 0.7fr 1fr 40px",
-            minWidth: 980,
+            gridTemplateColumns: SELLER_GRID,
           }}
         >
           <span>Seller</span>
@@ -160,7 +164,7 @@ function Page() {
           <span className="text-right">GMV 30D</span>
           <span className="text-right">Dispute %</span>
           <span>Status</span>
-          <span />
+          <span className="text-right">Actions</span>
         </div>
 
         {loading ? (
@@ -177,10 +181,9 @@ function Page() {
             return (
               <div
                 key={r.id}
-                className="grid items-center px-4 min-h-[60px] text-[12px] overflow-x-auto"
+                className="grid items-center px-4 min-h-[60px] text-[12px]"
                 style={{
-                  gridTemplateColumns: "minmax(200px,2.2fr) 0.6fr 0.8fr 0.9fr 0.8fr 1fr 0.7fr 1fr 40px",
-                  minWidth: 980,
+                  gridTemplateColumns: SELLER_GRID,
                   borderBottom: i < filtered.length - 1 ? `1px solid ${T.border}` : "none",
                 }}
               >
@@ -230,8 +233,14 @@ function Page() {
                 >
                   {(r.disputePct ?? 0).toFixed(1)}%
                 </span>
-                <Pill tone={statusTone(status)}>{status}</Pill>
-                <ActionMenu
+                <div className="min-w-0 pr-1">
+                  <Pill tone={statusTone(status)}>{status}</Pill>
+                </div>
+                <div
+                  className="sticky right-0 z-[1] flex justify-end shrink-0 pl-2"
+                  style={{ background: T.surface }}
+                >
+                  <ActionMenu
                   label={`Actions for ${r.name}`}
                   items={[
                     {
@@ -265,7 +274,8 @@ function Page() {
                         ]
                       : []),
                   ]}
-                />
+                  />
+                </div>
               </div>
             );
           })}
@@ -275,6 +285,7 @@ function Page() {
             No sellers match your search.
           </p>
         ) : null}
+        </div>
       </div>
     </AdminShell>
   );

@@ -29,7 +29,7 @@ export const Route = createFileRoute("/admin/listings/")({
 
 const CNY_NGN_RATE = 229.04;
 const GRID =
-  "36px minmax(220px,2.4fr) minmax(140px,1.2fr) minmax(120px,1fr) minmax(90px,0.9fr) 0.6fr 0.7fr 0.8fr 40px";
+  "36px minmax(220px,2.4fr) minmax(140px,1.2fr) minmax(120px,1fr) minmax(90px,0.9fr) 0.6fr 0.7fr 0.8fr 52px";
 
 type Tab = "all" | "active" | "pending" | "reported" | "oos";
 
@@ -397,7 +397,7 @@ function Page() {
             <span>Stock</span>
             <span className="text-right">30D orders</span>
             <span>Status</span>
-            <span />
+            <span className="text-right">Actions</span>
           </div>
 
           {loading ? (
@@ -479,7 +479,8 @@ function Page() {
                     {orders30d(r).toLocaleString("en-US")}
                   </span>
                   {statusPillCatalog(status)}
-                  <ActionMenu
+                  <div className="sticky right-0 z-[1] flex justify-end shrink-0 pl-2" style={{ background: T.surface }}>
+                    <ActionMenu
                     label={`Actions for ${r.title}`}
                     items={[
                       {
@@ -528,7 +529,8 @@ function Page() {
                           ]
                         : []),
                     ]}
-                  />
+                    />
+                  </div>
                 </div>
               );
             })}
