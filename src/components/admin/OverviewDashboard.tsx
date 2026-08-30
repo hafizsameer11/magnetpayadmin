@@ -1,5 +1,18 @@
 import { Link } from "@tanstack/react-router";
-import { ChevronDown, Download, Filter } from "lucide-react";
+import {
+  ChevronDown,
+  Download,
+  Filter,
+  TrendingUp,
+  TrendingDown,
+  LineChart,
+  UserPlus,
+  Lock,
+  Gavel,
+  Coins,
+  ShieldCheck,
+  type LucideIcon,
+} from "lucide-react";
 import { T } from "@/components/admin/AdminShell";
 import { StatusBadgeCustom } from "@/components/admin/StatusBadge";
 import { ClientSparkline } from "@/components/admin/ClientCharts";
@@ -37,27 +50,42 @@ function KpiSparkCard({
   delta,
   tone,
   spark,
+  Icon,
+  trend = "neutral",
 }: {
   label: string;
   value: string;
   delta: string;
   tone: string;
   spark?: { label: string; value: number }[];
+  Icon: LucideIcon;
+  trend?: "up" | "down" | "neutral";
 }) {
+  const TrendIcon = trend === "down" ? TrendingDown : TrendingUp;
+
   return (
-    <div className="rounded-xl p-3.5 flex flex-col min-h-[108px]" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
-      <p className="text-[10px] font-bold uppercase tracking-[0.16em]" style={{ color: T.muted }}>
+    <div className="rounded-xl p-3.5 flex flex-col min-h-[128px]" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
+      <div
+        className="size-7 rounded-lg grid place-items-center shrink-0"
+        style={{ background: `${tone}14`, color: tone }}
+      >
+        <Icon className="size-3.5" strokeWidth={2.4} />
+      </div>
+      <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.16em]" style={{ color: T.muted }}>
         {label}
       </p>
+      <p
+        className="mt-1 text-[20px] font-bold tabular-nums leading-none truncate"
+        style={{ fontFamily: "'JetBrains Mono', monospace", color: T.ink }}
+      >
+        {value}
+      </p>
       <div className="mt-auto pt-2 flex items-end justify-between gap-2">
-        <div className="min-w-0">
-          <p
-            className="text-[20px] font-bold tabular-nums leading-none truncate"
-            style={{ fontFamily: "'JetBrains Mono', monospace", color: T.ink }}
-          >
-            {value}
-          </p>
-          <p className="mt-1.5 text-[10.5px] font-bold tabular-nums" style={{ color: tone, fontFamily: "'JetBrains Mono', monospace" }}>
+        <div className="flex items-center gap-1 min-w-0">
+          {trend !== "neutral" ? (
+            <TrendIcon className="size-3 shrink-0" strokeWidth={2.6} style={{ color: tone }} />
+          ) : null}
+          <p className="text-[10.5px] font-bold tabular-nums truncate" style={{ color: tone, fontFamily: "'JetBrains Mono', monospace" }}>
             {delta}
           </p>
         </div>
@@ -88,6 +116,8 @@ export function OverviewDashboard({ data }: { data: AdminAnalytics }) {
       delta: deltaPct(gmv24h, gmvPrev),
       tone: T.success,
       spark: data.sparklines?.gmv,
+      Icon: LineChart,
+      trend: gmv24h >= gmvPrev ? ("up" as const) : ("down" as const),
     },
     {
       label: "New signups",
@@ -95,6 +125,8 @@ export function OverviewDashboard({ data }: { data: AdminAnalytics }) {
       delta: data.signupsToday != null ? `+${data.signupsToday} today` : `+${data.signups7d ?? 0} this week`,
       tone: T.info,
       spark: data.sparklines?.signups,
+      Icon: UserPlus,
+      trend: "up" as const,
     },
     {
       label: "Escrow held",
@@ -102,6 +134,8 @@ export function OverviewDashboard({ data }: { data: AdminAnalytics }) {
       delta: `${data.escrows} active escrows`,
       tone: T.navy,
       spark: undefined,
+      Icon: Lock,
+      trend: "neutral" as const,
     },
     {
       label: "Open disputes",
@@ -109,6 +143,8 @@ export function OverviewDashboard({ data }: { data: AdminAnalytics }) {
       delta: disputesPrev > 0 ? `+${disputesPrev} vs ystd` : disputes > 0 ? "Needs review" : "All clear",
       tone: disputes > 0 ? T.danger : T.success,
       spark: data.sparklines?.disputes,
+      Icon: Gavel,
+      trend: disputes > 0 ? ("up" as const) : ("down" as const),
     },
     {
       label: "FX 24h volume",
@@ -116,6 +152,8 @@ export function OverviewDashboard({ data }: { data: AdminAnalytics }) {
       delta: deltaPct(fxVol, fxPrev),
       tone: T.info,
       spark: data.sparklines?.fx,
+      Icon: Coins,
+      trend: fxVol >= fxPrev ? ("up" as const) : ("down" as const),
     },
     {
       label: "Pending KYC",
@@ -123,6 +161,8 @@ export function OverviewDashboard({ data }: { data: AdminAnalytics }) {
       delta: data.kycOverSla ? `${data.kycOverSla} over SLA` : kyc > 0 ? "In queue" : "All clear",
       tone: data.kycOverSla ? T.warn : kyc > 0 ? T.warn : T.success,
       spark: undefined,
+      Icon: ShieldCheck,
+      trend: data.kycOverSla ? ("up" as const) : kyc > 0 ? ("neutral" as const) : ("down" as const),
     },
   ];
 
