@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Download, Loader2, Search } from "lucide-react";
+import { ArrowLeftRight, Clock, CheckCircle2, XCircle, Download, Loader2 } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
+import { FilterTabs, KpiStrip, ListEmpty, ListToolbar } from "@/components/admin/ListPageKit";
 import { Pill } from "@/components/admin/UserProfile";
 import { downloadTransfersCsv, fetchAdminTransfers, fmtMoney, type AdminTransfer } from "@/lib/api";
 import { toast } from "sonner";
@@ -11,6 +12,8 @@ export const Route = createFileRoute("/admin/transactions/")({
   component: Page,
 });
 
+type StatusTab = "all" | "pending" | "completed" | "failed";
+
 function statusTone(status: string): "success" | "warn" | "danger" | "info" | "neutral" {
   const s = status.toUpperCase();
   if (s === "COMPLETED" || s === "SUCCESS" || s === "SETTLED") return "success";
@@ -19,11 +22,32 @@ function statusTone(status: string): "success" | "warn" | "danger" | "info" | "n
   return "info";
 }
 
+function isPending(s: string) {
+  return s === "PENDING" || s === "PROCESSING";
+}
+
+function isCompleted(s: string) {
+  return s === "COMPLETED" || s === "SUCCESS" || s === "SETTLED";
+}
+
 function Page() {
   const [rows, setRows] = useState<AdminTransfer[]>([]);
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
   const [query, setQuery] = useState("");
+  const [tab, setTab] = useState<StatusTab>("all");
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      setRows(await fetchAdminTransfers());
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to load transfers");
+      setRows([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const onExport = async () => {
     setExporting(true);
@@ -38,55 +62,42 @@ function Page() {
   };
 
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      setLoading(true);
-      try {
-        const data = await fetchAdminTransfers();
-        if (!cancelled) setRows(data);
-      } catch (e) {
-        if (!cancelled) {
-          toast.error(e instanceof Error ? e.message : "Failed to load transfers");
-          setRows([]);
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
+    void load();
   }, []);
 
+  const counts = useMemo(() => {
+    const pending = rows.filter((t) => isPending(t.status.toUpperCase())).length;
+    const completed = rows.filter((t) => isCompleted(t.status.toUpperCase())).length;
+    const failed = rows.filter((t) => {
+      const s = t.status.toUpperCase();
+      return s === "FAILED" || s === "REJECTED";
+    }).length;
+    return { total: rows.length, pending, completed, failed };
+  }, [rows]);
+
   const filtered = useMemo(() => {
-    if (!query.trim()) return rows;
-    const n = query.toLowerCase();
-    return rows.filter(
-      (t) =>
+    return rows.filter((t) => {
+      const s = t.status.toUpperCase();
+      if (tab === "pending" && !isPending(s)) return false;
+      if (tab === "completed" && !isCompleted(s)) return false;
+      if (tab === "failed" && s !== "FAILED" && s !== "REJECTED") return false;
+      if (!query.trim()) return true;
+      const n = query.toLowerCase();
+      return (
         t.id.toLowerCase().includes(n) ||
         (t.sender?.name ?? "").toLowerCase().includes(n) ||
         (t.recipient?.name ?? "").toLowerCase().includes(n) ||
-        t.status.toLowerCase().includes(n),
-    );
-  }, [rows, query]);
+        t.status.toLowerCase().includes(n)
+      );
+    });
+  }, [rows, query, tab]);
 
   return (
     <AdminShell
       title="Transactions"
-      description="Transfers and monetary movements across the platform."
+      description="Peer transfers and monetary movements across the platform."
       breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Money" }, { label: "Transactions" }]}
-    >
-      <div className="mb-4 flex flex-wrap items-center gap-2">
-        <div className="flex items-center gap-2 h-9 px-3 rounded-lg w-[280px]" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
-          <Search className="size-3.5" style={{ color: T.muted }} />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="ID, sender, recipient…"
-            className="bg-transparent text-[12px] outline-none flex-1"
-            style={{ color: T.ink }}
-          />
-        </div>
+      actions={
         <button
           type="button"
           onClick={() => void onExport()}
@@ -97,7 +108,29 @@ function Page() {
           {exporting ? <Loader2 className="size-3.5 animate-spin" /> : <Download className="size-3.5" />}
           Export CSV
         </button>
-      </div>
+      }
+    >
+      <KpiStrip
+        items={[
+          { label: "Total transfers", value: loading ? "…" : counts.total, Icon: ArrowLeftRight, tone: T.navy, delta: "All movements" },
+          { label: "Pending", value: loading ? "…" : counts.pending, Icon: Clock, tone: T.warn, delta: "In flight" },
+          { label: "Completed", value: loading ? "…" : counts.completed, Icon: CheckCircle2, tone: T.success, delta: "Settled" },
+          { label: "Failed", value: loading ? "…" : counts.failed, Icon: XCircle, tone: T.danger, delta: "Needs review" },
+        ]}
+      />
+
+      <ListToolbar query={query} onQueryChange={setQuery} placeholder="ID, sender, recipient…" onRefresh={() => void load()} refreshing={loading}>
+        <FilterTabs
+          active={tab}
+          onChange={(id) => setTab(id as StatusTab)}
+          tabs={[
+            { id: "all", label: "All", count: counts.total },
+            { id: "pending", label: "Pending", count: counts.pending },
+            { id: "completed", label: "Completed", count: counts.completed },
+            { id: "failed", label: "Failed", count: counts.failed },
+          ]}
+        />
+      </ListToolbar>
 
       <div className="rounded-xl overflow-hidden" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
         <div
@@ -122,9 +155,7 @@ function Page() {
             <Loader2 className="size-5 animate-spin" />
           </div>
         ) : filtered.length === 0 ? (
-          <p className="p-6 text-center text-[12px]" style={{ color: T.muted }}>
-            No transfers yet.
-          </p>
+          <ListEmpty message="No transfers match this filter." />
         ) : (
           filtered.map((t, i) => (
             <div

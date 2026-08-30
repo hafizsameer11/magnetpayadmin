@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Check, EyeOff, Search } from "lucide-react";
+import { Check, EyeOff, Package, CheckCircle2, Flag } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
 import { statusPillCatalog, Thumb } from "@/components/admin/Catalog";
 import { listingCatalogStatus } from "@/components/admin/ListingProfile";
+import { FilterTabs, KpiStrip, ListEmpty, ListToolbar } from "@/components/admin/ListPageKit";
 import type { AdminProduct } from "@/lib/api";
 import { fetchAdminProducts, fmtMoney, moderateProduct, resolveApiFileUrl } from "@/lib/api";
 import { toast } from "sonner";
@@ -21,13 +22,17 @@ function Page() {
   const [rows, setRows] = useState<AdminProduct[]>([]);
   const [query, setQuery] = useState("");
   const [tab, setTab] = useState<"all" | "active" | "hidden" | "reported">("all");
+  const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
 
   const load = async () => {
+    setLoading(true);
     try {
       setRows((await fetchAdminProducts()) as AdminProduct[]);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to load products");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -36,10 +41,9 @@ function Page() {
   }, []);
 
   const filtered = rows.filter((r) => {
-    const status = listingCatalogStatus(r);
     if (tab === "active" && !r.active) return false;
-    if (tab === "hidden" && r.active) return false;
-    if (tab === "reported" && status !== "reported") return false;
+    if (tab === "hidden" && (r.active || listingCatalogStatus(r) === "reported")) return false;
+    if (tab === "reported" && listingCatalogStatus(r) !== "reported") return false;
     if (!query) return true;
     const q = query.toLowerCase();
     return (
@@ -65,67 +69,36 @@ function Page() {
   };
 
   const activeCount = rows.filter((r) => r.active).length;
+  const hiddenCount = rows.filter((r) => !r.active && listingCatalogStatus(r) !== "reported").length;
+  const reportedCount = rows.filter((r) => listingCatalogStatus(r) === "reported").length;
 
   return (
     <AdminShell
       title="Listings"
-      description="Marketplace products — approve or hide."
+      description="Marketplace products — approve, hide, or review flagged listings."
       breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Marketplace" }, { label: "Listings" }]}
     >
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
-        {[
-          { label: "Total", val: rows.length },
-          { label: "Active", val: activeCount, tone: T.success },
-          { label: "Hidden / pending", val: rows.length - activeCount, tone: T.warn },
-          { label: "Reported", val: rows.filter((r) => listingCatalogStatus(r) === "reported").length, tone: T.danger },
-        ].map((s) => (
-          <div key={s.label} className="rounded-xl p-3.5" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
-            <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em]" style={{ color: T.muted }}>
-              {s.label}
-            </p>
-            <p className="mt-2 text-[20px] font-bold tabular-nums" style={{ fontFamily: "'JetBrains Mono', monospace", color: s.tone ?? T.ink }}>
-              {s.val}
-            </p>
-          </div>
-        ))}
-      </div>
+      <KpiStrip
+        items={[
+          { label: "Total", value: loading ? "…" : rows.length, Icon: Package, tone: T.navy, delta: "Full catalog" },
+          { label: "Active", value: loading ? "…" : activeCount, Icon: CheckCircle2, tone: T.success, delta: "Live on marketplace" },
+          { label: "Hidden / pending", value: loading ? "…" : hiddenCount, Icon: EyeOff, tone: T.warn, delta: "Awaiting moderation" },
+          { label: "Reported", value: loading ? "…" : reportedCount, Icon: Flag, tone: T.danger, delta: "Flagged for review" },
+        ]}
+      />
 
-      <div className="flex items-center gap-2 mb-4">
-        <div className="flex items-center gap-2 h-9 px-3 rounded-lg w-[280px]" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
-          <Search className="size-3.5" style={{ color: T.muted }} />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Title, SKU, store…"
-            className="bg-transparent text-[12px] outline-none flex-1"
-            style={{ color: T.ink }}
-          />
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {(
-            [
-              ["all", "All"],
-              ["active", "Active"],
-              ["hidden", "Hidden"],
-              ["reported", "Reported"],
-            ] as const
-          ).map(([k, label]) => (
-            <button
-              key={k}
-              type="button"
-              onClick={() => setTab(k)}
-              className="h-8 px-3 rounded-lg text-[11.5px] font-semibold"
-              style={{
-                background: tab === k ? T.navy : T.surface,
-                border: `1px solid ${tab === k ? T.navy : T.border}`,
-                color: tab === k ? "#fff" : T.ink,
-              }}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-      </div>
+      <ListToolbar query={query} onQueryChange={setQuery} placeholder="Title, SKU, store…" onRefresh={() => void load()} refreshing={loading}>
+        <FilterTabs
+          active={tab}
+          onChange={(id) => setTab(id as typeof tab)}
+          tabs={[
+            { id: "all", label: "All", count: rows.length },
+            { id: "active", label: "Active", count: activeCount },
+            { id: "hidden", label: "Hidden", count: hiddenCount },
+            { id: "reported", label: "Reported", count: reportedCount },
+          ]}
+        />
+      </ListToolbar>
 
       <div className="rounded-xl overflow-hidden" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
         <div
@@ -205,11 +178,7 @@ function Page() {
             </div>
           );
         })}
-        {!filtered.length ? (
-          <p className="p-6 text-center text-[12px]" style={{ color: T.muted }}>
-            No listings yet.
-          </p>
-        ) : null}
+        {!filtered.length ? <ListEmpty message="No listings match this filter." /> : null}
       </div>
     </AdminShell>
   );

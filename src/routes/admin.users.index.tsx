@@ -3,9 +3,10 @@ import { useEffect, useMemo, useState } from "react";
 import {
   Search, Download, Plus, MoreHorizontal,
   ShieldCheck, Clock, AlertTriangle, Ban, ArrowUpDown,
-  Loader2,
+  Loader2, Users, Wallet,
 } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
+import { KpiStrip } from "@/components/admin/ListPageKit";
 import {
   Pill,
   initials,
@@ -212,22 +213,14 @@ function AdminUsersList() {
         </>
       }
     >
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {[
-          { label: "Total users", val: loading ? "…" : stats.total.toLocaleString(), delta: "Live from API", tone: T.success },
-          { label: "Pending KYC", val: loading ? "…" : String(stats.pending), delta: stats.pending ? "Needs review" : "All clear", tone: T.warn },
-          { label: "Rejected KYC", val: loading ? "…" : String(stats.rejected), delta: "Blocked accounts", tone: T.danger },
-          { label: "Est. wallet value", val: loading ? "…" : fmtUSD(stats.vol), delta: "Across all wallets", tone: T.info },
-        ].map((k) => (
-          <div key={k.label} className="rounded-xl p-3.5" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
-            <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em]" style={{ color: T.muted }}>{k.label}</p>
-            <p className="mt-1.5 text-[22px] font-bold tabular-nums leading-none" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-              {k.val}
-            </p>
-            <p className="mt-2 text-[10.5px] font-semibold" style={{ color: k.tone }}>{k.delta}</p>
-          </div>
-        ))}
-      </div>
+      <KpiStrip
+        items={[
+          { label: "Total users", value: loading ? "…" : stats.total.toLocaleString(), Icon: Users, tone: T.success, delta: "Live from API" },
+          { label: "Pending KYC", value: loading ? "…" : String(stats.pending), Icon: Clock, tone: T.warn, delta: stats.pending ? "Needs review" : "All clear" },
+          { label: "Rejected KYC", value: loading ? "…" : String(stats.rejected), Icon: Ban, tone: T.danger, delta: "Blocked accounts" },
+          { label: "Est. wallet value", value: loading ? "…" : fmtUSD(stats.vol), Icon: Wallet, tone: T.info, delta: "Across all wallets" },
+        ]}
+      />
 
       <div className="mt-5 flex items-center gap-2 flex-wrap">
         {filterTabs.map((t) => (

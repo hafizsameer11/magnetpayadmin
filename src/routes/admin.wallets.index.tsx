@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, Search, Wallet } from "lucide-react";
+import { Loader2, Wallet, Users, Coins, Lock } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
+import { KpiStrip, ListEmpty, ListToolbar } from "@/components/admin/ListPageKit";
 import { initials } from "@/components/admin/UserProfile";
 import { fetchAdminWallets, fmtMoney, type AdminWallet } from "@/lib/api";
 import { toast } from "sonner";
@@ -23,25 +24,20 @@ function Page() {
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
 
+  const load = async () => {
+    setLoading(true);
+    try {
+      setRows(await fetchAdminWallets());
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to load wallets");
+      setRows([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      setLoading(true);
-      try {
-        const data = await fetchAdminWallets();
-        if (!cancelled) setRows(data);
-      } catch (e) {
-        if (!cancelled) {
-          toast.error(e instanceof Error ? e.message : "Failed to load wallets");
-          setRows([]);
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
+    void load();
   }, []);
 
   const groups = useMemo(() => {
@@ -63,6 +59,16 @@ function Page() {
     return Array.from(map.values());
   }, [rows]);
 
+  const stats = useMemo(() => {
+    let holdCount = 0;
+    let currencies = new Set<string>();
+    for (const w of rows) {
+      currencies.add(w.currency);
+      if (Number(w.holdMinor) > 0) holdCount++;
+    }
+    return { walletRows: rows.length, holdCount, currencyCount: currencies.size };
+  }, [rows]);
+
   const filtered = useMemo(() => {
     if (!query.trim()) return groups;
     const n = query.toLowerCase();
@@ -77,43 +83,19 @@ function Page() {
   return (
     <AdminShell
       title="Wallets"
-      description="User wallets across all currencies."
+      description="User wallet balances across NGN, CNY, and USD."
       breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Money" }, { label: "Wallets" }]}
     >
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-5">
-        <div className="rounded-xl p-3.5" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
-          <div className="flex items-center gap-2">
-            <div className="size-7 rounded-md grid place-items-center" style={{ background: `${T.navy}14`, color: T.navy }}>
-              <Wallet className="size-3.5" strokeWidth={2.4} />
-            </div>
-            <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em]" style={{ color: T.muted }}>
-              Users with wallets
-            </p>
-          </div>
-          <p className="mt-2 text-[20px] font-bold tabular-nums leading-none" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-            {loading ? "…" : groups.length}
-          </p>
-        </div>
-        <div className="rounded-xl p-3.5" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
-          <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em]" style={{ color: T.muted }}>
-            Wallet rows
-          </p>
-          <p className="mt-2 text-[20px] font-bold tabular-nums leading-none" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-            {loading ? "…" : rows.length}
-          </p>
-        </div>
-      </div>
+      <KpiStrip
+        items={[
+          { label: "Users with wallets", value: loading ? "…" : groups.length, Icon: Users, tone: T.navy, delta: "Unique holders" },
+          { label: "Wallet rows", value: loading ? "…" : stats.walletRows, Icon: Wallet, tone: T.info, delta: "Per currency account" },
+          { label: "Currencies", value: loading ? "…" : stats.currencyCount, Icon: Coins, tone: T.success, delta: "Active in system" },
+          { label: "With holds", value: loading ? "…" : stats.holdCount, Icon: Lock, tone: T.warn, delta: "Escrow or pending" },
+        ]}
+      />
 
-      <div className="mb-4 flex items-center gap-2 h-9 px-3 rounded-lg w-[280px]" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
-        <Search className="size-3.5" style={{ color: T.muted }} />
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="User, phone, id…"
-          className="bg-transparent text-[12px] outline-none flex-1"
-          style={{ color: T.ink }}
-        />
-      </div>
+      <ListToolbar query={query} onQueryChange={setQuery} placeholder="User, phone, id…" onRefresh={() => void load()} refreshing={loading} />
 
       <div className="rounded-xl overflow-hidden" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
         <div
@@ -134,9 +116,7 @@ function Page() {
             <Loader2 className="size-5 animate-spin" />
           </div>
         ) : filtered.length === 0 ? (
-          <p className="p-6 text-center text-[12px]" style={{ color: T.muted }}>
-            No wallets found.
-          </p>
+          <ListEmpty message="No wallets found." />
         ) : (
           filtered.map((g, i) => (
             <div

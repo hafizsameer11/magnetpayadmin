@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Search, Check, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowUpFromLine, Clock, CheckCircle2, XCircle, Check, X } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
+import { FilterTabs, KpiStrip, ListEmpty, ListToolbar } from "@/components/admin/ListPageKit";
 import { Pill } from "@/components/admin/UserProfile";
 import { decideWithdrawal, fetchAdminWithdrawals, fmtMoney } from "@/lib/api";
 import { toast } from "sonner";
@@ -12,6 +13,7 @@ export const Route = createFileRoute("/admin/withdrawals/")({
 });
 
 type Tone = "success" | "warn" | "danger" | "info" | "neutral";
+type StatusTab = "all" | "pending" | "approved" | "failed";
 
 type Row = {
   id: string;
@@ -30,9 +32,14 @@ function isPending(status: string) {
   return s === "PENDING" || s === "PROCESSING" || s === "REVIEW";
 }
 
+function isApproved(status: string) {
+  const s = status.toUpperCase();
+  return s === "SUCCEEDED" || s === "APPROVED";
+}
+
 function toneFor(status: string): Tone {
   const s = status.toUpperCase();
-  if (s === "SUCCEEDED" || s === "APPROVED") return "success";
+  if (isApproved(s)) return "success";
   if (isPending(s)) return "warn";
   if (s === "FAILED" || s === "REJECTED") return "danger";
   return "neutral";
@@ -41,14 +48,19 @@ function toneFor(status: string): Tone {
 function Page() {
   const [rows, setRows] = useState<Row[]>([]);
   const [query, setQuery] = useState("");
+  const [tab, setTab] = useState<StatusTab>("pending");
+  const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
 
   const load = async () => {
+    setLoading(true);
     try {
       const data = await fetchAdminWithdrawals();
       setRows(data as Row[]);
     } catch {
       /* login required */
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -56,7 +68,21 @@ function Page() {
     void load();
   }, []);
 
+  const counts = useMemo(() => {
+    const pending = rows.filter((r) => isPending(r.status)).length;
+    const approved = rows.filter((r) => isApproved(r.status)).length;
+    const failed = rows.filter((r) => {
+      const s = r.status.toUpperCase();
+      return s === "FAILED" || s === "REJECTED";
+    }).length;
+    return { total: rows.length, pending, approved, failed };
+  }, [rows]);
+
   const filtered = rows.filter((r) => {
+    const s = r.status.toUpperCase();
+    if (tab === "pending" && !isPending(r.status)) return false;
+    if (tab === "approved" && !isApproved(r.status)) return false;
+    if (tab === "failed" && s !== "FAILED" && s !== "REJECTED") return false;
     if (!query) return true;
     const q = query.toLowerCase();
     return (
@@ -66,8 +92,6 @@ function Page() {
       (r.destination ?? "").toLowerCase().includes(q)
     );
   });
-
-  const pending = rows.filter((r) => isPending(r.status));
 
   const decide = async (id: string, status: "APPROVED" | "REJECTED") => {
     setBusyId(id);
@@ -88,35 +112,27 @@ function Page() {
       description="Approval queue for outbound funds. Approve or reject pending requests."
       breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Money" }, { label: "Withdrawals" }]}
     >
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-5">
-        {[
-          { label: "Total", val: rows.length },
-          { label: "Awaiting decision", val: pending.length, tone: T.warn },
-          { label: "Failed", val: rows.filter((r) => r.status.toUpperCase() === "FAILED").length, tone: T.danger },
-        ].map((s) => (
-          <div key={s.label} className="rounded-xl p-3.5" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
-            <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em]" style={{ color: T.muted }}>
-              {s.label}
-            </p>
-            <p className="mt-2 text-[20px] font-bold tabular-nums" style={{ fontFamily: "'JetBrains Mono', monospace", color: s.tone ?? T.ink }}>
-              {s.val}
-            </p>
-          </div>
-        ))}
-      </div>
+      <KpiStrip
+        items={[
+          { label: "Total requests", value: loading ? "…" : counts.total, Icon: ArrowUpFromLine, tone: T.navy, delta: "All time" },
+          { label: "Awaiting decision", value: loading ? "…" : counts.pending, Icon: Clock, tone: T.warn, delta: "Needs admin action" },
+          { label: "Approved / paid", value: loading ? "…" : counts.approved, Icon: CheckCircle2, tone: T.success, delta: "Settled outbound" },
+          { label: "Failed / rejected", value: loading ? "…" : counts.failed, Icon: XCircle, tone: T.danger, delta: "Declined or errored" },
+        ]}
+      />
 
-      <div className="flex items-center gap-2 mb-4">
-        <div className="flex items-center gap-2 h-9 px-3 rounded-lg w-[260px]" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
-          <Search className="size-3.5" style={{ color: T.muted }} />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="ID, user, destination…"
-            className="bg-transparent text-[12px] outline-none flex-1"
-            style={{ color: T.ink }}
-          />
-        </div>
-      </div>
+      <ListToolbar query={query} onQueryChange={setQuery} placeholder="ID, user, destination…" onRefresh={() => void load()} refreshing={loading}>
+        <FilterTabs
+          active={tab}
+          onChange={(id) => setTab(id as StatusTab)}
+          tabs={[
+            { id: "all", label: "All", count: counts.total },
+            { id: "pending", label: "Pending", count: counts.pending },
+            { id: "approved", label: "Approved", count: counts.approved },
+            { id: "failed", label: "Failed", count: counts.failed },
+          ]}
+        />
+      </ListToolbar>
 
       <div className="rounded-xl overflow-hidden" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
         <div
@@ -195,11 +211,7 @@ function Page() {
             </div>
           </div>
         ))}
-        {!filtered.length ? (
-          <p className="p-6 text-center text-[12px]" style={{ color: T.muted }}>
-            No withdrawals yet.
-          </p>
-        ) : null}
+        {!filtered.length ? <ListEmpty message="No withdrawals match this filter." /> : null}
       </div>
     </AdminShell>
   );

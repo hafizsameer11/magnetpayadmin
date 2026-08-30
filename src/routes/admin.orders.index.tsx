@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Search, XCircle } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Package, Clock, Truck, XCircle, CheckCircle2 } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
+import { FilterTabs, KpiStrip, ListEmpty, ListToolbar } from "@/components/admin/ListPageKit";
 import { Pill } from "@/components/admin/UserProfile";
 import { cancelAdminOrder, fetchAdminOrders, fmtMoney } from "@/lib/api";
 import { toast } from "sonner";
@@ -12,10 +13,15 @@ export const Route = createFileRoute("/admin/orders/")({
 });
 
 type Tone = "success" | "warn" | "danger" | "info" | "neutral";
+type StatusTab = "all" | "pending" | "processing" | "delivered" | "cancelled";
 
 function str(v: unknown, fallback = "—") {
   if (v == null) return fallback;
   return String(v);
+}
+
+function statusOf(raw: unknown) {
+  return str((raw as Record<string, unknown>).status).toUpperCase();
 }
 
 function toneFor(status: string): Tone {
@@ -34,13 +40,18 @@ function canCancel(status: string) {
 function Page() {
   const [rows, setRows] = useState<unknown[]>([]);
   const [query, setQuery] = useState("");
+  const [tab, setTab] = useState<StatusTab>("all");
+  const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
 
   const load = async () => {
+    setLoading(true);
     try {
       setRows(await fetchAdminOrders());
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to load orders");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -48,7 +59,26 @@ function Page() {
     void load();
   }, []);
 
+  const counts = useMemo(() => {
+    const pending = rows.filter((r) => {
+      const s = statusOf(r);
+      return s === "PENDING" || s === "DRAFT";
+    }).length;
+    const processing = rows.filter((r) => statusOf(r) === "PROCESSING" || statusOf(r) === "SHIPPED").length;
+    const delivered = rows.filter((r) => {
+      const s = statusOf(r);
+      return s === "DELIVERED" || s === "COMPLETED" || s === "PAID";
+    }).length;
+    const cancelled = rows.filter((r) => statusOf(r) === "CANCELLED").length;
+    return { total: rows.length, pending, processing, delivered, cancelled };
+  }, [rows]);
+
   const filtered = rows.filter((raw) => {
+    const s = statusOf(raw);
+    if (tab === "pending" && s !== "PENDING" && s !== "DRAFT") return false;
+    if (tab === "processing" && s !== "PROCESSING" && s !== "SHIPPED") return false;
+    if (tab === "delivered" && s !== "DELIVERED" && s !== "COMPLETED" && s !== "PAID") return false;
+    if (tab === "cancelled" && s !== "CANCELLED" && s !== "REFUNDED") return false;
     if (!query) return true;
     const r = raw as Record<string, unknown>;
     const user = (r.user ?? {}) as Record<string, unknown>;
@@ -57,7 +87,7 @@ function Page() {
       str(r.id).toLowerCase().includes(q) ||
       str(user.name).toLowerCase().includes(q) ||
       str(r.supplier).toLowerCase().includes(q) ||
-      str(r.status).toLowerCase().includes(q)
+      s.toLowerCase().includes(q)
     );
   });
 
@@ -77,54 +107,31 @@ function Page() {
   return (
     <AdminShell
       title="All orders"
-      description="Every marketplace order from the API."
+      description="Marketplace orders across the NG–CN corridor — track fulfillment and cancel when needed."
       breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Marketplace" }, { label: "Orders" }]}
     >
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
-        {[
-          { label: "Orders", val: rows.length },
-          {
-            label: "Pending / draft",
-            val: rows.filter((raw) => {
-              const s = str((raw as Record<string, unknown>).status).toUpperCase();
-              return s === "PENDING" || s === "DRAFT";
-            }).length,
-            tone: T.warn,
-          },
-          {
-            label: "Processing",
-            val: rows.filter((raw) => str((raw as Record<string, unknown>).status).toUpperCase() === "PROCESSING").length,
-            tone: T.info,
-          },
-          {
-            label: "Cancelled",
-            val: rows.filter((raw) => str((raw as Record<string, unknown>).status).toUpperCase() === "CANCELLED").length,
-            tone: T.danger,
-          },
-        ].map((s) => (
-          <div key={s.label} className="rounded-xl p-3.5" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
-            <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em]" style={{ color: T.muted }}>
-              {s.label}
-            </p>
-            <p className="mt-2 text-[20px] font-bold tabular-nums" style={{ fontFamily: "'JetBrains Mono', monospace", color: s.tone ?? T.ink }}>
-              {s.val}
-            </p>
-          </div>
-        ))}
-      </div>
+      <KpiStrip
+        items={[
+          { label: "Total orders", value: loading ? "…" : counts.total, Icon: Package, tone: T.navy, delta: "Live from API" },
+          { label: "Pending / draft", value: loading ? "…" : counts.pending, Icon: Clock, tone: T.warn, delta: "Awaiting payment or confirmation" },
+          { label: "In fulfillment", value: loading ? "…" : counts.processing, Icon: Truck, tone: T.info, delta: "Processing or shipped" },
+          { label: "Delivered", value: loading ? "…" : counts.delivered, Icon: CheckCircle2, tone: T.success, delta: `${counts.cancelled} cancelled` },
+        ]}
+      />
 
-      <div className="flex items-center gap-2 mb-4">
-        <div className="flex items-center gap-2 h-9 px-3 rounded-lg w-[280px]" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
-          <Search className="size-3.5" style={{ color: T.muted }} />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Order ID, buyer, supplier…"
-            className="bg-transparent text-[12px] outline-none flex-1"
-            style={{ color: T.ink }}
-          />
-        </div>
-      </div>
+      <ListToolbar query={query} onQueryChange={setQuery} placeholder="Order ID, buyer, supplier…" onRefresh={() => void load()} refreshing={loading}>
+        <FilterTabs
+          active={tab}
+          onChange={(id) => setTab(id as StatusTab)}
+          tabs={[
+            { id: "all", label: "All", count: counts.total },
+            { id: "pending", label: "Pending", count: counts.pending },
+            { id: "processing", label: "Processing", count: counts.processing },
+            { id: "delivered", label: "Delivered", count: counts.delivered },
+            { id: "cancelled", label: "Cancelled", count: counts.cancelled },
+          ]}
+        />
+      </ListToolbar>
 
       <div className="rounded-xl overflow-hidden" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
         <div
@@ -200,11 +207,7 @@ function Page() {
             </div>
           );
         })}
-        {!filtered.length ? (
-          <p className="p-6 text-center text-[12px]" style={{ color: T.muted }}>
-            No orders yet.
-          </p>
-        ) : null}
+        {!filtered.length ? <ListEmpty message="No orders match this filter." /> : null}
       </div>
     </AdminShell>
   );

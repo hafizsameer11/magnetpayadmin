@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Search } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowDownToLine, Clock, CheckCircle2, XCircle } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
+import { FilterTabs, KpiStrip, ListEmpty, ListToolbar } from "@/components/admin/ListPageKit";
 import { Pill } from "@/components/admin/UserProfile";
 import { fetchAdminDeposits, fmtMoney } from "@/lib/api";
 import { toast } from "sonner";
@@ -12,10 +13,15 @@ export const Route = createFileRoute("/admin/deposits/")({
 });
 
 type Tone = "success" | "warn" | "danger" | "info" | "neutral";
+type StatusTab = "all" | "pending" | "completed" | "failed";
 
 function str(v: unknown, fallback = "—") {
   if (v == null) return fallback;
   return String(v);
+}
+
+function statusOf(raw: unknown) {
+  return str((raw as Record<string, unknown>).status).toUpperCase();
 }
 
 function toneFor(status: string): Tone {
@@ -26,17 +32,47 @@ function toneFor(status: string): Tone {
   return "neutral";
 }
 
+function isPending(s: string) {
+  return s === "PENDING" || s === "PROCESSING";
+}
+
+function isCompleted(s: string) {
+  return s === "SUCCEEDED" || s === "COMPLETED" || s === "APPROVED";
+}
+
 function Page() {
   const [rows, setRows] = useState<unknown[]>([]);
   const [query, setQuery] = useState("");
+  const [tab, setTab] = useState<StatusTab>("all");
+  const [loading, setLoading] = useState(true);
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      setRows(await fetchAdminDeposits());
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to load deposits");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    void fetchAdminDeposits()
-      .then(setRows)
-      .catch((e) => toast.error(e instanceof Error ? e.message : "Failed to load deposits"));
+    void load();
   }, []);
 
+  const counts = useMemo(() => {
+    const pending = rows.filter((r) => isPending(statusOf(r))).length;
+    const completed = rows.filter((r) => isCompleted(statusOf(r))).length;
+    const failed = rows.filter((r) => statusOf(r) === "FAILED" || statusOf(r) === "REJECTED").length;
+    return { total: rows.length, pending, completed, failed };
+  }, [rows]);
+
   const filtered = rows.filter((raw) => {
+    const s = statusOf(raw);
+    if (tab === "pending" && !isPending(s)) return false;
+    if (tab === "completed" && !isCompleted(s)) return false;
+    if (tab === "failed" && s !== "FAILED" && s !== "REJECTED") return false;
     if (!query) return true;
     const r = raw as Record<string, unknown>;
     const user = (r.user ?? {}) as Record<string, unknown>;
@@ -52,49 +88,30 @@ function Page() {
   return (
     <AdminShell
       title="Deposits"
-      description="Inbound funds across all rails."
+      description="Inbound funds across bank transfer, card, and corridor rails."
       breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Money" }, { label: "Deposits" }]}
     >
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-5">
-        {[
-          { label: "Total", val: rows.length },
-          {
-            label: "Pending",
-            val: rows.filter((raw) => {
-              const s = str((raw as Record<string, unknown>).status).toUpperCase();
-              return s === "PENDING" || s === "PROCESSING";
-            }).length,
-            tone: T.warn,
-          },
-          {
-            label: "Failed",
-            val: rows.filter((raw) => str((raw as Record<string, unknown>).status).toUpperCase() === "FAILED").length,
-            tone: T.danger,
-          },
-        ].map((s) => (
-          <div key={s.label} className="rounded-xl p-3.5" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
-            <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em]" style={{ color: T.muted }}>
-              {s.label}
-            </p>
-            <p className="mt-2 text-[20px] font-bold tabular-nums" style={{ fontFamily: "'JetBrains Mono', monospace", color: s.tone ?? T.ink }}>
-              {s.val}
-            </p>
-          </div>
-        ))}
-      </div>
+      <KpiStrip
+        items={[
+          { label: "Total deposits", value: loading ? "…" : counts.total, Icon: ArrowDownToLine, tone: T.navy, delta: "All time" },
+          { label: "Pending", value: loading ? "…" : counts.pending, Icon: Clock, tone: T.warn, delta: "Awaiting settlement" },
+          { label: "Completed", value: loading ? "…" : counts.completed, Icon: CheckCircle2, tone: T.success, delta: "Credited to wallets" },
+          { label: "Failed", value: loading ? "…" : counts.failed, Icon: XCircle, tone: T.danger, delta: "Needs follow-up" },
+        ]}
+      />
 
-      <div className="flex items-center gap-2 mb-4">
-        <div className="flex items-center gap-2 h-9 px-3 rounded-lg w-[260px]" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
-          <Search className="size-3.5" style={{ color: T.muted }} />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="ID, user, method…"
-            className="bg-transparent text-[12px] outline-none flex-1"
-            style={{ color: T.ink }}
-          />
-        </div>
-      </div>
+      <ListToolbar query={query} onQueryChange={setQuery} placeholder="ID, user, method…" onRefresh={() => void load()} refreshing={loading}>
+        <FilterTabs
+          active={tab}
+          onChange={(id) => setTab(id as StatusTab)}
+          tabs={[
+            { id: "all", label: "All", count: counts.total },
+            { id: "pending", label: "Pending", count: counts.pending },
+            { id: "completed", label: "Completed", count: counts.completed },
+            { id: "failed", label: "Failed", count: counts.failed },
+          ]}
+        />
+      </ListToolbar>
 
       <div className="rounded-xl overflow-hidden" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
         <div
@@ -154,11 +171,7 @@ function Page() {
             </div>
           );
         })}
-        {!filtered.length ? (
-          <p className="p-6 text-center text-[12px]" style={{ color: T.muted }}>
-            No deposits yet.
-          </p>
-        ) : null}
+        {!filtered.length ? <ListEmpty message="No deposits match this filter." /> : null}
       </div>
     </AdminShell>
   );

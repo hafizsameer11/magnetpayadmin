@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, Search } from "lucide-react";
+import { Loader2, ScrollText, Calendar, Layers } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
+import { KpiStrip, ListEmpty, ListToolbar } from "@/components/admin/ListPageKit";
 import { fetchAdminAudit, type AdminAudit } from "@/lib/api";
 import { toast } from "sonner";
 
@@ -15,26 +16,28 @@ function Page() {
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
 
+  const load = async () => {
+    setLoading(true);
+    try {
+      setRows(await fetchAdminAudit());
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to load audit log");
+      setRows([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      setLoading(true);
-      try {
-        const data = await fetchAdminAudit();
-        if (!cancelled) setRows(data);
-      } catch (e) {
-        if (!cancelled) {
-          toast.error(e instanceof Error ? e.message : "Failed to load audit log");
-          setRows([]);
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
+    void load();
   }, []);
+
+  const stats = useMemo(() => {
+    const dayAgo = Date.now() - 24 * 60 * 60 * 1000;
+    const today = rows.filter((a) => new Date(a.createdAt).getTime() > dayAgo).length;
+    const entities = new Set(rows.map((a) => a.entity)).size;
+    return { total: rows.length, today, entities };
+  }, [rows]);
 
   const filtered = useMemo(() => {
     if (!query.trim()) return rows;
@@ -51,19 +54,19 @@ function Page() {
   return (
     <AdminShell
       title="Audit log"
-      description="Record of admin actions across the platform."
+      description="Record of admin and system actions across the platform."
       breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Compliance" }, { label: "Audit" }]}
     >
-      <div className="mb-4 flex items-center gap-2 h-9 px-3 rounded-lg w-[280px]" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
-        <Search className="size-3.5" style={{ color: T.muted }} />
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Action, entity, id…"
-          className="bg-transparent text-[12px] outline-none flex-1"
-          style={{ color: T.ink }}
-        />
-      </div>
+      <KpiStrip
+        cols={3}
+        items={[
+          { label: "Total events", value: loading ? "…" : stats.total, Icon: ScrollText, tone: T.navy, delta: "Full history" },
+          { label: "Last 24 hours", value: loading ? "…" : stats.today, Icon: Calendar, tone: T.warn, delta: "Recent activity" },
+          { label: "Entity types", value: loading ? "…" : stats.entities, Icon: Layers, tone: T.info, delta: "Distinct resources" },
+        ]}
+      />
+
+      <ListToolbar query={query} onQueryChange={setQuery} placeholder="Action, entity, id…" onRefresh={() => void load()} refreshing={loading} />
 
       <div className="rounded-xl overflow-hidden" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
         <div
@@ -87,9 +90,7 @@ function Page() {
             <Loader2 className="size-5 animate-spin" />
           </div>
         ) : filtered.length === 0 ? (
-          <p className="p-6 text-center text-[12px]" style={{ color: T.muted }}>
-            No audit events yet.
-          </p>
+          <ListEmpty message="No audit events match this filter." />
         ) : (
           filtered.map((a, i) => (
             <div

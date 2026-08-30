@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
-import { Loader2, MessageSquare } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Loader2, MessageSquare, Users, Clock } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
+import { KpiStrip, ListEmpty, ListToolbar } from "@/components/admin/ListPageKit";
 import { fetchAdminConversations, type AdminConversation } from "@/lib/api";
 import { usePolling } from "@/lib/use-polling";
 import { toast } from "sonner";
@@ -16,6 +17,7 @@ export const Route = createFileRoute("/admin/chats/")({
 function Page() {
   const [rows, setRows] = useState<AdminConversation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState("");
 
   const load = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
@@ -38,12 +40,38 @@ function Page() {
 
   usePolling(() => load(true), CHAT_POLL_MS, true);
 
+  const filtered = useMemo(() => {
+    if (!query.trim()) return rows;
+    const n = query.toLowerCase();
+    return rows.filter((c) => {
+      const names = (c.participants ?? []).map((p) => p.user.name).join(" ");
+      const last = c.messages?.[0]?.body ?? c.subject ?? "";
+      return c.id.toLowerCase().includes(n) || names.toLowerCase().includes(n) || last.toLowerCase().includes(n);
+    });
+  }, [rows, query]);
+
+  const activeToday = useMemo(() => {
+    const dayAgo = Date.now() - 24 * 60 * 60 * 1000;
+    return rows.filter((c) => new Date(c.updatedAt).getTime() > dayAgo).length;
+  }, [rows]);
+
   return (
     <AdminShell
       title="Conversations"
-      description="Buyer ↔ seller threads from /admin/conversations."
+      description="Buyer ↔ seller threads — auto-refreshes every 5 seconds."
       breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Chats" }]}
     >
+      <KpiStrip
+        cols={3}
+        items={[
+          { label: "Total threads", value: loading ? "…" : rows.length, Icon: MessageSquare, tone: T.navy, delta: "All conversations" },
+          { label: "Active today", value: loading ? "…" : activeToday, Icon: Clock, tone: T.warn, delta: "Updated in last 24h" },
+          { label: "Participants", value: loading ? "…" : rows.reduce((n, c) => n + (c.participants?.length ?? 0), 0), Icon: Users, tone: T.info, delta: "Across all threads" },
+        ]}
+      />
+
+      <ListToolbar query={query} onQueryChange={setQuery} placeholder="Search participant or message…" onRefresh={() => void load(false)} refreshing={loading} />
+
       <div className="rounded-xl overflow-hidden" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
         <div
           className="grid items-center px-4 h-9 text-[10px] font-bold uppercase tracking-[0.14em]"
@@ -64,15 +92,10 @@ function Page() {
           <div className="py-16 grid place-items-center" style={{ color: T.muted }}>
             <Loader2 className="size-5 animate-spin" />
           </div>
-        ) : rows.length === 0 ? (
-          <div className="py-16 text-center">
-            <MessageSquare className="size-5 mx-auto mb-2" style={{ color: T.muted }} />
-            <p className="text-[12px]" style={{ color: T.muted }}>
-              No support tickets / conversations
-            </p>
-          </div>
+        ) : filtered.length === 0 ? (
+          <ListEmpty message={rows.length ? "No conversations match your search." : "No conversations yet."} />
         ) : (
-          rows.map((c, i) => {
+          filtered.map((c, i) => {
             const names = (c.participants ?? []).map((p) => p.user.name).join(" · ") || "—";
             const last = c.messages?.[0];
             return (
@@ -83,7 +106,7 @@ function Page() {
                 className="grid items-center px-4 py-3 text-[12px] hover:bg-[rgba(14,59,46,0.02)] transition"
                 style={{
                   gridTemplateColumns: "1fr 1.6fr 1.8fr 1.2fr",
-                  borderBottom: i < rows.length - 1 ? `1px solid ${T.border}` : "none",
+                  borderBottom: i < filtered.length - 1 ? `1px solid ${T.border}` : "none",
                 }}
               >
                 <span className="tabular-nums font-semibold" style={{ color: T.navy, fontFamily: "'JetBrains Mono', monospace" }}>
