@@ -99,6 +99,7 @@ import { Route as AdminHelpIndexRouteImport } from './routes/admin.help.index'
 import { Route as AdminHelpIdRouteImport } from './routes/admin.help.$id'
 import { Route as AdminIncidentsIndexRouteImport } from './routes/admin.incidents.index'
 import { Route as AdminIncidentsIdRouteImport } from './routes/admin.incidents.$id'
+import { Route as AdminInspectionsIndexRouteImport } from './routes/admin.inspections.index'
 import { Route as AdminJobsIndexRouteImport } from './routes/admin.jobs.index'
 import { Route as AdminJobsIdRouteImport } from './routes/admin.jobs.$id'
 import { Route as AdminKybIndexRouteImport } from './routes/admin.kyb.index'
@@ -627,6 +628,11 @@ const AdminIncidentsIdRoute = AdminIncidentsIdRouteImport.update({
   path: '/admin/incidents/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminInspectionsIndexRoute = AdminInspectionsIndexRouteImport.update({
+  id: '/admin/inspections/',
+  path: '/admin/inspections/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminJobsIndexRoute = AdminJobsIndexRouteImport.update({
   id: '/admin/jobs/',
   path: '/admin/jobs/',
@@ -1144,6 +1150,7 @@ export interface FileRoutesByFullPath {
   '/admin/fraud-cases/': typeof AdminFraudCasesIndexRoute
   '/admin/help/': typeof AdminHelpIndexRoute
   '/admin/incidents/': typeof AdminIncidentsIndexRoute
+  '/admin/inspections/': typeof AdminInspectionsIndexRoute
   '/admin/jobs/': typeof AdminJobsIndexRoute
   '/admin/kyb/': typeof AdminKybIndexRoute
   '/admin/kyc/': typeof AdminKycIndexRoute
@@ -1312,6 +1319,7 @@ export interface FileRoutesByTo {
   '/admin/fraud-cases': typeof AdminFraudCasesIndexRoute
   '/admin/help': typeof AdminHelpIndexRoute
   '/admin/incidents': typeof AdminIncidentsIndexRoute
+  '/admin/inspections': typeof AdminInspectionsIndexRoute
   '/admin/jobs': typeof AdminJobsIndexRoute
   '/admin/kyb': typeof AdminKybIndexRoute
   '/admin/kyc': typeof AdminKycIndexRoute
@@ -1481,6 +1489,7 @@ export interface FileRoutesById {
   '/admin/fraud-cases/': typeof AdminFraudCasesIndexRoute
   '/admin/help/': typeof AdminHelpIndexRoute
   '/admin/incidents/': typeof AdminIncidentsIndexRoute
+  '/admin/inspections/': typeof AdminInspectionsIndexRoute
   '/admin/jobs/': typeof AdminJobsIndexRoute
   '/admin/kyb/': typeof AdminKybIndexRoute
   '/admin/kyc/': typeof AdminKycIndexRoute
@@ -1651,6 +1660,7 @@ export interface FileRouteTypes {
     | '/admin/fraud-cases/'
     | '/admin/help/'
     | '/admin/incidents/'
+    | '/admin/inspections/'
     | '/admin/jobs/'
     | '/admin/kyb/'
     | '/admin/kyc/'
@@ -1819,6 +1829,7 @@ export interface FileRouteTypes {
     | '/admin/fraud-cases'
     | '/admin/help'
     | '/admin/incidents'
+    | '/admin/inspections'
     | '/admin/jobs'
     | '/admin/kyb'
     | '/admin/kyc'
@@ -1987,6 +1998,7 @@ export interface FileRouteTypes {
     | '/admin/fraud-cases/'
     | '/admin/help/'
     | '/admin/incidents/'
+    | '/admin/inspections/'
     | '/admin/jobs/'
     | '/admin/kyb/'
     | '/admin/kyc/'
@@ -2156,6 +2168,7 @@ export interface RootRouteChildren {
   AdminFraudCasesIndexRoute: typeof AdminFraudCasesIndexRoute
   AdminHelpIndexRoute: typeof AdminHelpIndexRoute
   AdminIncidentsIndexRoute: typeof AdminIncidentsIndexRoute
+  AdminInspectionsIndexRoute: typeof AdminInspectionsIndexRoute
   AdminJobsIndexRoute: typeof AdminJobsIndexRoute
   AdminKybIndexRoute: typeof AdminKybIndexRoute
   AdminKycIndexRoute: typeof AdminKycIndexRoute
@@ -2828,6 +2841,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIncidentsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/inspections/': {
+      id: '/admin/inspections/'
+      path: '/admin/inspections'
+      fullPath: '/admin/inspections/'
+      preLoaderRoute: typeof AdminInspectionsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/jobs/': {
       id: '/admin/jobs/'
       path: '/admin/jobs'
@@ -3492,6 +3512,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminFraudCasesIndexRoute: AdminFraudCasesIndexRoute,
   AdminHelpIndexRoute: AdminHelpIndexRoute,
   AdminIncidentsIndexRoute: AdminIncidentsIndexRoute,
+  AdminInspectionsIndexRoute: AdminInspectionsIndexRoute,
   AdminJobsIndexRoute: AdminJobsIndexRoute,
   AdminKybIndexRoute: AdminKybIndexRoute,
   AdminKycIndexRoute: AdminKycIndexRoute,

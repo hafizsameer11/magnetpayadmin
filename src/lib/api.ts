@@ -132,6 +132,21 @@ export type AdminWalletHolder = {
   };
 };
 
+export type AdminWalletOverview = {
+  summary: {
+    totalNgnMinor: string | number;
+    totalCnyMinor: string | number;
+    totalUsdMinor: string | number;
+    walletCount: number;
+    escrowMinorNgn: string | number;
+    frozenCount: number;
+    limitedCount: number;
+    holderCount: number;
+  };
+  platformWallets: AdminWalletHolder[];
+  holders: AdminWalletHolder[];
+};
+
 export type AdminWalletDetail = AdminWalletHolder & {
   pendingDeposits: number;
   pendingWithdrawals: number;
@@ -176,10 +191,34 @@ export type AdminEscrow = {
   amountMinor: string | number;
   title?: string;
   createdAt: string;
+  inspectorId?: string | null;
+  autoReleaseHours?: number | null;
+  feeSplit?: string | null;
+  requiredDocs?: { id: string; label: string; required: boolean }[] | null;
   milestones?: unknown[];
   disputes?: { id: string; outcome?: string | null }[];
+  inspections?: AdminInspection[];
   buyer?: { id: string; name: string; phone: string };
   seller?: { id: string; name: string; phone: string };
+};
+
+export type AdminInspection = {
+  id: string;
+  escrowId: string;
+  inspectorId: string;
+  status: string;
+  reportUrl?: string | null;
+  failedReason?: string | null;
+  assignedToId?: string | null;
+  passedAt?: string | null;
+  requiredDocs?: { id: string; label: string; required: boolean }[] | null;
+  createdAt: string;
+  updatedAt?: string;
+  inspector?: { id: string; name: string; region?: string | null };
+  escrow?: AdminEscrow & {
+    buyer?: { id: string; name: string; phone: string; email?: string | null };
+    seller?: { id: string; name: string; phone: string; email?: string | null };
+  };
 };
 
 export type AdminShipmentDocument = {
@@ -504,7 +543,7 @@ export async function fetchAdminWallets() {
 }
 
 export async function fetchAdminWalletHolders() {
-  return api<AdminWalletHolder[]>("/admin/wallets/holders");
+  return api<AdminWalletOverview>("/admin/wallets/holders");
 }
 
 export async function fetchAdminWalletDetail(userId: string) {
@@ -598,6 +637,16 @@ export async function fetchAdminEscrow(id: string) {
 }
 export async function resolveEscrow(id: string, outcome: string) {
   return api(`/admin/escrows/${id}/resolve`, { method: "POST", body: JSON.stringify({ outcome }) });
+}
+export async function fetchAdminInspections(status?: string) {
+  const q = status ? `?status=${encodeURIComponent(status)}` : "";
+  return api<AdminInspection[]>(`/admin/inspections${q}`);
+}
+export async function updateAdminInspection(
+  id: string,
+  body: { status?: string; reportUrl?: string; failedReason?: string },
+) {
+  return api<AdminInspection>(`/admin/inspections/${id}`, { method: "PATCH", body: JSON.stringify(body) });
 }
 export async function fetchAdminDisputes() {
   return api<AdminDispute[]>("/admin/disputes");
@@ -848,6 +897,7 @@ export type AdminProduct = {
     user?: { id: string; name: string };
   }[];
   _count?: { orderItems: number; reviews: number };
+  orders30d?: number;
 };
 
 export async function fetchAdminProduct(id: string) {

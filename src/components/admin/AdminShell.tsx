@@ -88,6 +88,7 @@ const NAV: NavItem[] = [
   { label: "Withdrawals", to: "/admin/withdrawals", I: ArrowUpFromLine },
   { label: "FX", to: "/admin/fx/rates", I: Coins },
   { label: "Escrow", to: "/admin/escrow", I: Lock },
+  { label: "Inspections", to: "/admin/inspections", I: ShieldCheck },
   { label: "Disputes", to: "/admin/disputes", I: Gavel },
   { label: "Shipments", to: "/admin/shipments", I: Truck },
   { label: "Estimate settings", to: "/admin/logistics/pricing", I: Calculator },

@@ -16,12 +16,28 @@ import { toast } from "sonner";
 import { T } from "./AdminShell";
 import { Card, SectionLabel } from "./Catalog";
 import { Pill, countryFromPhone, initials } from "./UserProfile";
+import { StatusBadge, toneFromStatus } from "./StatusBadge";
 import { txnPill, txnTypePill } from "./Money";
 import { mapTxnType, mapTxnStatus } from "./MoneyProfiles";
 import { fmtMoney, type AdminWalletDetail, type AdminWalletAccessStatus } from "@/lib/api";
 
 export function walletRefId(userId: string) {
   return `WLT-${userId.replace(/-/g, "").slice(0, 5).toUpperCase()}`;
+}
+
+export function walletUserRefId(userId: string, role: string, name?: string) {
+  const n = (name ?? "").toLowerCase();
+  if (n.includes("magnetpay fees")) return "PLT-FEE";
+  if (n.includes("magnetpay escrow")) return "PLT-ESC";
+  const slug = userId.replace(/-/g, "").slice(0, 5).toUpperCase();
+  if (role === "SELLER") return `SLR-${slug.slice(0, 4)}`;
+  return `USR-${slug}`;
+}
+
+function countryLabel(phone: string) {
+  const c = countryFromPhone(phone);
+  if (c.code === "—") return c.name;
+  return c.code;
 }
 
 function copyText(label: string, value: string) {
@@ -44,9 +60,7 @@ function timeAgo(iso: string | null | undefined) {
 }
 
 export function walletStatusPill(status: AdminWalletAccessStatus) {
-  if (status === "frozen") return <Pill tone="danger">Frozen</Pill>;
-  if (status === "limited") return <Pill tone="warn">Limited</Pill>;
-  return <Pill tone="success">Active</Pill>;
+  return <StatusBadge tone={toneFromStatus(status)}>{status}</StatusBadge>;
 }
 
 function roleLabel(role: string) {
@@ -95,7 +109,6 @@ function QuickAction({
 }
 
 export function WalletHeroCard({ detail }: { detail: AdminWalletDetail }) {
-  const country = countryFromPhone(detail.user.phone);
   const metrics = [
     { I: Coins, label: "Currencies", val: String(detail.stats.currencyCount), tone: T.navy },
     {
@@ -135,7 +148,7 @@ export function WalletHeroCard({ detail }: { detail: AdminWalletDetail }) {
             </span>
             <span style={{ color: T.muted }}>·</span>
             <span className="text-[11px] font-semibold" style={{ color: T.sub }}>
-              {country.flag} {country.code}
+              {countryLabel(detail.user.phone)}
             </span>
           </div>
           <h2 className="mt-2 text-[17px] font-bold leading-snug">{detail.user.name || "Unnamed user"}</h2>

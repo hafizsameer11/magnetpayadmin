@@ -28,6 +28,8 @@ export function roleLabel(role: string) {
 export function countryFromPhone(phone: string) {
   const p = phone.replace(/\s/g, "");
   if (p.startsWith("+234") || p.startsWith("234")) return { flag: "🇳🇬", code: "NG", name: "Nigeria" };
+  if (p.startsWith("+233") || p.startsWith("233")) return { flag: "🇬🇭", code: "GH", name: "Ghana" };
+  if (p.startsWith("+254") || p.startsWith("254")) return { flag: "🇰🇪", code: "KE", name: "Kenya" };
   if (p.startsWith("+86") || p.startsWith("86")) return { flag: "🇨🇳", code: "CN", name: "China" };
   return { flag: "🌍", code: "—", name: "—" };
 }
