@@ -101,6 +101,63 @@ export type AdminWallet = {
   user: { id: string; name: string; phone: string };
 };
 
+export type AdminWalletAccessStatus = "active" | "limited" | "frozen";
+
+export type AdminWalletHolder = {
+  user: {
+    id: string;
+    name: string;
+    phone: string;
+    email?: string | null;
+    role: string;
+    createdAt: string;
+  };
+  status: AdminWalletAccessStatus;
+  wallets: {
+    id: string;
+    currency: string;
+    balanceMinor: string | number;
+    holdMinor: string | number;
+    availableMinor: string | number;
+    updatedAt: string;
+  }[];
+  stats: {
+    currencyCount: number;
+    totalHoldMinor: string | number;
+    escrowMinorNgn: string | number;
+    lifetimeMinorNgn: string | number;
+    txns30d: number;
+    lastTxnAt: string | null;
+    lastTxnTitle: string | null;
+  };
+};
+
+export type AdminWalletDetail = AdminWalletHolder & {
+  pendingDeposits: number;
+  pendingWithdrawals: number;
+  activeEscrows: number;
+  escrowMilestones: {
+    id: string;
+    label: string;
+    amountMinor: string | number;
+    currency: string;
+    escrowId: string;
+    escrowTitle: string;
+    escrowStatus: string;
+  }[];
+  transactions: {
+    id: string;
+    kind: string;
+    title: string;
+    subtitle: string;
+    currency: string;
+    amountDisplay: string;
+    amountPositive: boolean | null;
+    status: string | null;
+    createdAt: string;
+  }[];
+};
+
 export type AdminTransfer = {
   id: string;
   status: string;
@@ -444,6 +501,28 @@ export async function decideKyb(id: string, status: "APPROVED" | "REJECTED", not
 // —— Money ——
 export async function fetchAdminWallets() {
   return api<AdminWallet[]>("/admin/wallets");
+}
+
+export async function fetchAdminWalletHolders() {
+  return api<AdminWalletHolder[]>("/admin/wallets/holders");
+}
+
+export async function fetchAdminWalletDetail(userId: string) {
+  return api<AdminWalletDetail>(`/admin/wallets/${userId}`);
+}
+
+export async function adjustAdminWallet(
+  userId: string,
+  body: { currency: string; amountMinor: string | number; direction: "credit" | "debit"; note: string },
+) {
+  return api(`/admin/wallets/${userId}/adjust`, { method: "POST", body: JSON.stringify(body) });
+}
+
+export async function freezeAdminWallet(userId: string, frozen: boolean, note?: string) {
+  return api<{ status: AdminWalletAccessStatus }>(`/admin/wallets/${userId}/freeze`, {
+    method: "POST",
+    body: JSON.stringify({ frozen, note }),
+  });
 }
 export async function fetchAdminTransfers() {
   return api<AdminTransfer[]>("/admin/transfers");
@@ -856,8 +935,9 @@ export async function fetchAdminShipmentStats() {
   return api<{ total: number; inTransit: number; delivered30d: number; exceptions: number }>("/admin/shipments/stats");
 }
 
-export async function fetchAdminMoneyLedger() {
-  return api<unknown[]>("/admin/money/ledger");
+export async function fetchAdminMoneyLedger(userId?: string) {
+  const qs = userId ? `?userId=${encodeURIComponent(userId)}` : "";
+  return api<unknown[]>(`/admin/money/ledger${qs}`);
 }
 
 export async function fetchAdminReconciliation() {

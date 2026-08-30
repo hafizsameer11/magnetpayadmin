@@ -43,10 +43,18 @@ export function toneForTxnStatus(status: string): Tone {
   return "neutral";
 }
 
-export function mapTxnType(status: string, rail?: string): TxnType {
-  const r = (rail ?? "").toLowerCase();
-  if (r.includes("escrow")) return "escrow_hold";
-  if (r.includes("fee")) return "fee";
+export function mapTxnType(_status: string, kindOrRail?: string): TxnType {
+  const k = (kindOrRail ?? "").toLowerCase();
+  if (k.includes("deposit")) return "deposit";
+  if (k.includes("withdraw")) return "withdrawal";
+  if (k.includes("payout")) return "payout";
+  if (k.includes("escrow") && k.includes("release")) return "escrow_release";
+  if (k.includes("escrow")) return "escrow_hold";
+  if (k.includes("refund")) return "refund";
+  if (k.includes("chargeback")) return "chargeback";
+  if (k.includes("fx")) return "fx";
+  if (k.includes("fee")) return "fee";
+  if (k.includes("admin")) return "transfer";
   return "transfer";
 }
 

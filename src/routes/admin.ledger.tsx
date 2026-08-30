@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
@@ -8,6 +8,9 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/ledger")({
   head: () => ({ meta: [{ title: "Ledger — MagnetPay Admin" }] }),
+  validateSearch: (search: Record<string, unknown>) => ({
+    userId: typeof search.userId === "string" ? search.userId : undefined,
+  }),
   component: Page,
 });
 
@@ -27,14 +30,15 @@ function toneFor(status: string): Tone {
 }
 
 function Page() {
+  const { userId } = Route.useSearch();
   const [rows, setRows] = useState<unknown[]>([]);
   const [query, setQuery] = useState("");
 
   useEffect(() => {
-    void fetchAdminMoneyLedger()
+    void fetchAdminMoneyLedger(userId)
       .then(setRows)
       .catch((e) => toast.error(e instanceof Error ? e.message : "Failed to load ledger"));
-  }, []);
+  }, [userId]);
 
   const filtered = rows.filter((raw) => {
     if (!query) return true;
@@ -52,10 +56,24 @@ function Page() {
 
   return (
     <AdminShell
-      title="Ledger"
-      description="Activity feed from wallet ledger transactions."
-      breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Money" }, { label: "Ledger" }]}
+      title={userId ? "User ledger" : "Ledger"}
+      description={userId ? "Wallet activity for this user." : "Activity feed from wallet ledger transactions."}
+      breadcrumbs={[
+        { label: "Admin", to: "/admin" },
+        { label: "Money" },
+        ...(userId ? [{ label: "Wallets", to: "/admin/wallets" as const }, { label: userId.slice(0, 8) }] : [{ label: "Ledger" }]),
+      ]}
     >
+      {userId ? (
+        <Link
+          to="/admin/wallets/$userId"
+          params={{ userId }}
+          className="inline-block mb-4 text-[12px] font-semibold"
+          style={{ color: T.navy }}
+        >
+          ← Back to wallet
+        </Link>
+      ) : null}
       <div className="grid grid-cols-2 md:grid-cols-2 gap-3 mb-5">
         <div className="rounded-xl p-3.5" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
           <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em]" style={{ color: T.muted }}>
