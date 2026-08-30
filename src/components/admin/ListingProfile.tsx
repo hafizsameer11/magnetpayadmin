@@ -19,7 +19,7 @@ import { T } from "./AdminShell";
 import { Pill, flaggedPill } from "./UserProfile";
 import { StatusBadge, StatusBadgeFromRaw, formatStatusLabel } from "./StatusBadge";
 import { fmtMoney, fromMinor, resolveApiFileUrl, type AdminProduct, type AdminProductStats } from "@/lib/api";
-import { fmtCNY, fmtNGN } from "./Catalog";
+import { fmtCNY, fmtNGN, statusPillCatalog, Thumb, Card, SectionLabel } from "./Catalog";
 
 const WEB_BASE = import.meta.env.VITE_WEB_URL ?? import.meta.env.VITE_API_URL ?? "https://magnetpay.amctraders.online";
 
