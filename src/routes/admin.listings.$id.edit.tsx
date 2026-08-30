@@ -1,11 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Loader2, Save } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowLeft, ChevronLeft, ChevronRight, ImagePlus, Loader2, Save, Star, Trash2, Upload } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
 import { Card, SectionLabel, statusPillCatalog, Thumb } from "@/components/admin/Catalog";
 import {
   ListingPageActions,
-  listingCatalogStatus,
   listingRefId,
   sellerRefId,
 } from "@/components/admin/ListingProfile";
@@ -16,10 +15,11 @@ import {
   fetchAdminProduct,
   fmtMoney,
   fromMinor,
-  moderateProduct,
   resolveApiFileUrl,
   updateAdminProduct,
+  uploadAdminFile,
   type AdminProduct,
+  type ProductModerationStatus,
 } from "@/lib/api";
 import { toast } from "sonner";
 
@@ -44,10 +44,55 @@ type FormState = {
   weightKgPerUnit: string;
   packagingType: string;
   defaultIncoterm: string;
-  active: boolean;
+  moderationStatus: ProductModerationStatus;
+  flagReason: string;
+  mediaUrls: string[];
 };
 
 const INCOTERMS = ["FOB", "CIF", "EXW", "DAP", "DDP", "CFR"];
+
+const MODERATION_OPTIONS: { value: ProductModerationStatus; label: string; hint: string }[] = [
+  { value: "ACTIVE", label: "Active — live on marketplace", hint: "Visible to buyers and searchable." },
+  { value: "PENDING", label: "Pending review", hint: "Hidden until an admin approves." },
+  { value: "REPORTED", label: "Reported / flagged", hint: "Taken down for moderation review." },
+  { value: "HIDDEN", label: "Hidden / paused", hint: "Temporarily delisted by admin or seller." },
+  { value: "REJECTED", label: "Rejected / delisted", hint: "Permanently removed from marketplace." },
+];
+
+function moderationCatalogStatus(status: ProductModerationStatus) {
+  if (status === "ACTIVE") return "active" as const;
+  if (status === "PENDING") return "pending" as const;
+  if (status === "REPORTED") return "reported" as const;
+  return "delisted" as const;
+}
+
+function collectMediaUrls(product: AdminProduct) {
+  const fromMedia = [...(product.media ?? [])]
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map((m) => m.url)
+    .filter(Boolean);
+  if (fromMedia.length) return fromMedia;
+  if (product.imageUrl) return [product.imageUrl];
+  return [];
+}
+
+function resolveModerationStatus(product: AdminProduct): ProductModerationStatus {
+  const mod = product.moderationStatus?.toUpperCase();
+  if (mod === "ACTIVE" || mod === "PENDING" || mod === "REPORTED" || mod === "HIDDEN" || mod === "REJECTED") {
+    return mod;
+  }
+  if (product.active) return "ACTIVE";
+  return "PENDING";
+}
+
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result ?? ""));
+    reader.onerror = () => reject(new Error("Could not read file"));
+    reader.readAsDataURL(file);
+  });
+}
 
 function parseDescription(raw: string) {
   const tags: string[] = [];
@@ -79,11 +124,6 @@ function buildDescription(body: string, tags: string) {
   return parts.filter(Boolean).join("\n\n") || null;
 }
 
-function productImage(product: AdminProduct) {
-  const raw = product.imageUrl ?? product.media?.[0]?.url ?? product.variants?.find((v) => v.imageUrl)?.imageUrl ?? "";
-  return raw ? resolveApiFileUrl(raw) : "";
-}
-
 function primarySku(product: AdminProduct) {
   return product.variants?.find((v) => v.sku)?.sku ?? "—";
 }
@@ -105,7 +145,9 @@ function productToForm(product: AdminProduct): FormState {
     weightKgPerUnit: product.weightKgPerUnit != null ? String(product.weightKgPerUnit) : "",
     packagingType: product.packagingType ?? "",
     defaultIncoterm: product.defaultIncoterm ?? "FOB",
-    active: product.active,
+    moderationStatus: resolveModerationStatus(product),
+    flagReason: product.flagReason ?? "",
+    mediaUrls: collectMediaUrls(product),
   };
 }
 
@@ -113,7 +155,8 @@ function Page() {
   const { id } = Route.useParams();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [modBusy, setModBusy] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [product, setProduct] = useState<AdminProduct | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [originHubs, setOriginHubs] = useState<{ code: string; city: string; hub: string }[]>([]);
@@ -195,7 +238,11 @@ function Page() {
         moq: form.moq.trim() || undefined,
         stock: stockNum,
         categoryId: form.categoryId || null,
-        active: form.active,
+        mediaUrls: form.mediaUrls,
+        imageUrl: form.mediaUrls[0] ?? null,
+        moderationStatus: form.moderationStatus,
+        flagReason: form.moderationStatus === "REPORTED" ? form.flagReason.trim() || null : null,
+        active: form.moderationStatus === "ACTIVE",
         originHub: form.originHub.trim() || null,
         leadTimeMin: form.leadTimeMin.trim() ? Number(form.leadTimeMin) : null,
         leadTimeMax: form.leadTimeMax.trim() ? Number(form.leadTimeMax) : null,
@@ -213,21 +260,64 @@ function Page() {
     }
   };
 
-  const moderate = async (status: "APPROVED" | "HIDDEN" | "REJECTED") => {
-    setModBusy(true);
+  const uploadImages = async (files: FileList | File[]) => {
+    const list = Array.from(files).filter((f) => f.type.startsWith("image/"));
+    if (!list.length) {
+      toast.error("Choose image files only");
+      return;
+    }
+    setUploading(true);
     try {
-      await moderateProduct(id, status);
-      toast.success(status === "APPROVED" ? "Listing approved" : status === "HIDDEN" ? "Listing paused" : "Listing delisted");
-      await load();
+      const uploaded: string[] = [];
+      for (const file of list) {
+        if (file.size > 8 * 1024 * 1024) {
+          toast.error(`${file.name} is over 8MB`);
+          continue;
+        }
+        const contentBase64 = await fileToBase64(file);
+        const res = await uploadAdminFile(file.name, contentBase64, file.type || undefined);
+        uploaded.push(res.url);
+      }
+      if (uploaded.length) {
+        setForm((prev) => (prev ? { ...prev, mediaUrls: [...prev.mediaUrls, ...uploaded] } : prev));
+        toast.success(`Added ${uploaded.length} image${uploaded.length === 1 ? "" : "s"}`);
+      }
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Action failed");
+      toast.error(e instanceof Error ? e.message : "Upload failed");
     } finally {
-      setModBusy(false);
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
+  const moveMedia = (index: number, dir: -1 | 1) => {
+    setForm((prev) => {
+      if (!prev) return prev;
+      const next = [...prev.mediaUrls];
+      const target = index + dir;
+      if (target < 0 || target >= next.length) return prev;
+      [next[index], next[target]] = [next[target], next[index]];
+      return { ...prev, mediaUrls: next };
+    });
+  };
+
+  const removeMedia = (index: number) => {
+    setForm((prev) => (prev ? { ...prev, mediaUrls: prev.mediaUrls.filter((_, i) => i !== index) } : prev));
+  };
+
+  const setPrimaryMedia = (index: number) => {
+    if (index === 0) return;
+    setForm((prev) => {
+      if (!prev) return prev;
+      const next = [...prev.mediaUrls];
+      const [item] = next.splice(index, 1);
+      next.unshift(item);
+      return { ...prev, mediaUrls: next };
+    });
+  };
+
   const currency = product?.currency?.toUpperCase() ?? "CNY";
-  const status = product ? listingCatalogStatus(product) : "pending";
+  const previewStatus = form ? moderationCatalogStatus(form.moderationStatus) : "pending";
 
   const hubOptions = useMemo(() => {
     const opts = originHubs.map((h) => ({ value: h.city, label: `${h.city} — ${h.hub}` }));
@@ -269,7 +359,7 @@ function Page() {
     );
   }
 
-  const img = productImage(product);
+  const headerImg = form.mediaUrls[0] ? resolveApiFileUrl(form.mediaUrls[0]) : "";
 
   return (
     <AdminShell
@@ -296,7 +386,7 @@ function Page() {
           <ArrowLeft className="size-3.5" /> Back to listing
         </Link>
         <span style={{ color: T.border }}>|</span>
-        {img ? <Thumb src={img} alt={product.title} size={40} /> : null}
+        {headerImg ? <Thumb src={headerImg} alt={product.title} size={40} /> : null}
         <div className="min-w-0 flex-1">
           <p className="font-semibold truncate text-[13px]" style={{ color: T.ink }}>
             {product.title}
@@ -305,11 +395,120 @@ function Page() {
             {listingRefId(id)} · SKU {primarySku(product)}
           </p>
         </div>
-        {statusPillCatalog(status)}
+        {statusPillCatalog(previewStatus)}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 pb-24">
         <div className="lg:col-span-2 space-y-4">
+          <FormSection title="Product images" hint="First image is the marketplace cover. Upload, reorder, or remove photos.">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={(e) => {
+                if (e.target.files?.length) void uploadImages(e.target.files);
+              }}
+            />
+            {form.mediaUrls.length ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                {form.mediaUrls.map((url, index) => (
+                  <div
+                    key={`${url}-${index}`}
+                    className="relative rounded-xl overflow-hidden group"
+                    style={{ border: `1px solid ${index === 0 ? T.navy : T.border}` }}
+                  >
+                    <img
+                      src={resolveApiFileUrl(url)}
+                      alt=""
+                      className="w-full aspect-square object-cover"
+                      style={{ background: T.bg }}
+                    />
+                    {index === 0 ? (
+                      <span
+                        className="absolute top-2 left-2 text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded"
+                        style={{ background: T.navy, color: "#fff" }}
+                      >
+                        Cover
+                      </span>
+                    ) : null}
+                    <div className="absolute inset-x-0 bottom-0 p-2 flex items-center justify-between gap-1 opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: "linear-gradient(transparent, rgba(0,0,0,0.72))" }}>
+                      <div className="flex gap-1">
+                        <IconBtn title="Move left" disabled={index === 0} onClick={() => moveMedia(index, -1)}>
+                          <ChevronLeft className="size-3.5" />
+                        </IconBtn>
+                        <IconBtn title="Move right" disabled={index === form.mediaUrls.length - 1} onClick={() => moveMedia(index, 1)}>
+                          <ChevronRight className="size-3.5" />
+                        </IconBtn>
+                        {index !== 0 ? (
+                          <IconBtn title="Set as cover" onClick={() => setPrimaryMedia(index)}>
+                            <Star className="size-3.5" />
+                          </IconBtn>
+                        ) : null}
+                      </div>
+                      <IconBtn title="Remove" onClick={() => removeMedia(index)} danger>
+                        <Trash2 className="size-3.5" />
+                      </IconBtn>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div
+                className="rounded-xl py-10 grid place-items-center text-center"
+                style={{ background: T.bg, border: `1px dashed ${T.border}` }}
+              >
+                <ImagePlus className="size-8 mb-2" style={{ color: T.muted }} strokeWidth={1.6} />
+                <p className="text-[12px] font-semibold" style={{ color: T.sub }}>
+                  No product images yet
+                </p>
+                <p className="text-[11px] mt-1" style={{ color: T.muted }}>
+                  Upload JPG or PNG up to 8MB each
+                </p>
+              </div>
+            )}
+            <button
+              type="button"
+              disabled={uploading}
+              onClick={() => fileInputRef.current?.click()}
+              className="mt-3 h-9 px-3 rounded-lg text-[12px] font-semibold inline-flex items-center gap-1.5 disabled:opacity-50"
+              style={{ background: T.surface, border: `1px solid ${T.border}`, color: T.ink }}
+            >
+              {uploading ? <Loader2 className="size-3.5 animate-spin" /> : <Upload className="size-3.5" />}
+              {uploading ? "Uploading…" : "Upload images"}
+            </button>
+          </FormSection>
+
+          <FormSection title="Moderation status" hint="Controls whether this listing is live, queued, flagged, or delisted.">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Field label="Listing status" className="md:col-span-2">
+                <Select
+                  value={form.moderationStatus}
+                  onChange={(v) => setField("moderationStatus", v as ProductModerationStatus)}
+                >
+                  {MODERATION_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </Select>
+                <p className="mt-1.5 text-[11px]" style={{ color: T.muted }}>
+                  {MODERATION_OPTIONS.find((o) => o.value === form.moderationStatus)?.hint}
+                </p>
+              </Field>
+              {form.moderationStatus === "REPORTED" ? (
+                <Field label="Flag reason" className="md:col-span-2" hint="Shown to moderators reviewing this listing.">
+                  <Textarea
+                    value={form.flagReason}
+                    onChange={(v) => setField("flagReason", v)}
+                    rows={3}
+                    placeholder="Counterfeit claim, misleading specs, IP violation…"
+                  />
+                </Field>
+              ) : null}
+            </div>
+          </FormSection>
           <FormSection title="Product details" hint="Title, category, and buyer-facing copy.">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Field label="Title" className="md:col-span-2">
@@ -349,19 +548,6 @@ function Page() {
               </Field>
               <Field label="Stock on hand">
                 <Input value={form.stock} onChange={(v) => setField("stock", v)} type="number" min="0" step="1" placeholder="0" />
-              </Field>
-              <Field label="Marketplace visibility">
-                <label className="flex items-center gap-2 h-9 px-3 rounded-lg cursor-pointer" style={{ background: T.bg, border: `1px solid ${T.border}` }}>
-                  <input
-                    type="checkbox"
-                    checked={form.active}
-                    onChange={(e) => setField("active", e.target.checked)}
-                    style={{ accentColor: T.navy }}
-                  />
-                  <span className="text-[12px] font-medium" style={{ color: T.ink }}>
-                    Live on marketplace
-                  </span>
-                </label>
               </Field>
             </div>
           </FormSection>
@@ -492,25 +678,18 @@ function Page() {
           ) : null}
 
           <Card>
-            <SectionLabel>Moderation</SectionLabel>
-            <p className="mt-2 text-[12px]" style={{ color: T.sub }}>
-              Quick actions without leaving the editor.
-            </p>
-            <div className="mt-3 flex flex-col gap-2">
-              {!product.active ? (
-                <ActionBtn disabled={modBusy} onClick={() => void moderate("APPROVED")} tone={T.success}>
-                  Approve listing
-                </ActionBtn>
-              ) : null}
-              {product.active ? (
-                <ActionBtn disabled={modBusy} onClick={() => void moderate("HIDDEN")}>
-                  Pause listing
-                </ActionBtn>
-              ) : null}
-              <ActionBtn disabled={modBusy} onClick={() => void moderate("REJECTED")} tone={T.danger}>
-                Delist product
-              </ActionBtn>
+            <SectionLabel>Status preview</SectionLabel>
+            <div className="mt-3 flex items-center gap-2">
+              {statusPillCatalog(previewStatus)}
+              <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: T.muted }}>
+                {form.moderationStatus}
+              </span>
             </div>
+            {form.moderationStatus === "REPORTED" && form.flagReason ? (
+              <p className="mt-2 text-[11.5px] leading-relaxed" style={{ color: T.sub }}>
+                {form.flagReason}
+              </p>
+            ) : null}
           </Card>
         </div>
       </div>
@@ -665,6 +844,33 @@ function Select({ value, onChange, children }: { value: string; onChange: (v: st
   );
 }
 
+function IconBtn({
+  children,
+  onClick,
+  disabled,
+  title,
+  danger,
+}: {
+  children: React.ReactNode;
+  onClick: () => void;
+  disabled?: boolean;
+  title: string;
+  danger?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      title={title}
+      disabled={disabled}
+      onClick={onClick}
+      className="size-7 grid place-items-center rounded-md disabled:opacity-30"
+      style={{ background: danger ? `${T.danger}ee` : "rgba(255,255,255,0.92)", color: danger ? "#fff" : T.ink }}
+    >
+      {children}
+    </button>
+  );
+}
+
 function MetaRow({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
   return (
     <div className="flex items-center justify-between gap-2">
@@ -676,33 +882,5 @@ function MetaRow({ label, value, mono }: { label: string; value: string; mono?: 
         {value}
       </dd>
     </div>
-  );
-}
-
-function ActionBtn({
-  children,
-  onClick,
-  disabled,
-  tone,
-}: {
-  children: React.ReactNode;
-  onClick: () => void;
-  disabled?: boolean;
-  tone?: string;
-}) {
-  return (
-    <button
-      type="button"
-      disabled={disabled}
-      onClick={onClick}
-      className="h-9 px-3 rounded-lg text-[12px] font-semibold disabled:opacity-50"
-      style={{
-        background: tone ? `${tone}14` : T.bg,
-        border: `1px solid ${tone ? `${tone}40` : T.border}`,
-        color: tone ?? T.ink,
-      }}
-    >
-      {children}
-    </button>
   );
 }

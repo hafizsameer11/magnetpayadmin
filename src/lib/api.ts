@@ -1042,8 +1042,20 @@ export async function fetchAdminSmsTemplates() {
   return api<AdminRecordRow[]>("/admin/sms-templates");
 }
 
-export async function moderateProduct(id: string, status: "APPROVED" | "HIDDEN" | "REJECTED") {
-  return api(`/admin/products/${id}/moderate`, { method: "POST", body: JSON.stringify({ status }) });
+export type ProductModerationStatus = "ACTIVE" | "PENDING" | "REPORTED" | "HIDDEN" | "REJECTED";
+
+export async function moderateProduct(
+  id: string,
+  status: "APPROVED" | "HIDDEN" | "REJECTED" | "PENDING" | "REPORTED",
+  flagReason?: string | null,
+) {
+  return api(`/admin/products/${id}/moderate`, {
+    method: "POST",
+    body: JSON.stringify({
+      status,
+      ...(flagReason !== undefined ? { flagReason } : {}),
+    }),
+  });
 }
 
 export type AdminProductUpdate = {
@@ -1061,6 +1073,10 @@ export type AdminProductUpdate = {
   leadTimeMax?: number | null;
   packagingType?: string | null;
   defaultIncoterm?: string | null;
+  imageUrl?: string | null;
+  mediaUrls?: string[];
+  moderationStatus?: ProductModerationStatus;
+  flagReason?: string | null;
 };
 
 export async function updateAdminProduct(id: string, data: AdminProductUpdate) {

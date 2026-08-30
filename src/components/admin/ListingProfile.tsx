@@ -28,7 +28,11 @@ export type ListingCatalogStatus = "active" | "pending" | "reported" | "draft" |
 const CNY_NGN_RATE = 229.04;
 
 export function listingCatalogStatus(product: AdminProduct): ListingCatalogStatus {
-  if (product.active) return "active";
+  const mod = product.moderationStatus?.toUpperCase();
+  if (mod === "REJECTED" || mod === "HIDDEN") return "delisted";
+  if (mod === "REPORTED") return "reported";
+  if (mod === "PENDING") return "pending";
+  if (mod === "ACTIVE" || product.active) return "active";
   const flagged = (product.reviews ?? []).some((r) => r.rating <= 2);
   if (flagged) return "reported";
   return "pending";
