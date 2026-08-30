@@ -26,7 +26,9 @@ Open the URL Vite prints (usually `http://localhost:5173`).
 |----------|-------------|
 | `VITE_API_URL` | Backend base URL. Local: `http://127.0.0.1:4000`. Production: `https://magnetpay.amctraders.online` |
 
-## Admin login (after API seed)
+## Admin login
+
+Create an admin user through the normal signup flow, or use a seeded admin account when running the API locally with `db:seed`:
 
 | Phone | Passcode |
 |-------|----------|
