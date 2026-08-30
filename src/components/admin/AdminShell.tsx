@@ -1,9 +1,10 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
-  LayoutDashboard, Users, ShieldCheck, Store, ShoppingBag, Wallet,
-  Coins, Lock, Gavel, Truck, MessageSquare, AlertTriangle, FileText,
-  Settings, Search, Bell, ChevronRight,
-  User, KeyRound, Building2, Languages, Moon, LifeBuoy, LogOut, Check,
+  LayoutDashboard, Users, ShieldCheck, Store, Tag, ClipboardList, Wallet,
+  ArrowLeftRight, ArrowDownToLine, ArrowUpFromLine, Coins, Lock, Gavel, Truck,
+  Calculator, Handshake, MessageSquare, AlertTriangle, Megaphone, Gauge, Percent,
+  BookOpen, FileSearch, Search, Bell, ChevronRight,
+  User, KeyRound, Building2, Languages, Moon, LifeBuoy, LogOut, Check, Settings,
 } from "lucide-react";
 import { useState, useEffect, type ReactNode } from "react";
 import { toast } from "sonner";
@@ -78,25 +79,25 @@ const NAV: NavItem[] = [
   { label: "KYC", to: "/admin/kyc", I: ShieldCheck },
   { label: "KYB", to: "/admin/kyb", I: Building2 },
   { label: "Sellers", to: "/admin/sellers", I: Store },
-  { label: "Listings", to: "/admin/listings", I: ShoppingBag },
-  { label: "Orders", to: "/admin/orders", I: ShoppingBag },
+  { label: "Listings", to: "/admin/listings", I: Tag },
+  { label: "Orders", to: "/admin/orders", I: ClipboardList },
   { label: "Wallets", to: "/admin/wallets", I: Wallet },
-  { label: "Transactions", to: "/admin/transactions", I: Wallet },
-  { label: "Deposits", to: "/admin/deposits", I: Wallet },
-  { label: "Withdrawals", to: "/admin/withdrawals", I: Wallet },
+  { label: "Transactions", to: "/admin/transactions", I: ArrowLeftRight },
+  { label: "Deposits", to: "/admin/deposits", I: ArrowDownToLine },
+  { label: "Withdrawals", to: "/admin/withdrawals", I: ArrowUpFromLine },
   { label: "FX", to: "/admin/fx/rates", I: Coins },
   { label: "Escrow", to: "/admin/escrow", I: Lock },
   { label: "Disputes", to: "/admin/disputes", I: Gavel },
   { label: "Shipments", to: "/admin/shipments", I: Truck },
-  { label: "Estimate settings", to: "/admin/logistics/pricing", I: Truck },
-  { label: "Logistics partners", to: "/admin/logistics/partners", I: Truck },
+  { label: "Estimate settings", to: "/admin/logistics/pricing", I: Calculator },
+  { label: "Logistics partners", to: "/admin/logistics/partners", I: Handshake },
   { label: "Chats", to: "/admin/chats", I: MessageSquare },
   { label: "AML", to: "/admin/aml", I: AlertTriangle },
-  { label: "Announcements", to: "/admin/announcements", I: FileText },
-  { label: "KYC limits", to: "/admin/limits", I: ShieldCheck },
-  { label: "Fees", to: "/admin/fees", I: Settings },
-  { label: "Ledger", to: "/admin/ledger", I: FileText },
-  { label: "Audit", to: "/admin/audit", I: FileText },
+  { label: "Announcements", to: "/admin/announcements", I: Megaphone },
+  { label: "KYC limits", to: "/admin/limits", I: Gauge },
+  { label: "Fees", to: "/admin/fees", I: Percent },
+  { label: "Ledger", to: "/admin/ledger", I: BookOpen },
+  { label: "Audit", to: "/admin/audit", I: FileSearch },
 ];
 
 export function AdminShell({

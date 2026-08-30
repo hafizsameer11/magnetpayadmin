@@ -269,6 +269,8 @@ export type AdminAnalytics = {
   users: number;
   users30d?: number;
   signups7d?: number;
+  signups24h?: number;
+  signupsToday?: number;
   activeBuyers30d?: number;
   transfers: number;
   escrows: number;
@@ -278,14 +280,34 @@ export type AdminAnalytics = {
   shipmentsInTransit?: number;
   delivered30d?: number;
   disputesOpen?: number;
+  disputesOpenPrev?: number;
   listingsLive?: number;
   verifiedStores?: number;
   fxOrders24h?: number;
+  fxVolume24h?: number;
+  fxVolumePrev24h?: number;
   kycPending?: number;
+  kycOverSla?: number;
   gmv30d?: number;
+  gmv24h?: number;
+  gmvPrev24h?: number;
   takeRate?: number;
   disputeRate?: number;
   wallets?: { balanceMinorSum?: string | number; holdMinorSum?: string | number };
+  sparklines?: {
+    gmv?: { label: string; value: number }[];
+    signups?: { label: string; value: number }[];
+    disputes?: { label: string; value: number }[];
+    fx?: { label: string; value: number }[];
+  };
+  alerts?: {
+    id: string;
+    severity: "critical" | "high" | "medium";
+    title: string;
+    detail: string;
+    href: string;
+  }[];
+  liveActivity?: { id: string; at: string; text: string; tone: "success" | "danger" | "info" }[];
 };
 
 export type AdminProductStats = {
