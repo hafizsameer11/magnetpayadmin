@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Search } from "lucide-react";
+import { Search, Store, LineChart, Star, AlertTriangle } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
-import { Pill } from "@/components/admin/UserProfile";
-import { fetchAdminSellers } from "@/lib/api";
+import { ActionMenu } from "@/components/admin/ActionMenu";
+import { Pill, initials } from "@/components/admin/UserProfile";
+import { fetchAdminSellers, fmtMoney, fromMinor, patchAdminSeller, type AdminSeller } from "@/lib/api";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/sellers/")({
@@ -13,63 +14,114 @@ export const Route = createFileRoute("/admin/sellers/")({
 
 type Tone = "success" | "warn" | "danger" | "info" | "neutral";
 
-function str(v: unknown, fallback = "—") {
-  if (v == null) return fallback;
-  return String(v);
+function fmtCompactUsd(minor: string | number) {
+  const n = fromMinor(minor);
+  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(2)}M`;
+  if (n >= 1_000) return `$${Math.round(n / 1_000)}K`;
+  return fmtMoney("USD", minor);
+}
+
+function tierTone(tier: string): Tone {
+  if (tier === "PLATINUM") return "info";
+  if (tier === "GOLD") return "warn";
+  if (tier === "SILVER") return "success";
+  return "neutral";
+}
+
+function statusTone(status: string): Tone {
+  if (status === "TOP SELLER") return "success";
+  if (status === "ACTIVE") return "info";
+  if (status === "HIGH RISK") return "danger";
+  if (status === "BLOCKED") return "danger";
+  return "warn";
 }
 
 function Page() {
-  const [rows, setRows] = useState<unknown[]>([]);
+  const [rows, setRows] = useState<AdminSeller[]>([]);
+  const [summary, setSummary] = useState({
+    activeSellers: 0,
+    gmv30dMinor: "0",
+    avgRating: 0,
+    flaggedBlocked: 0,
+  });
   const [query, setQuery] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  const load = () => {
+    setLoading(true);
+    void fetchAdminSellers()
+      .then((data) => {
+        setRows(data.sellers);
+        setSummary(data.summary);
+      })
+      .catch((e) => toast.error(e instanceof Error ? e.message : "Failed to load sellers"))
+      .finally(() => setLoading(false));
+  };
 
   useEffect(() => {
-    void fetchAdminSellers()
-      .then(setRows)
-      .catch((e) => toast.error(e instanceof Error ? e.message : "Failed to load sellers"));
+    load();
   }, []);
 
-  const filtered = rows.filter((raw) => {
+  const filtered = rows.filter((r) => {
     if (!query) return true;
-    const r = raw as Record<string, unknown>;
-    const user = (r.user ?? {}) as Record<string, unknown>;
     const q = query.toLowerCase();
     return (
-      str(r.name).toLowerCase().includes(q) ||
-      str(r.id).toLowerCase().includes(q) ||
-      str(user.name).toLowerCase().includes(q) ||
-      str(user.phone).includes(q)
+      r.name.toLowerCase().includes(q) ||
+      r.id.toLowerCase().includes(q) ||
+      (r.user?.name ?? "").toLowerCase().includes(q) ||
+      (r.user?.phone ?? "").includes(q) ||
+      (r.tier ?? "").toLowerCase().includes(q)
     );
   });
-
-  const verified = rows.filter((raw) => (raw as Record<string, unknown>).verified === true).length;
 
   return (
     <AdminShell
       title="Sellers"
-      description="Seller stores from the marketplace API."
+      description="Approved sellers across the platform. Tier, performance and risk at a glance."
       breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "People" }, { label: "Sellers" }]}
       actions={
         <>
-          <Link to="/admin/sellers/applications" className="h-9 px-3 rounded-lg flex items-center gap-1.5 text-[12px] font-semibold" style={{ background: T.surface, border: `1px solid ${T.border}`, color: T.ink }}>
+          <Link
+            to="/admin/sellers/applications"
+            className="h-9 px-3 rounded-lg flex items-center gap-1.5 text-[12px] font-semibold"
+            style={{ background: T.surface, border: `1px solid ${T.border}`, color: T.ink }}
+          >
             Applications
           </Link>
-          <Link to="/admin/sellers/payouts" className="h-9 px-3 rounded-lg flex items-center gap-1.5 text-[12px] font-bold text-white" style={{ background: T.navy }}>
+          <Link
+            to="/admin/sellers/tiers"
+            className="h-9 px-3 rounded-lg flex items-center gap-1.5 text-[12px] font-semibold"
+            style={{ background: T.surface, border: `1px solid ${T.border}`, color: T.ink }}
+          >
+            Tiers
+          </Link>
+          <Link
+            to="/admin/sellers/payouts"
+            className="h-9 px-3 rounded-lg flex items-center gap-1.5 text-[12px] font-bold text-white"
+            style={{ background: T.navy }}
+          >
             Payouts
           </Link>
         </>
       }
     >
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-5">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
         {[
-          { label: "Stores", val: rows.length },
-          { label: "Verified", val: verified, tone: T.success },
-          { label: "Unverified", val: rows.length - verified, tone: T.warn },
+          { I: Store, label: "Active sellers", val: String(summary.activeSellers), tone: T.success },
+          { I: LineChart, label: "GMV 30D", val: fmtCompactUsd(summary.gmv30dMinor), tone: T.info },
+          { I: Star, label: "Avg rating", val: summary.avgRating ? summary.avgRating.toFixed(2) : "—", tone: T.warn },
+          { I: AlertTriangle, label: "Flagged / blocked", val: String(summary.flaggedBlocked), tone: T.danger },
         ].map((s) => (
           <div key={s.label} className="rounded-xl p-3.5" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
-            <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em]" style={{ color: T.muted }}>
-              {s.label}
-            </p>
-            <p className="mt-2 text-[20px] font-bold tabular-nums" style={{ fontFamily: "'JetBrains Mono', monospace", color: s.tone ?? T.ink }}>
+            <div className="flex items-center gap-2">
+              <div className="size-7 rounded-md grid place-items-center" style={{ background: `${s.tone}14`, color: s.tone }}>
+                <s.I className="size-3.5" strokeWidth={2.4} />
+              </div>
+              <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em]" style={{ color: T.muted }}>
+                {s.label}
+              </p>
+            </div>
+            <p className="mt-2 text-[20px] font-bold tabular-nums leading-none" style={{ fontFamily: "'JetBrains Mono', monospace", color: T.ink }}>
               {s.val}
             </p>
           </div>
@@ -77,13 +129,13 @@ function Page() {
       </div>
 
       <div className="flex items-center gap-2 mb-4">
-        <div className="flex items-center gap-2 h-9 px-3 rounded-lg w-[280px]" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
-          <Search className="size-3.5" style={{ color: T.muted }} />
+        <div className="flex items-center gap-2 h-9 px-3 rounded-lg flex-1 max-w-md" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
+          <Search className="size-3.5 shrink-0" style={{ color: T.muted }} />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search seller…"
-            className="bg-transparent text-[12px] outline-none flex-1"
+            className="bg-transparent text-[12px] outline-none flex-1 min-w-0"
             style={{ color: T.ink }}
           />
         </div>
@@ -91,63 +143,136 @@ function Page() {
 
       <div className="rounded-xl overflow-hidden" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
         <div
-          className="grid items-center px-4 h-9 text-[10px] font-bold uppercase tracking-[0.14em]"
+          className="grid items-center px-4 h-9 text-[10px] font-bold uppercase tracking-[0.14em] overflow-x-auto"
           style={{
             color: T.muted,
             background: T.bg,
             borderBottom: `1px solid ${T.border}`,
-            gridTemplateColumns: "2fr 1.4fr 1fr 1fr 1fr",
+            gridTemplateColumns: "minmax(200px,2.2fr) 0.6fr 0.8fr 0.9fr 0.8fr 1fr 0.7fr 1fr 40px",
+            minWidth: 980,
           }}
         >
-          <span>Store</span>
-          <span>Owner</span>
-          <span className="text-right">Products</span>
+          <span>Seller</span>
+          <span>Country</span>
+          <span>Tier</span>
+          <span>Rating</span>
+          <span className="text-right">Orders 30D</span>
+          <span className="text-right">GMV 30D</span>
+          <span className="text-right">Dispute %</span>
           <span>Status</span>
-          <span>Created</span>
+          <span />
         </div>
-        {filtered.map((raw, i) => {
-          const r = raw as Record<string, unknown>;
-          const user = (r.user ?? {}) as Record<string, unknown>;
-          const products = (r._count as { products?: number } | undefined)?.products ?? 0;
-          const verifiedFlag = r.verified === true;
-          const tone: Tone = verifiedFlag ? "success" : "warn";
-          const id = str(r.id);
-          return (
-            <div
-              key={id}
-              className="grid items-center px-4 h-[56px] text-[12px]"
-              style={{
-                gridTemplateColumns: "2fr 1.4fr 1fr 1fr 1fr",
-                borderBottom: i < filtered.length - 1 ? `1px solid ${T.border}` : "none",
-              }}
-            >
-              <div className="min-w-0">
-                <Link to="/admin/sellers/$id" params={{ id }} className="font-semibold truncate hover:underline block" style={{ color: T.navy }}>
-                  {str(r.name)}
-                </Link>
-                <p className="text-[10.5px] tabular-nums" style={{ color: T.muted, fontFamily: "'JetBrains Mono', monospace" }}>
-                  {id.slice(0, 8)}
-                </p>
+
+        {loading ? (
+          <p className="p-8 text-center text-[12px]" style={{ color: T.muted }}>
+            Loading sellers…
+          </p>
+        ) : null}
+
+        {!loading &&
+          filtered.map((r, i) => {
+            const owner = r.user;
+            const tier = r.tier ?? "NEW";
+            const status = r.status ?? "PENDING";
+            return (
+              <div
+                key={r.id}
+                className="grid items-center px-4 min-h-[60px] text-[12px] overflow-x-auto"
+                style={{
+                  gridTemplateColumns: "minmax(200px,2.2fr) 0.6fr 0.8fr 0.9fr 0.8fr 1fr 0.7fr 1fr 40px",
+                  minWidth: 980,
+                  borderBottom: i < filtered.length - 1 ? `1px solid ${T.border}` : "none",
+                }}
+              >
+                <div className="flex items-center gap-2.5 min-w-0 py-2">
+                  <div
+                    className="size-9 rounded-full grid place-items-center shrink-0 text-[11px] font-bold"
+                    style={{ background: `${T.navy}10`, color: T.navy }}
+                  >
+                    {initials(r.name)}
+                  </div>
+                  <div className="min-w-0">
+                    <Link to="/admin/sellers/$id" params={{ id: r.id }} className="font-semibold truncate hover:underline block" style={{ color: T.ink }}>
+                      {r.name}
+                    </Link>
+                    <p className="text-[10px] tabular-nums truncate" style={{ color: T.muted, fontFamily: "'JetBrains Mono', monospace" }}>
+                      SE-{r.id.slice(0, 6).toUpperCase()} · U-{owner?.id.slice(0, 5).toUpperCase() ?? "—"}
+                    </p>
+                  </div>
+                </div>
+                <span className="tabular-nums font-semibold" style={{ fontFamily: "'JetBrains Mono', monospace", color: T.sub }}>
+                  {r.country ?? "—"}
+                </span>
+                <Pill tone={tierTone(tier)}>{tier}</Pill>
+                <span className="tabular-nums" style={{ fontFamily: "'JetBrains Mono', monospace", color: T.ink }}>
+                  {r.rating ? (
+                    <>
+                      <Star className="inline size-3 mr-0.5 -mt-0.5" strokeWidth={2.4} style={{ color: T.warn }} />
+                      {r.rating.toFixed(1)}
+                      <span style={{ color: T.muted }}> ({r.reviewCount ?? 0})</span>
+                    </>
+                  ) : (
+                    "—"
+                  )}
+                </span>
+                <span className="text-right tabular-nums font-semibold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                  {r.orders30d ?? 0}
+                </span>
+                <span className="text-right tabular-nums font-semibold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                  {r.gmv30Minor ? fmtMoney("USD", r.gmv30Minor) : "—"}
+                </span>
+                <span
+                  className="text-right tabular-nums font-semibold"
+                  style={{
+                    fontFamily: "'JetBrains Mono', monospace",
+                    color: (r.disputePct ?? 0) >= 3 ? T.danger : T.sub,
+                  }}
+                >
+                  {(r.disputePct ?? 0).toFixed(1)}%
+                </span>
+                <Pill tone={statusTone(status)}>{status}</Pill>
+                <ActionMenu
+                  label={`Actions for ${r.name}`}
+                  items={[
+                    {
+                      id: "view",
+                      label: "View profile",
+                      onClick: () => {
+                        window.location.href = `/admin/sellers/${r.id}`;
+                      },
+                    },
+                    {
+                      id: "verify",
+                      label: r.verified ? "Mark unverified" : "Mark verified",
+                      onClick: () => {
+                        void patchAdminSeller(r.id, { verified: !r.verified })
+                          .then(() => {
+                            toast.success(r.verified ? "Seller unverified" : "Seller verified");
+                            load();
+                          })
+                          .catch((e) => toast.error(e instanceof Error ? e.message : "Update failed"));
+                      },
+                    },
+                    ...(owner
+                      ? [
+                          {
+                            id: "owner",
+                            label: "View owner",
+                            onClick: () => {
+                              window.location.href = `/admin/users/${owner.id}`;
+                            },
+                          },
+                        ]
+                      : []),
+                  ]}
+                />
               </div>
-              <div className="min-w-0">
-                <p className="truncate">{str(user.name)}</p>
-                <p className="text-[10.5px] tabular-nums truncate" style={{ color: T.muted, fontFamily: "'JetBrains Mono', monospace" }}>
-                  {str(user.phone)}
-                </p>
-              </div>
-              <span className="text-right tabular-nums font-semibold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                {products}
-              </span>
-              <Pill tone={tone}>{verifiedFlag ? "Verified" : "Unverified"}</Pill>
-              <span className="tabular-nums text-[11px]" style={{ color: T.sub, fontFamily: "'JetBrains Mono', monospace" }}>
-                {r.createdAt ? new Date(String(r.createdAt)).toLocaleDateString() : "—"}
-              </span>
-            </div>
-          );
-        })}
-        {!filtered.length ? (
+            );
+          })}
+
+        {!loading && !filtered.length ? (
           <p className="p-6 text-center text-[12px]" style={{ color: T.muted }}>
-            No sellers yet.
+            No sellers match your search.
           </p>
         ) : null}
       </div>

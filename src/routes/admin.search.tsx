@@ -171,17 +171,18 @@ function AdminSearch() {
           });
         }
 
-        for (const raw of sellers) {
+        for (const raw of sellers.sellers) {
           const r = raw as Record<string, unknown>;
           const user = (r.user ?? {}) as Record<string, unknown>;
           const id = str(r.id);
           hits.push({
             kind: "seller",
             id,
-            title: str(user.name, "Seller"),
-            subtitle: str(r.storeName ?? r.companyName, "—"),
-            href: `/admin/sellers`,
-            to: "/admin/sellers",
+            title: str(r.name, str(user.name, "Seller")),
+            subtitle: str(user.phone, "—"),
+            href: `/admin/sellers/${id}`,
+            to: "/admin/sellers/$id",
+            params: { id },
           });
         }
 

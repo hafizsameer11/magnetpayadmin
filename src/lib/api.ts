@@ -969,10 +969,30 @@ export type AdminSeller = {
     createdAt: string;
   }[];
   _count?: { products: number; members?: number };
+  country?: string;
+  tier?: string;
+  rating?: number;
+  reviewCount?: number;
+  orders30d?: number;
+  gmv30Minor?: string;
+  disputePct?: number;
+  disputes?: number;
+  status?: string;
+  kybStatus?: string;
+};
+
+export type AdminSellersOverview = {
+  summary: {
+    activeSellers: number;
+    gmv30dMinor: string;
+    avgRating: number;
+    flaggedBlocked: number;
+  };
+  sellers: AdminSeller[];
 };
 
 export async function fetchAdminSellers() {
-  return api<AdminSeller[]>("/admin/sellers");
+  return api<AdminSellersOverview>("/admin/sellers");
 }
 
 export async function fetchAdminSeller(id: string) {
