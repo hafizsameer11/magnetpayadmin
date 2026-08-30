@@ -16,14 +16,9 @@ export function KPI({
   tone?: "default" | "success" | "warn" | "danger" | "info";
   mono?: boolean;
 }) {
-  const c =
-    tone === "success" ? T.success :
-    tone === "warn" ? T.warn :
-    tone === "danger" ? T.danger :
-    tone === "info" ? T.info : T.ink;
   return (
     <div className="rounded-xl p-4" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
-      <p className="text-[10px] font-bold uppercase tracking-[0.16em]" style={{ color: T.muted }}>{label}</p>
+      <p className="text-[10px] font-bold uppercase tracking-[0.16em]" style={{ color: T.ink }}>{label}</p>
       <p
         className="mt-1.5 text-[20px] font-bold tabular-nums"
         style={{ color: T.ink, fontFamily: mono ? "'JetBrains Mono', monospace" : "inherit" }}
@@ -31,7 +26,7 @@ export function KPI({
         {value}
       </p>
       {delta ? (
-        <p className="mt-0.5 text-[11px] font-bold tabular-nums" style={{ color: c, fontFamily: "'JetBrains Mono', monospace" }}>
+        <p className="mt-0.5 text-[11px] font-bold tabular-nums" style={{ color: T.muted, fontFamily: "'JetBrains Mono', monospace" }}>
           {delta}
         </p>
       ) : null}

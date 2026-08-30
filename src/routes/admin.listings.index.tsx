@@ -326,7 +326,7 @@ function Page() {
               <div className="size-7 rounded-md grid place-items-center shrink-0" style={{ background: `${s.tone}14`, color: s.tone }}>
                 <s.I className="size-3.5" strokeWidth={2.4} />
               </div>
-              <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em]" style={{ color: T.muted }}>
+              <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em]" style={{ color: T.ink }}>
                 {s.label}
               </p>
             </div>
@@ -334,7 +334,7 @@ function Page() {
               {s.val}
             </p>
             {s.delta ? (
-              <p className="mt-1 text-[10.5px]" style={{ color: s.tone }}>
+              <p className="mt-1 text-[10.5px]" style={{ color: T.muted }}>
                 {s.delta}
               </p>
             ) : null}

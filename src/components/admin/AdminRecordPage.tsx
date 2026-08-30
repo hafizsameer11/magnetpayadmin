@@ -145,8 +145,8 @@ export function AdminRecordListPage({ domain }: { domain: string }) {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
         {kpis.map((k) => (
           <div key={k.label} className="rounded-xl p-3.5" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
-            <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em]" style={{ color: T.muted }}>{k.label}</p>
-            <p className="mt-1.5 text-[22px] font-bold tabular-nums leading-none" style={{ fontFamily: "'JetBrains Mono', monospace", color: k.tone ?? T.ink }}>
+            <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em]" style={{ color: T.ink }}>{k.label}</p>
+            <p className="mt-1.5 text-[22px] font-bold tabular-nums leading-none" style={{ fontFamily: "'JetBrains Mono', monospace", color: T.ink }}>
               {loading ? "…" : k.val}
             </p>
           </div>

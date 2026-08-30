@@ -51,8 +51,8 @@ function Page() {
           { label: "Completed", val: loading ? "…" : String(rows.filter((r) => String((r as Record<string, unknown>).status).toUpperCase() === "COMPLETED").length), tone: T.success },
         ].map((s) => (
           <div key={s.label} className="rounded-xl p-3.5" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
-            <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em]" style={{ color: T.muted }}>{s.label}</p>
-            <p className="mt-2 text-[20px] font-bold tabular-nums" style={{ fontFamily: "'JetBrains Mono', monospace", color: s.tone ?? T.ink }}>{s.val}</p>
+            <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em]" style={{ color: T.ink }}>{s.label}</p>
+            <p className="mt-2 text-[20px] font-bold tabular-nums" style={{ fontFamily: "'JetBrains Mono', monospace", color: T.ink }}>{s.val}</p>
           </div>
         ))}
       </div>

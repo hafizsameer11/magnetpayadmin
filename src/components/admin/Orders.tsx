@@ -149,9 +149,9 @@ export function statusPillOrder(s: OrderStatus) {
 export function KPI({ label, value, hint, tone = T.ink }: { label: string; value: ReactNode; hint?: string; tone?: string }) {
   return (
     <Card>
-      <p className="text-[10px] font-bold uppercase tracking-[0.16em]" style={{ color: T.muted }}>{label}</p>
-      <p className="mt-1.5 text-[20px] font-bold tabular-nums" style={{ color: tone, fontFamily: "'JetBrains Mono', monospace" }}>{value}</p>
-      {hint && <p className="mt-0.5 text-[11px]" style={{ color: T.sub }}>{hint}</p>}
+      <p className="text-[10px] font-bold uppercase tracking-[0.16em]" style={{ color: T.ink }}>{label}</p>
+      <p className="mt-1.5 text-[20px] font-bold tabular-nums" style={{ color: T.ink, fontFamily: "'JetBrains Mono', monospace" }}>{value}</p>
+      {hint && <p className="mt-0.5 text-[11px]" style={{ color: T.muted }}>{hint}</p>}
     </Card>
   );
 }

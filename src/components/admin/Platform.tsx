@@ -291,12 +291,11 @@ export function Section({ title, children, right }: { title: string; children: R
 }
 
 export function KPI({ label, value, sub, tone }: { label: string; value: string; sub?: string; tone?: "good" | "bad" | "warn" }) {
-  const color = tone === "good" ? T.success : tone === "bad" ? T.danger : tone === "warn" ? T.warn : T.ink;
   return (
     <div style={card} className="p-4">
-      <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em]" style={{ color: T.muted }}>{label}</p>
-      <p className="mt-1.5 text-[22px] font-bold tabular-nums" style={{ color, fontFamily: "'JetBrains Mono', monospace" }}>{value}</p>
-      {sub && <p className="mt-0.5 text-[11px]" style={{ color: T.sub }}>{sub}</p>}
+      <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em]" style={{ color: T.ink }}>{label}</p>
+      <p className="mt-1.5 text-[22px] font-bold tabular-nums" style={{ color: T.ink, fontFamily: "'JetBrains Mono', monospace" }}>{value}</p>
+      {sub && <p className="mt-0.5 text-[11px]" style={{ color: T.muted }}>{sub}</p>}
     </div>
   );
 }

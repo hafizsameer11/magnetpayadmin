@@ -270,12 +270,11 @@ export function Panel({ title, action, children }: { title: string; action?: Rea
 }
 
 export function KPI({ label, value, sub, tone = "default" }: { label: string; value: string; sub?: string; tone?: "default" | "success" | "warn" | "info" }) {
-  const c = tone === "success" ? T.success : tone === "warn" ? T.warn : tone === "info" ? T.info : T.ink;
   return (
     <div className="rounded-xl p-4" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
-      <p className="text-[10px] font-bold uppercase tracking-[0.16em]" style={{ color: T.muted }}>{label}</p>
-      <p className="mt-1.5 text-[20px] font-bold tabular-nums" style={{ color: c, fontFamily: "'JetBrains Mono', monospace" }}>{value}</p>
-      {sub && <p className="mt-0.5 text-[11px]" style={{ color: T.sub }}>{sub}</p>}
+      <p className="text-[10px] font-bold uppercase tracking-[0.16em]" style={{ color: T.ink }}>{label}</p>
+      <p className="mt-1.5 text-[20px] font-bold tabular-nums" style={{ color: T.ink, fontFamily: "'JetBrains Mono', monospace" }}>{value}</p>
+      {sub && <p className="mt-0.5 text-[11px]" style={{ color: T.muted }}>{sub}</p>}
     </div>
   );
 }

@@ -23,11 +23,11 @@ export function KpiStrip({ items, cols = 4 }: { items: KpiItem[]; cols?: 2 | 3 |
                 <s.Icon className="size-3.5" strokeWidth={2.4} />
               </div>
             ) : null}
-            <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em]" style={{ color: T.muted }}>
+            <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em]" style={{ color: T.ink }}>
               {s.label}
             </p>
           </div>
-          <p className="mt-2 text-[20px] font-bold tabular-nums leading-none" style={{ fontFamily: "'JetBrains Mono', monospace", color: s.tone ?? T.ink }}>
+          <p className="mt-2 text-[20px] font-bold tabular-nums leading-none" style={{ fontFamily: "'JetBrains Mono', monospace", color: T.ink }}>
             {s.value}
           </p>
           {s.delta ? (
