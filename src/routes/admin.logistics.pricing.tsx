@@ -10,6 +10,7 @@ import {
   patchAdminParcelType,
   previewAdminParcelEstimate,
   putAdminLogisticsEstimateConfig,
+  type AdminLogisticsEstimateConfig,
   type AdminParcelType,
 } from "@/lib/api";
 import { toast } from "sonner";
@@ -23,6 +24,13 @@ function Page() {
   const [types, setTypes] = useState<AdminParcelType[]>([]);
   const [fxRate, setFxRate] = useState("165000");
   const [disclaimer, setDisclaimer] = useState("");
+  const [originHubs, setOriginHubs] = useState<NonNullable<AdminLogisticsEstimateConfig["originHubs"]>>([]);
+  const [packagingTypes, setPackagingTypes] = useState<NonNullable<AdminLogisticsEstimateConfig["packagingTypes"]>>([]);
+  const [cnyPerCbm, setCnyPerCbm] = useState("320");
+  const [defaultDestination, setDefaultDestination] = useState("Apapa, Lagos");
+  const [transitLabel, setTransitLabel] = useState("26–32 days");
+  const [modeLabel, setModeLabel] = useState("sea LCL");
+  const [productFootnote, setProductFootnote] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [previewTypeId, setPreviewTypeId] = useState("");
@@ -38,6 +46,13 @@ function Page() {
       ]);
       setFxRate(String(config.usdNgnEstimateRate));
       setDisclaimer(config.estimateDisclaimer);
+      setOriginHubs(config.originHubs ?? []);
+      setPackagingTypes(config.packagingTypes ?? []);
+      setCnyPerCbm(String(config.productSeaLclCnyPerCbm ?? 320));
+      setDefaultDestination(config.productDefaultDestination ?? "Apapa, Lagos");
+      setTransitLabel(config.productSeaTransitLabel ?? "26–32 days");
+      setModeLabel(config.productEstimateModeLabel ?? "sea LCL");
+      setProductFootnote(config.productEstimateFootnote ?? "");
       setTypes(parcelTypes);
       if (parcelTypes[0] && !previewTypeId) setPreviewTypeId(parcelTypes[0].id);
     } catch (e) {
@@ -57,8 +72,15 @@ function Page() {
       await putAdminLogisticsEstimateConfig({
         usdNgnEstimateRate: Number(fxRate),
         estimateDisclaimer: disclaimer.trim(),
+        originHubs,
+        packagingTypes,
+        productSeaLclCnyPerCbm: Number(cnyPerCbm),
+        productDefaultDestination: defaultDestination.trim(),
+        productSeaTransitLabel: transitLabel.trim(),
+        productEstimateModeLabel: modeLabel.trim(),
+        productEstimateFootnote: productFootnote.trim() || null,
       });
-      toast.success("Estimate config saved");
+      toast.success("Logistics settings saved");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Save failed");
     } finally {
@@ -129,7 +151,7 @@ function Page() {
           style={{ background: T.navy }}
         >
           {saving ? <Loader2 className="size-3.5 animate-spin" /> : <Save className="size-3.5" />}
-          Save FX & disclaimer
+          Save all settings
         </button>
       }
     >
@@ -163,6 +185,175 @@ function Page() {
                     value={disclaimer}
                     onChange={(e) => setDisclaimer(e.target.value)}
                     rows={3}
+                    className="mt-1 w-full px-2 py-2 rounded-md text-[12px] outline-none resize-y"
+                    style={{ background: T.bg, border: `1px solid ${T.border}` }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-xl overflow-hidden" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
+              <div
+                className="px-4 h-9 flex items-center justify-between"
+                style={{ color: T.muted, background: T.bg, borderBottom: `1px solid ${T.border}` }}
+              >
+                <span className="text-[10px] font-bold uppercase tracking-[0.14em]">Drop-off cities (seller & buyer)</span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setOriginHubs((prev) => [
+                      ...prev,
+                      { code: `H${prev.length + 1}`, city: "New city", hub: "MagnetPay hub", active: true, sortOrder: prev.length },
+                    ])
+                  }
+                  className="h-7 px-2 rounded-md text-[11px] font-semibold flex items-center gap-1"
+                  style={{ background: T.surface, border: `1px solid ${T.border}`, color: T.ink }}
+                >
+                  <Plus className="size-3" /> Add hub
+                </button>
+              </div>
+              {originHubs.map((row, i) => (
+                <div
+                  key={`${row.code}-${i}`}
+                  className="px-4 py-3 grid gap-2 md:grid-cols-[80px_1fr_1.2fr_72px]"
+                  style={{ borderBottom: i < originHubs.length - 1 ? `1px solid ${T.border}` : "none" }}
+                >
+                  <input
+                    value={row.code}
+                    onChange={(e) =>
+                      setOriginHubs((prev) => prev.map((h, x) => (x === i ? { ...h, code: e.target.value } : h)))
+                    }
+                    placeholder="Code"
+                    className="h-9 px-2 rounded-md text-[12px] font-semibold uppercase"
+                    style={{ background: T.bg, border: `1px solid ${T.border}` }}
+                  />
+                  <input
+                    value={row.city}
+                    onChange={(e) =>
+                      setOriginHubs((prev) => prev.map((h, x) => (x === i ? { ...h, city: e.target.value } : h)))
+                    }
+                    placeholder="City"
+                    className="h-9 px-2 rounded-md text-[12px] font-semibold"
+                    style={{ background: T.bg, border: `1px solid ${T.border}` }}
+                  />
+                  <input
+                    value={row.hub}
+                    onChange={(e) =>
+                      setOriginHubs((prev) => prev.map((h, x) => (x === i ? { ...h, hub: e.target.value } : h)))
+                    }
+                    placeholder="Hub label"
+                    className="h-9 px-2 rounded-md text-[12px]"
+                    style={{ background: T.bg, border: `1px solid ${T.border}` }}
+                  />
+                  <label className="flex items-center gap-1.5 text-[11px] font-semibold" style={{ color: T.sub }}>
+                    <input
+                      type="checkbox"
+                      checked={row.active}
+                      onChange={(e) =>
+                        setOriginHubs((prev) => prev.map((h, x) => (x === i ? { ...h, active: e.target.checked } : h)))
+                      }
+                    />
+                    Active
+                  </label>
+                </div>
+              ))}
+            </div>
+
+            <div className="rounded-xl overflow-hidden" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
+              <div
+                className="px-4 h-9 flex items-center justify-between"
+                style={{ color: T.muted, background: T.bg, borderBottom: `1px solid ${T.border}` }}
+              >
+                <span className="text-[10px] font-bold uppercase tracking-[0.14em]">Packaging types (seller product wizard)</span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setPackagingTypes((prev) => [...prev, { name: "New type", active: true, sortOrder: prev.length }])
+                  }
+                  className="h-7 px-2 rounded-md text-[11px] font-semibold flex items-center gap-1"
+                  style={{ background: T.surface, border: `1px solid ${T.border}`, color: T.ink }}
+                >
+                  <Plus className="size-3" /> Add
+                </button>
+              </div>
+              {packagingTypes.map((row, i) => (
+                <div
+                  key={`${row.name}-${i}`}
+                  className="px-4 py-3 grid gap-2 md:grid-cols-[1fr_72px]"
+                  style={{ borderBottom: i < packagingTypes.length - 1 ? `1px solid ${T.border}` : "none" }}
+                >
+                  <input
+                    value={row.name}
+                    onChange={(e) =>
+                      setPackagingTypes((prev) => prev.map((p, x) => (x === i ? { ...p, name: e.target.value } : p)))
+                    }
+                    className="h-9 px-2 rounded-md text-[12px] font-semibold"
+                    style={{ background: T.bg, border: `1px solid ${T.border}` }}
+                  />
+                  <label className="flex items-center gap-1.5 text-[11px] font-semibold" style={{ color: T.sub }}>
+                    <input
+                      type="checkbox"
+                      checked={row.active}
+                      onChange={(e) =>
+                        setPackagingTypes((prev) => prev.map((p, x) => (x === i ? { ...p, active: e.target.checked } : p)))
+                      }
+                    />
+                    Active
+                  </label>
+                </div>
+              ))}
+            </div>
+
+            <div className="rounded-xl overflow-hidden" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
+              <div
+                className="px-4 h-9 flex items-center text-[10px] font-bold uppercase tracking-[0.14em]"
+                style={{ color: T.muted, background: T.bg, borderBottom: `1px solid ${T.border}` }}
+              >
+                Seller product shipping preview
+              </div>
+              <div className="p-4 grid gap-3 md:grid-cols-2">
+                <div>
+                  <label className="text-[11px] font-bold">Sea LCL ¥ per CBM</label>
+                  <input
+                    value={cnyPerCbm}
+                    onChange={(e) => setCnyPerCbm(e.target.value)}
+                    className="mt-1 w-full h-9 px-2 rounded-md text-[12px] tabular-nums font-semibold"
+                    style={{ background: T.bg, border: `1px solid ${T.border}`, fontFamily: "'JetBrains Mono', monospace" }}
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] font-bold">Mode label (buyer sees)</label>
+                  <input
+                    value={modeLabel}
+                    onChange={(e) => setModeLabel(e.target.value)}
+                    className="mt-1 w-full h-9 px-2 rounded-md text-[12px] font-semibold"
+                    style={{ background: T.bg, border: `1px solid ${T.border}` }}
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] font-bold">Default destination</label>
+                  <input
+                    value={defaultDestination}
+                    onChange={(e) => setDefaultDestination(e.target.value)}
+                    className="mt-1 w-full h-9 px-2 rounded-md text-[12px] font-semibold"
+                    style={{ background: T.bg, border: `1px solid ${T.border}` }}
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] font-bold">Transit label</label>
+                  <input
+                    value={transitLabel}
+                    onChange={(e) => setTransitLabel(e.target.value)}
+                    className="mt-1 w-full h-9 px-2 rounded-md text-[12px] font-semibold"
+                    style={{ background: T.bg, border: `1px solid ${T.border}` }}
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="text-[11px] font-bold">Product estimate footnote</label>
+                  <textarea
+                    value={productFootnote}
+                    onChange={(e) => setProductFootnote(e.target.value)}
+                    rows={2}
                     className="mt-1 w-full px-2 py-2 rounded-md text-[12px] outline-none resize-y"
                     style={{ background: T.bg, border: `1px solid ${T.border}` }}
                   />

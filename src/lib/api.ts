@@ -174,6 +174,13 @@ export type AdminLogisticsEstimateConfig = {
   id: string;
   usdNgnEstimateRate: number;
   estimateDisclaimer: string;
+  originHubs?: { code: string; city: string; hub: string; active: boolean; sortOrder: number }[];
+  packagingTypes?: { name: string; active: boolean; sortOrder: number }[];
+  productSeaLclCnyPerCbm?: number;
+  productDefaultDestination?: string;
+  productSeaTransitLabel?: string;
+  productEstimateModeLabel?: string;
+  productEstimateFootnote?: string | null;
   updatedAt: string;
 };
 
@@ -588,6 +595,13 @@ export async function fetchAdminLogisticsEstimateConfig() {
 export async function putAdminLogisticsEstimateConfig(body: {
   usdNgnEstimateRate: number;
   estimateDisclaimer: string;
+  originHubs?: AdminLogisticsEstimateConfig["originHubs"];
+  packagingTypes?: AdminLogisticsEstimateConfig["packagingTypes"];
+  productSeaLclCnyPerCbm?: number;
+  productDefaultDestination?: string;
+  productSeaTransitLabel?: string;
+  productEstimateModeLabel?: string;
+  productEstimateFootnote?: string | null;
 }) {
   return api<AdminLogisticsEstimateConfig>("/admin/logistics/estimate-config", {
     method: "PUT",
