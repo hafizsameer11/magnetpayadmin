@@ -23,6 +23,7 @@ import {
   DropdownMenuSubContent,
   DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu";
+import { AdminBrandLink } from "@/components/admin/AdminBrand";
 
 
 // MagnetPay Hub tokens (light defaults; dark applied via proxy when appearance changes)
@@ -214,18 +215,7 @@ export function AdminShell({
           style={{ background: T.navy, color: "#EFE9D9" }}
         >
           <div className="px-4 pt-6 pb-6">
-            <Link to="/admin" className="flex items-center gap-2">
-              <img src="/logo.svg" alt="MagnetPay" className="h-7 w-auto" />
-              <div>
-                <p className="text-[13px] font-bold leading-tight">MagnetPay</p>
-                <p
-                  className="text-[9px] font-semibold uppercase tracking-[0.18em]"
-                  style={{ color: "#C8C2B0" }}
-                >
-                  Admin
-                </p>
-              </div>
-            </Link>
+            <AdminBrandLink compact />
           </div>
           <nav className="px-3 flex-1 space-y-0.5 overflow-y-auto pb-4">
             {NAV.map((n) => {
@@ -233,6 +223,7 @@ export function AdminShell({
                 n.to === "/admin"
                   ? path === "/admin"
                   : path === n.to || path.startsWith(n.to + "/");
+              const NavIcon = n.I;
               return (
                 <Link
                   key={n.label}
@@ -243,7 +234,11 @@ export function AdminShell({
                     color: active ? "#fff" : "#C8C2B0",
                   }}
                 >
-                  <n.I className="size-4" strokeWidth={active ? 2.4 : 2} />
+                  <NavIcon
+                    className="size-[18px] shrink-0"
+                    strokeWidth={active ? 2.35 : 2.15}
+                    absoluteStrokeWidth
+                  />
                   {n.label}
                   {active && (
                     <span

@@ -1,7 +1,7 @@
-import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { T } from "./AdminShell";
 import { ShieldCheck } from "lucide-react";
+import { AdminBrandLink, AdminBrandMark, AdminBrandWordmark } from "@/components/admin/AdminBrand";
 
 export function AdminAuthLayout({
   title,
@@ -29,18 +29,7 @@ export function AdminAuthLayout({
           className="hidden md:flex w-[44%] max-w-[560px] flex-col justify-between p-10"
           style={{ background: T.navy, color: "#EFE9D9" }}
         >
-          <Link to="/admin" className="flex items-center gap-2.5">
-            <img src="/logo.svg" alt="MagnetPay" className="h-9 w-auto brightness-0 invert" />
-            <div>
-              <p className="text-[15px] font-bold leading-tight">MagnetPay</p>
-              <p
-                className="text-[9.5px] font-semibold uppercase tracking-[0.18em]"
-                style={{ color: "#C8C2B0" }}
-              >
-                Admin Console
-              </p>
-            </div>
-          </Link>
+          <AdminBrandLink />
 
           <div className="space-y-5">
             <div
@@ -91,10 +80,8 @@ export function AdminAuthLayout({
         <main className="flex-1 flex items-center justify-center p-6">
           <div className="w-full max-w-[400px]">
             <div className="md:hidden mb-8 flex items-center gap-2.5">
-              <img src="/logo.svg" alt="MagnetPay" className="h-9 w-auto" />
-              <div>
-                <p className="text-[14px] font-bold leading-tight">MagnetPay Admin</p>
-              </div>
+              <AdminBrandMark className="h-9 w-auto shrink-0" />
+              <AdminBrandWordmark />
             </div>
 
             <h1 className="text-[24px] font-bold leading-tight">{title}</h1>

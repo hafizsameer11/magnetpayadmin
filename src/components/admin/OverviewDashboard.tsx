@@ -62,6 +62,7 @@ function KpiSparkCard({
   trend?: "up" | "down" | "neutral";
 }) {
   const TrendIcon = trend === "down" ? TrendingDown : TrendingUp;
+  const MetricIcon = Icon;
 
   return (
     <div className="rounded-xl p-3.5 flex flex-col min-h-[128px]" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
@@ -69,7 +70,7 @@ function KpiSparkCard({
         className="size-7 rounded-lg grid place-items-center shrink-0"
         style={{ background: `${tone}14`, color: tone }}
       >
-        <Icon className="size-3.5" strokeWidth={2.4} />
+        <MetricIcon className="size-3.5" strokeWidth={2.35} absoluteStrokeWidth />
       </div>
       <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.16em]" style={{ color: T.muted }}>
         {label}
@@ -83,7 +84,7 @@ function KpiSparkCard({
       <div className="mt-auto pt-2 flex items-end justify-between gap-2">
         <div className="flex items-center gap-1 min-w-0">
           {trend !== "neutral" ? (
-            <TrendIcon className="size-3 shrink-0" strokeWidth={2.6} style={{ color: tone }} />
+            <TrendIcon className="size-3 shrink-0" strokeWidth={2.6} absoluteStrokeWidth style={{ color: tone }} />
           ) : null}
           <p className="text-[10.5px] font-bold tabular-nums truncate" style={{ color: tone, fontFamily: "'JetBrains Mono', monospace" }}>
             {delta}
