@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Search, Building2, Clock, CheckCircle2, Ban } from "lucide-react";
+import { Search, Building2, Clock, CheckCircle2, Ban, RefreshCw } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
 import { Pill } from "@/components/admin/UserProfile";
 import { decideKyb, fetchAdminKyb } from "@/lib/api";
@@ -25,12 +25,22 @@ type KybRow = {
   tone: Tone;
 };
 
+function mapKybStatus(status: string) {
+  if (status === "SUBMITTED") return { label: "Pending", tone: "warn" as Tone };
+  if (status === "DRAFT") return { label: "Incomplete", tone: "info" as Tone };
+  if (status === "APPROVED") return { label: "Approved", tone: "success" as Tone };
+  if (status === "REJECTED") return { label: "Rejected", tone: "danger" as Tone };
+  return { label: status, tone: "neutral" as Tone };
+}
+
 function KYBQueue() {
   const [tab, setTab] = useState<"all" | "pending" | "approved" | "rejected">("pending");
   const [query, setQuery] = useState("");
   const [rows, setRows] = useState<KybRow[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const load = async () => {
+    setLoading(true);
     try {
       const apiRows = await fetchAdminKyb();
       setRows(
@@ -38,6 +48,7 @@ function KYBQueue() {
           const docs = (r.documents ?? {}) as Record<string, unknown>;
           const profile = (docs.profile ?? {}) as Record<string, unknown>;
           const directors = Array.isArray(docs.directors) ? docs.directors : [];
+          const mapped = mapKybStatus(r.status);
           return {
             id: r.id,
             biz: r.companyName,
@@ -47,20 +58,15 @@ function KYBQueue() {
             entity: String(profile.entity ?? "—"),
             ubo: directors.length,
             submitted: new Date(r.updatedAt || r.createdAt).toLocaleString(),
-            status:
-              r.status === "SUBMITTED"
-                ? "Pending"
-                : r.status === "APPROVED"
-                  ? "Approved"
-                  : r.status === "REJECTED"
-                    ? "Rejected"
-                    : r.status,
-            tone: (r.status === "SUBMITTED" ? "warn" : r.status === "APPROVED" ? "success" : "danger") as Tone,
+            status: mapped.label,
+            tone: mapped.tone,
           };
         }),
       );
     } catch {
       /* login required */
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -69,7 +75,7 @@ function KYBQueue() {
   }, []);
 
   const filtered = rows.filter((r) => {
-    if (tab === "pending" && r.status !== "Pending") return false;
+    if (tab === "pending" && r.status !== "Pending" && r.status !== "Incomplete") return false;
     if (tab === "approved" && r.status !== "Approved") return false;
     if (tab === "rejected" && r.status !== "Rejected") return false;
     if (query) {
@@ -81,7 +87,11 @@ function KYBQueue() {
 
   const tabs: { id: typeof tab; label: string; count: number }[] = [
     { id: "all", label: "All", count: rows.length },
-    { id: "pending", label: "Pending", count: rows.filter((r) => r.status === "Pending").length },
+    {
+      id: "pending",
+      label: "Pending",
+      count: rows.filter((r) => r.status === "Pending" || r.status === "Incomplete").length,
+    },
     { id: "approved", label: "Approved", count: rows.filter((r) => r.status === "Approved").length },
     { id: "rejected", label: "Rejected", count: rows.filter((r) => r.status === "Rejected").length },
   ];
@@ -94,7 +104,12 @@ function KYBQueue() {
     >
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         {[
-          { I: Clock, label: "Pending", val: rows.filter((r) => r.status === "Pending").length.toString(), tone: T.warn },
+          {
+            I: Clock,
+            label: "Pending",
+            val: rows.filter((r) => r.status === "Pending" || r.status === "Incomplete").length.toString(),
+            tone: T.warn,
+          },
           { I: CheckCircle2, label: "Approved", val: rows.filter((r) => r.status === "Approved").length.toString(), tone: T.success },
           { I: Ban, label: "Rejected", val: rows.filter((r) => r.status === "Rejected").length.toString(), tone: T.danger },
         ].map((s) => (
@@ -135,6 +150,16 @@ function KYBQueue() {
             </button>
           );
         })}
+        <button
+          type="button"
+          onClick={() => void load()}
+          className="h-8 px-3 rounded-full text-[11.5px] font-semibold flex items-center gap-1.5"
+          style={{ background: T.surface, color: T.ink, border: `1px solid ${T.border}` }}
+          disabled={loading}
+        >
+          <RefreshCw className={`size-3.5 ${loading ? "animate-spin" : ""}`} strokeWidth={2.2} />
+          Refresh
+        </button>
         <div className="ml-auto flex items-center gap-2 h-8 px-2.5 rounded-lg w-[220px]" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
           <Search className="size-3.5" strokeWidth={2.2} style={{ color: T.muted }} />
           <input
@@ -229,6 +254,10 @@ function KYBQueue() {
                     Reject
                   </button>
                 </>
+              ) : r.status === "Incomplete" ? (
+                <span className="text-[10px] font-semibold" style={{ color: T.muted }}>
+                  Awaiting docs
+                </span>
               ) : null}
             </div>
           </div>
