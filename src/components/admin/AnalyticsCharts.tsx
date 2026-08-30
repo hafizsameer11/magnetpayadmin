@@ -134,16 +134,28 @@ export function Sparkline({
   data,
   color = T.info,
   height = 40,
+  linear = false,
+  normalize = false,
 }: {
   data: { value: number }[];
   color?: string;
   height?: number;
+  linear?: boolean;
+  normalize?: boolean;
 }) {
   const id = `spark-${color.replace(/[^a-z0-9]/gi, "")}`;
+  let plot = data;
+  if (normalize && data.length > 1) {
+    const vals = data.map((d) => d.value);
+    const min = Math.min(...vals);
+    const max = Math.max(...vals);
+    const range = max - min || 1;
+    plot = data.map((d) => ({ value: 8 + ((d.value - min) / range) * 92 }));
+  }
   return (
     <div style={{ height, width: "100%" }}>
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={data} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
+        <AreaChart data={plot} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor={color} stopOpacity={0.32} />
@@ -151,7 +163,7 @@ export function Sparkline({
             </linearGradient>
           </defs>
           <Area
-            type="monotone"
+            type={linear ? "linear" : "monotone"}
             dataKey="value"
             stroke={color}
             strokeWidth={2}

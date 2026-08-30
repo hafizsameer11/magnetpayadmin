@@ -23,7 +23,9 @@ export function ClientTrendArea(props: ComponentProps<typeof LazyTrendArea>) {
 
 const LazySparkline = lazy(() => import("./AnalyticsCharts").then((m) => ({ default: m.Sparkline })));
 
-export function ClientSparkline(props: ComponentProps<typeof LazySparkline>) {
+export function ClientSparkline(
+  props: ComponentProps<typeof LazySparkline> & { linear?: boolean; normalize?: boolean },
+) {
   return (
     <Suspense fallback={<ChartFallback height={props.height ?? 40} />}>
       <LazySparkline {...props} />

@@ -299,6 +299,7 @@ export type AdminAnalytics = {
     signups?: { label: string; value: number }[];
     disputes?: { label: string; value: number }[];
     fx?: { label: string; value: number }[];
+    kyc?: { label: string; value: number }[];
   };
   alerts?: {
     id: string;
@@ -306,8 +307,18 @@ export type AdminAnalytics = {
     title: string;
     detail: string;
     href: string;
+    icon?: "gavel" | "shield" | "coins" | "truck" | "wallet" | "file" | "tag";
   }[];
-  liveActivity?: { id: string; at: string; text: string; tone: "success" | "danger" | "info" }[];
+  liveActivity?: { id: string; at: string; text: string; tone: "success" | "danger" | "info" | "warn" | "neutral" }[];
+  fxCorridors?: {
+    pair: string;
+    rate: number;
+    spreadPct: number | null;
+    volume24h: number;
+    orders24h: number;
+  }[];
+  operationalQueues?: { id: string; label: string; count: number; href: string }[];
+  kybPending?: number;
 };
 
 export type AdminProductStats = {
