@@ -10,7 +10,11 @@ export const Route = createFileRoute("/admin/fx/rates")({
   component: Page,
 });
 
-type EditRow = { key: string; value: string };
+type EditRow = { key: string; value: string; raw: number };
+
+function displayRate(raw: number) {
+  return (raw / 10_000).toFixed(4).replace(/\.?0+$/, "");
+}
 
 function Page() {
   const [rows, setRows] = useState<EditRow[]>([]);
@@ -24,7 +28,8 @@ function Page() {
       setRows(
         data.map((f: AdminFee) => ({
           key: f.key,
-          value: String(f.value),
+          value: displayRate(f.value),
+          raw: f.value,
         })),
       );
     } catch (e) {
@@ -51,11 +56,11 @@ function Page() {
           const n = Number(r.value);
           return {
             key: r.key,
-            value: Number.isFinite(n) ? Math.round(n) : 0,
+            value: Number.isFinite(n) ? Math.round(n * 10_000) : r.raw,
           };
         }),
       );
-      toast.success("FX rates saved");
+      toast.success("FX rates saved — mobile conversions updated");
       await load();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Save failed");
@@ -67,7 +72,7 @@ function Page() {
   return (
     <AdminShell
       title="FX rates"
-      description="Corridor FX config keys (integer values as stored). Changes apply on the next conversion."
+      description="Corridor FX rates (stored as rate × 100, e.g. 22904 = ₦229.04/CNY). Saving updates mobile conversion immediately."
       breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "FX" }, { label: "Rates" }]}
       actions={
         <button
@@ -92,7 +97,7 @@ function Page() {
           }}
         >
           <span>Key</span>
-          <span>Value</span>
+          <span>Rate</span>
         </div>
 
         {loading ? (
