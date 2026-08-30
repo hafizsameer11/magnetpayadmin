@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Search, Store, LineChart, Star, AlertTriangle } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
-import { ActionMenu } from "@/components/admin/ActionMenu";
+import { ActionMenu, TableActionCell } from "@/components/admin/ActionMenu";
 import { Pill, initials } from "@/components/admin/UserProfile";
 import { fetchAdminSellers, fmtMoney, fromMinor, patchAdminSeller, type AdminSeller } from "@/lib/api";
 import { toast } from "sonner";
@@ -236,10 +236,7 @@ function Page() {
                 <div className="min-w-0 pr-1">
                   <Pill tone={statusTone(status)}>{status}</Pill>
                 </div>
-                <div
-                  className="sticky right-0 z-[1] flex justify-end shrink-0 pl-2"
-                  style={{ background: T.surface }}
-                >
+                <TableActionCell>
                   <ActionMenu
                   label={`Actions for ${r.name}`}
                   items={[
@@ -275,7 +272,7 @@ function Page() {
                       : []),
                   ]}
                   />
-                </div>
+                </TableActionCell>
               </div>
             );
           })}

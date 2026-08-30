@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Download, Loader2, MoreHorizontal, Search } from "lucide-react";
+import { Download, Loader2, Search } from "lucide-react";
+import { ActionMenu, TableActionTd, TableActionTh } from "@/components/admin/ActionMenu";
 import { toast } from "sonner";
 import { AdminShell, T } from "./AdminShell";
 import { KPI, FilterBar, Card } from "./Orders";
@@ -83,7 +84,7 @@ function WalletTable({ rows }: { rows: AdminWalletHolder[] }) {
               <th className="px-2 py-2.5 text-right">Lifetime</th>
               <th className="px-2 py-2.5">Status</th>
               <th className="px-2 py-2.5">Last tx</th>
-              <th className="px-2 py-2.5 w-8" />
+              <TableActionTh />
             </tr>
           </thead>
           <tbody>
@@ -132,15 +133,27 @@ function WalletTable({ rows }: { rows: AdminWalletHolder[] }) {
                   <td className="px-2 py-3 text-[11px]" style={{ color: T.muted }}>
                     {timeAgo(h.stats.lastTxnAt)}
                   </td>
-                  <td className="px-2 py-3">
-                    <Link
-                      to="/admin/wallets/$userId"
-                      params={{ userId: h.user.id }}
-                      className="size-7 grid place-items-center rounded-md hover:bg-black/5"
-                    >
-                      <MoreHorizontal className="size-4" style={{ color: T.muted }} />
-                    </Link>
-                  </td>
+                  <TableActionTd>
+                    <ActionMenu
+                      label={`Actions for ${h.user.name ?? h.user.id}`}
+                      items={[
+                        {
+                          id: "wallet",
+                          label: "View wallet",
+                          onClick: () => {
+                            window.location.href = `/admin/wallets/${h.user.id}`;
+                          },
+                        },
+                        {
+                          id: "user",
+                          label: "View user",
+                          onClick: () => {
+                            window.location.href = `/admin/users/${h.user.id}`;
+                          },
+                        },
+                      ]}
+                    />
+                  </TableActionTd>
                 </tr>
               );
             })}

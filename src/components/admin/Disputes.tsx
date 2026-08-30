@@ -1,5 +1,5 @@
 ﻿import { Link } from "@tanstack/react-router";
-import { MoreHorizontal } from "lucide-react";
+import { ActionMenu, TableActionTd, TableActionTh } from "@/components/admin/ActionMenu";
 import type { ReactNode } from "react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
 import { StatusBadge, StatusBadgeCustom } from "@/components/admin/StatusBadge";
@@ -246,7 +246,7 @@ export function DisputeTable({ rows }: { rows: Dispute[] }) {
               <th className="px-2 py-2.5">Status</th>
               <th className="px-2 py-2.5">SLA</th>
               <th className="px-2 py-2.5">Assignee</th>
-              <th className="px-2 py-2.5 w-8"></th>
+              <TableActionTh />
             </tr>
           </thead>
           <tbody>
@@ -274,11 +274,27 @@ export function DisputeTable({ rows }: { rows: Dispute[] }) {
                 <td className="px-2 py-3">{statusPillDispute(d.status)}</td>
                 <td className="px-2 py-3">{slaBar({ age: d.ageHours, sla: d.slaHours })}</td>
                 <td className="px-2 py-3 text-[11.5px]">{d.assignee ?? <span style={{ color: T.muted }}>Unassigned</span>}</td>
-                <td className="px-2 py-3">
-                  <Link to="/admin/disputes/$id" params={{ id: d.id }} className="size-7 grid place-items-center rounded-md hover:bg-black/5">
-                    <MoreHorizontal className="size-4" style={{ color: T.muted }} />
-                  </Link>
-                </td>
+                <TableActionTd>
+                  <ActionMenu
+                    label={`Actions for dispute ${d.id}`}
+                    items={[
+                      {
+                        id: "view",
+                        label: "View dispute",
+                        onClick: () => {
+                          window.location.href = `/admin/disputes/${d.id}`;
+                        },
+                      },
+                      {
+                        id: "escrow",
+                        label: "View escrow",
+                        onClick: () => {
+                          window.location.href = `/admin/escrow/${d.escrowId}`;
+                        },
+                      },
+                    ]}
+                  />
+                </TableActionTd>
               </tr>
             ))}
             {!pager.total && (

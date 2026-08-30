@@ -162,7 +162,7 @@ export function FlagEmoji({ c }: { c: "NG" | "GH" | "KE" | "CN" }) {
 }
 
 import { Link } from "@tanstack/react-router";
-import { MoreHorizontal } from "lucide-react";
+import { ActionMenu, TableActionTd, TableActionTh } from "@/components/admin/ActionMenu";
 import { TablePagerFooter, useTablePage } from "@/components/admin/TablePager";
 
 export function OrderTable({ rows, dense = false }: { rows: Order[]; dense?: boolean }) {
@@ -180,7 +180,7 @@ export function OrderTable({ rows, dense = false }: { rows: Order[]; dense?: boo
               <th className="px-2 py-2.5 text-right">Total</th>
               <th className="px-2 py-2.5">Status</th>
               <th className="px-2 py-2.5">Updated</th>
-              <th className="px-2 py-2.5 w-8"></th>
+              <TableActionTh />
             </tr>
           </thead>
           <tbody>
@@ -215,11 +215,20 @@ export function OrderTable({ rows, dense = false }: { rows: Order[]; dense?: boo
                   </td>
                   <td className="px-2 py-3">{statusPillOrder(o.status)}</td>
                   <td className="px-2 py-3 text-[11px] tabular-nums" style={{ color: T.sub, fontFamily: "'JetBrains Mono', monospace" }}>{o.updated}</td>
-                  <td className="px-2 py-3">
-                    <Link to="/admin/orders/$id" params={{ id: o.id }} className="size-7 grid place-items-center rounded-md hover:bg-black/5">
-                      <MoreHorizontal className="size-4" style={{ color: T.muted }} />
-                    </Link>
-                  </td>
+                  <TableActionTd>
+                    <ActionMenu
+                      label={`Actions for order ${o.id}`}
+                      items={[
+                        {
+                          id: "view",
+                          label: "View order",
+                          onClick: () => {
+                            window.location.href = `/admin/orders/${o.id}`;
+                          },
+                        },
+                      ]}
+                    />
+                  </TableActionTd>
                 </tr>
               );
             })}

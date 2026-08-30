@@ -12,7 +12,7 @@ import {
   Star,
 } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
-import { ActionMenu } from "@/components/admin/ActionMenu";
+import { ActionMenu, TableActionCell } from "@/components/admin/ActionMenu";
 import { fmtCNY, fmtNGN, statusPillCatalog, Thumb } from "@/components/admin/Catalog";
 import { listingCatalogStatus, listingRefId, sellerRefId } from "@/components/admin/ListingProfile";
 import { FilterSelect, applyAllFilter, uniqueOptions } from "@/components/admin/ListFilters";
@@ -479,7 +479,7 @@ function Page() {
                     {orders30d(r).toLocaleString("en-US")}
                   </span>
                   {statusPillCatalog(status)}
-                  <div className="sticky right-0 z-[1] flex justify-end shrink-0 pl-2" style={{ background: T.surface }}>
+                  <TableActionCell>
                     <ActionMenu
                     label={`Actions for ${r.title}`}
                     items={[
@@ -530,7 +530,7 @@ function Page() {
                         : []),
                     ]}
                     />
-                  </div>
+                  </TableActionCell>
                 </div>
               );
             })}

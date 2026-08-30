@@ -1,5 +1,6 @@
 ﻿import { Link } from "@tanstack/react-router";
-import { MoreHorizontal, Download } from "lucide-react";
+import { Download } from "lucide-react";
+import { ActionMenu, TableActionTd, TableActionTh } from "@/components/admin/ActionMenu";
 import type { ReactNode } from "react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
 import { Card, Pill, fmtCNY, fmtNGN, KPI, FlagEmoji, FilterBar, FilterChip, findListing } from "@/components/admin/Orders";
@@ -215,7 +216,7 @@ export function EscrowTable({ rows }: { rows: EscrowContract[] }) {
               <th className="px-2 py-2.5">Progress</th>
               <th className="px-2 py-2.5">Status</th>
               <th className="px-2 py-2.5">Auto-release</th>
-              <th className="px-2 py-2.5 w-8"></th>
+              <TableActionTh />
             </tr>
           </thead>
           <tbody>
@@ -255,11 +256,20 @@ export function EscrowTable({ rows }: { rows: EscrowContract[] }) {
                   <td className="px-2 py-3 text-[11px] tabular-nums" style={{ color: e.daysLeft < 0 ? T.danger : e.daysLeft <= 3 ? T.warn : T.sub, fontFamily: "'JetBrains Mono', monospace" }}>
                     {e.daysLeft < 0 ? `${Math.abs(e.daysLeft)}d overdue` : e.daysLeft === 0 ? "completed" : `${e.daysLeft}d left`}
                   </td>
-                  <td className="px-2 py-3">
-                    <Link to="/admin/escrow/$id" params={{ id: e.id }} className="size-7 grid place-items-center rounded-md hover:bg-black/5">
-                      <MoreHorizontal className="size-4" style={{ color: T.muted }} />
-                    </Link>
-                  </td>
+                  <TableActionTd>
+                    <ActionMenu
+                      label={`Actions for escrow ${e.id}`}
+                      items={[
+                        {
+                          id: "view",
+                          label: "View contract",
+                          onClick: () => {
+                            window.location.href = `/admin/escrow/${e.id}`;
+                          },
+                        },
+                      ]}
+                    />
+                  </TableActionTd>
                 </tr>
               );
             })}

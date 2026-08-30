@@ -1,11 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import {
-  Search, Download, Plus, MoreHorizontal,
+  Search, Download, Plus,
   ShieldCheck, Clock, AlertTriangle, Ban, ArrowUpDown,
   Loader2, Users, Wallet,
 } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
+import { ActionMenu, TableActionCell } from "@/components/admin/ActionMenu";
 import { KpiStrip } from "@/components/admin/ListPageKit";
 import {
   Pill,
@@ -27,6 +28,10 @@ export const Route = createFileRoute("/admin/users/")({
   head: () => ({ meta: [{ title: "Users — MagnetPay Admin" }] }),
   component: AdminUsersList,
 });
+
+const USER_GRID =
+  "24px minmax(180px,2.2fr) 0.9fr 0.75fr 0.9fr 0.75fr 1fr 0.85fr 0.95fr 52px";
+const USER_TABLE_MIN = 960;
 
 type FilterTab = "all" | "buyers" | "sellers" | "both" | "pending" | "rejected";
 
@@ -255,14 +260,15 @@ function AdminUsersList() {
         </div>
       </div>
 
-      <div className="mt-4 rounded-xl overflow-hidden" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
+      <div className="mt-4 rounded-xl overflow-x-auto" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
+        <div style={{ minWidth: USER_TABLE_MIN }}>
         <div
           className="grid items-center px-4 h-10 text-[10px] font-bold uppercase tracking-[0.14em]"
           style={{
             color: T.muted,
             background: T.bg,
             borderBottom: `1px solid ${T.border}`,
-            gridTemplateColumns: "24px 2.2fr 1fr 0.9fr 1fr 0.9fr 1.1fr 0.9fr 1fr 32px",
+            gridTemplateColumns: USER_GRID,
           }}
         >
           <span />
@@ -278,7 +284,7 @@ function AdminUsersList() {
           </button>
           <span>Joined</span>
           <span>Status</span>
-          <span />
+          <span className="text-right">Actions</span>
         </div>
 
         {loading ? (
@@ -296,7 +302,7 @@ function AdminUsersList() {
                 key={u.id}
                 className="grid items-center px-4 h-[52px] text-[12px] hover:bg-[rgba(14,59,46,0.02)] transition"
                 style={{
-                  gridTemplateColumns: "24px 2.2fr 1fr 0.9fr 1fr 0.9fr 1.1fr 0.9fr 1fr 32px",
+                  gridTemplateColumns: USER_GRID,
                   borderBottom: i < pager.slice.length - 1 ? `1px solid ${T.border}` : "none",
                 }}
               >
@@ -345,14 +351,27 @@ function AdminUsersList() {
                     accountStatusPill(u)
                   )}
                 </span>
-                <Link
-                  to="/admin/users/$id"
-                  params={{ id: u.id }}
-                  className="size-7 grid place-items-center rounded-md hover:bg-black/5"
-                  style={{ color: T.sub }}
-                >
-                  <MoreHorizontal className="size-3.5" strokeWidth={2.2} />
-                </Link>
+                <TableActionCell>
+                  <ActionMenu
+                    label={`Actions for ${u.name ?? u.id}`}
+                    items={[
+                      {
+                        id: "view",
+                        label: "View profile",
+                        onClick: () => {
+                          window.location.href = `/admin/users/${u.id}`;
+                        },
+                      },
+                      {
+                        id: "wallet",
+                        label: "View wallet",
+                        onClick: () => {
+                          window.location.href = `/admin/wallets/${u.id}`;
+                        },
+                      },
+                    ]}
+                  />
+                </TableActionCell>
               </div>
             );
           })
@@ -369,6 +388,7 @@ function AdminUsersList() {
             onNext={() => pager.setPage((p) => Math.min(pager.pageCount - 1, p + 1))}
           />
         ) : null}
+        </div>
       </div>
     </AdminShell>
   );

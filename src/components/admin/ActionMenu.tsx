@@ -1,7 +1,38 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { MoreHorizontal } from "lucide-react";
 import { T } from "./AdminShell";
+
+/** Sticky action column cell for CSS grid table rows */
+export function TableActionCell({ children }: { children: ReactNode }) {
+  return (
+    <div
+      className="sticky right-0 z-[1] flex justify-end shrink-0 pl-2"
+      style={{ background: T.surface }}
+    >
+      {children}
+    </div>
+  );
+}
+
+/** Sticky action column cell for HTML table rows */
+export function TableActionTd({ children }: { children: ReactNode }) {
+  return (
+    <td className="px-2 py-3 sticky right-0 z-[1]" style={{ background: T.surface }}>
+      <div className="flex justify-end shrink-0">{children}</div>
+    </td>
+  );
+}
+
+/** Sticky action column header for HTML tables */
+export function TableActionTh() {
+  return (
+    <th
+      className="px-2 py-2.5 w-[52px] sticky right-0 z-[1] text-right"
+      style={{ background: T.bg }}
+    />
+  );
+}
 
 export type ActionMenuItem = {
   id: string;

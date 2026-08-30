@@ -1,5 +1,5 @@
 ﻿import { Link } from "@tanstack/react-router";
-import { MoreHorizontal } from "lucide-react";
+import { ActionMenu, TableActionTd, TableActionTh } from "@/components/admin/ActionMenu";
 import { T } from "@/components/admin/AdminShell";
 import { StatusBadgeCustom } from "@/components/admin/StatusBadge";
 import { Card, fmtNGN, KPI, FlagEmoji, FilterBar, FilterChip } from "@/components/admin/Orders";
@@ -175,7 +175,7 @@ export function ShipmentTable({ rows }: { rows: Shipment[] }) {
               <th className="px-2 py-2.5 text-right">Weight</th>
               <th className="px-2 py-2.5">Status</th>
               <th className="px-2 py-2.5">ETA</th>
-              <th className="px-2 py-2.5 w-8"></th>
+              <TableActionTh />
             </tr>
           </thead>
           <tbody>
@@ -201,11 +201,20 @@ export function ShipmentTable({ rows }: { rows: Shipment[] }) {
                 </td>
                 <td className="px-2 py-3">{statusPillShip(s.status)}</td>
                 <td className="px-2 py-3 text-[11px] tabular-nums" style={{ color: T.sub, fontFamily: "'JetBrains Mono', monospace" }}>{s.eta}</td>
-                <td className="px-2 py-3">
-                  <Link to="/admin/shipments/$id" params={{ id: s.id }} className="size-7 grid place-items-center rounded-md hover:bg-black/5">
-                    <MoreHorizontal className="size-4" style={{ color: T.muted }} />
-                  </Link>
-                </td>
+                <TableActionTd>
+                  <ActionMenu
+                    label={`Actions for shipment ${s.id}`}
+                    items={[
+                      {
+                        id: "view",
+                        label: "View shipment",
+                        onClick: () => {
+                          window.location.href = `/admin/shipments/${s.id}`;
+                        },
+                      },
+                    ]}
+                  />
+                </TableActionTd>
               </tr>
             ))}
             {!pager.total && (

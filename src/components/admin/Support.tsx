@@ -1,5 +1,6 @@
 ﻿import { Link } from "@tanstack/react-router";
-import { MoreHorizontal, MessageSquare, Mail, Phone, Megaphone, Bell, Shield, Tag, ChevronRight } from "lucide-react";
+import { MessageSquare, Mail, Phone, Megaphone, Bell, Shield, Tag, ChevronRight } from "lucide-react";
+import { ActionMenu, TableActionTd, TableActionTh } from "@/components/admin/ActionMenu";
 import type { ReactNode } from "react";
 import { T } from "@/components/admin/AdminShell";
 import { StatusBadge, StatusBadgeCustom, formatStatusLabel } from "@/components/admin/StatusBadge";
@@ -195,7 +196,7 @@ export function TicketTable({ rows }: { rows: Ticket[] }) {
               <th className="px-2 py-2.5">Priority</th>
               <th className="px-2 py-2.5">SLA</th>
               <th className="px-2 py-2.5">Assignee</th>
-              <th className="px-2 py-2.5 w-8"></th>
+              <TableActionTh />
             </tr>
           </thead>
           <tbody>
@@ -219,11 +220,31 @@ export function TicketTable({ rows }: { rows: Ticket[] }) {
                 <td className="px-2 py-3">{priorityDot(t.priority)}</td>
                 <td className="px-2 py-3">{slaBarTck({ age: t.ageHours, sla: t.slaHours })}</td>
                 <td className="px-2 py-3 text-[11.5px]">{t.assignee ?? <span style={{ color: T.muted }}>Unassigned</span>}</td>
-                <td className="px-2 py-3">
-                  <Link to="/admin/tickets/$id" params={{ id: t.id }} className="size-7 grid place-items-center rounded-md hover:bg-black/5">
-                    <MoreHorizontal className="size-4" style={{ color: T.muted }} />
-                  </Link>
-                </td>
+                <TableActionTd>
+                  <ActionMenu
+                    label={`Actions for ticket ${t.id}`}
+                    items={[
+                      {
+                        id: "view",
+                        label: "View ticket",
+                        onClick: () => {
+                          window.location.href = `/admin/tickets/${t.id}`;
+                        },
+                      },
+                      ...(t.orderId
+                        ? [
+                            {
+                              id: "order",
+                              label: "View order",
+                              onClick: () => {
+                                window.location.href = `/admin/orders/${t.orderId}`;
+                              },
+                            },
+                          ]
+                        : []),
+                    ]}
+                  />
+                </TableActionTd>
               </tr>
             ))}
             {!pager.total && (
