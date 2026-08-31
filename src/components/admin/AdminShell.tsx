@@ -202,13 +202,9 @@ export function AdminShell({
 
   return (
     <>
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap"
-      />
       <div
-        className="min-h-screen w-full flex"
-        style={{ background: T.bg, color: T.ink, fontFamily: "'Inter', sans-serif" }}
+        className="mp-admin min-h-screen w-full flex"
+        style={{ background: T.bg, color: T.ink }}
       >
         {/* Sidebar */}
         <aside
@@ -263,7 +259,6 @@ export function AdminShell({
             </p>
             <p
               className="mt-1 text-[14px] font-bold tabular-nums"
-              style={{ fontFamily: "'JetBrains Mono', monospace" }}
             >
               {fxLabel}
             </p>
@@ -313,12 +308,11 @@ export function AdminShell({
                 <button
                   type="button"
                   onClick={goSearch}
-                  className="text-[9.5px] px-1 py-0.5 rounded font-bold cursor-pointer"
+                  className="text-[9.5px] px-1 py-0.5 rounded font-bold font-mono cursor-pointer"
                   style={{
                     background: T.bg,
                     color: T.muted,
                     border: `1px solid ${T.border}`,
-                    fontFamily: "'JetBrains Mono', monospace",
                   }}
                 >
                   ⌘K

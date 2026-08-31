@@ -355,7 +355,7 @@ export function TextInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
     <input
       {...props}
       className="w-full h-9 px-3 rounded-lg text-[12.5px] outline-none focus:ring-2 focus:ring-offset-0"
-      style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.ink, fontFamily: "'Inter', sans-serif", ...(props.style || {}) }}
+      style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.ink, ...(props.style || {}) }}
     />
   );
 }
@@ -365,7 +365,7 @@ export function TextArea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement
     <textarea
       {...props}
       className="w-full px-3 py-2 rounded-lg text-[12.5px] outline-none focus:ring-2 leading-relaxed"
-      style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.ink, fontFamily: "'Inter', sans-serif", ...(props.style || {}) }}
+      style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.ink, ...(props.style || {}) }}
     />
   );
 }

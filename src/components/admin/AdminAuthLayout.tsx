@@ -16,13 +16,9 @@ export function AdminAuthLayout({
 }) {
   return (
     <>
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap"
-      />
       <div
-        className="min-h-screen w-full flex"
-        style={{ background: T.bg, color: T.ink, fontFamily: "'Inter', sans-serif" }}
+        className="mp-admin min-h-screen w-full flex"
+        style={{ background: T.bg, color: T.ink }}
       >
         {/* Brand panel */}
         <aside
@@ -67,7 +63,6 @@ export function AdminAuthLayout({
                 </p>
                 <p
                   className="mt-1 text-[16px] font-bold tabular-nums"
-                  style={{ fontFamily: "'JetBrains Mono', monospace" }}
                 >
                   {s.v}
                 </p>
