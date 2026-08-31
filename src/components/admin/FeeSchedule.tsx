@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Loader2, Save } from "lucide-react";
 import { toast } from "sonner";
 import { AdminShell, T } from "@/components/admin/AdminShell";
-import { Card } from "@/components/admin/Catalog";
+import { Card, KPI } from "@/components/admin/Orders";
 import { fetchAdminFees, putAdminFees, type AdminFee } from "@/lib/api";
 
 type EditRow = { key: string; value: string };
@@ -21,12 +21,24 @@ function sortFeeRows(rows: EditRow[]) {
   });
 }
 
+function feeCategory(key: string) {
+  if (key.startsWith("escrow")) return "Platform";
+  if (key.startsWith("fx.")) return "FX";
+  return "Other";
+}
+
 function feeHint(key: string) {
-  if (key === "escrow_fee_bps") return "Basis points charged on funded escrow (150 = 1.5%)";
-  if (key === "fx.halted") return "1 halts live FX conversions · 0 allows trading";
-  if (key.startsWith("fx.manual.")) return "Manual override flag for this pair";
-  if (key.startsWith("fx.")) return "Stored as integer minor units / scaled rate";
-  return null;
+  if (key === "escrow_fee_bps") return "Basis points on funded escrow (150 = 1.5%)";
+  if (key === "fx.halted") return "1 halts conversions · 0 allows trading";
+  if (key.startsWith("fx.manual.")) return "Manual override flag for pair";
+  if (key.startsWith("fx.")) return "Integer minor units / scaled rate";
+  return "Platform configuration value";
+}
+
+function fmtBps(value: string) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return "—";
+  return `${(n / 100).toFixed(2)}%`;
 }
 
 export function FeeSchedulePage() {
@@ -61,9 +73,21 @@ export function FeeSchedulePage() {
   }, []);
 
   const dirty = useMemo(
-    () => rows.some((r, i) => r.value !== saved[i]?.value || r.key !== saved[i]?.key),
+    () => rows.some((r, i) => r.value !== saved[i]?.value),
     [rows, saved],
   );
+
+  const kpis = useMemo(() => {
+    const escrow = rows.find((r) => r.key === "escrow_fee_bps");
+    const fxKeys = rows.filter((r) => r.key.startsWith("fx.")).length;
+    const platformKeys = rows.filter((r) => r.key.startsWith("escrow")).length;
+    return {
+      total: rows.length,
+      platformKeys,
+      fxKeys,
+      escrowBps: escrow ? fmtBps(escrow.value) : "—",
+    };
+  }, [rows]);
 
   const updateValue = (index: number, value: string) => {
     setRows((prev) => prev.map((r, i) => (i === index ? { ...r, value } : r)));
@@ -108,78 +132,88 @@ export function FeeSchedulePage() {
         </button>
       }
     >
-      <div className="max-w-3xl">
-        <div
-          className="grid items-center px-4 mb-2 text-[10px] font-bold uppercase tracking-[0.16em]"
-          style={{ color: T.muted, gridTemplateColumns: "1fr minmax(120px, 200px)" }}
-        >
-          <span>Key</span>
-          <span className="text-right sm:text-left">Value</span>
-        </div>
-
-        {loading ? (
-          <div className="py-16 grid place-items-center" style={{ color: T.muted }}>
-            <Loader2 className="size-5 animate-spin" />
-          </div>
-        ) : rows.length === 0 ? (
-          <Card>
-            <p className="text-center text-[12.5px] py-8" style={{ color: T.muted }}>
-              No fee rules configured.
-            </p>
-          </Card>
-        ) : (
-          <div className="space-y-2">
-            {rows.map((r, i) => {
-              const hint = feeHint(r.key);
-              return (
-                <Card key={r.key} padded={false} className="overflow-hidden">
-                  <div
-                    className="grid items-center gap-3 px-4 py-3 sm:py-3.5"
-                    style={{ gridTemplateColumns: "1fr minmax(120px, 200px)" }}
-                  >
-                    <div className="min-w-0">
-                      <p className="text-[12.5px] font-semibold font-mono truncate" style={{ color: T.ink }}>
-                        {r.key}
-                      </p>
-                      {hint ? (
-                        <p className="mt-0.5 text-[10.5px] leading-snug hidden sm:block" style={{ color: T.muted }}>
-                          {hint}
-                        </p>
-                      ) : null}
-                    </div>
-                    <input
-                      value={r.value}
-                      onChange={(e) => updateValue(i, e.target.value.replace(/[^\d-]/g, ""))}
-                      inputMode="numeric"
-                      aria-label={`Value for ${r.key}`}
-                      className="h-9 px-3 rounded-lg text-[13px] font-bold font-mono tabular-nums text-right sm:text-left outline-none transition-shadow focus-visible:ring-2"
-                      style={{
-                        background: T.bg,
-                        border: `1px solid ${T.border}`,
-                        color: T.accent,
-                        boxShadow: "none",
-                      }}
-                      onFocus={(e) => {
-                        e.currentTarget.style.boxShadow = `0 0 0 2px ${T.navy}33`;
-                      }}
-                      onBlur={(e) => {
-                        e.currentTarget.style.boxShadow = "none";
-                      }}
-                    />
-                  </div>
-                </Card>
-              );
-            })}
-          </div>
-        )}
-
-        {!loading && rows.length > 0 ? (
-          <p className="mt-4 text-[11px]" style={{ color: T.muted }}>
-            {rows.length} configuration {rows.length === 1 ? "key" : "keys"}
-            {dirty ? " · unsaved changes" : " · all changes saved"}
-          </p>
-        ) : null}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+        <KPI label="Config keys" value={String(kpis.total)} />
+        <KPI label="Escrow fee" value={kpis.escrowBps} tone={T.accent} hint="escrow_fee_bps" />
+        <KPI label="Platform keys" value={String(kpis.platformKeys)} />
+        <KPI label="FX keys" value={String(kpis.fxKeys)} tone={T.info} />
       </div>
+
+      <Card padded={false}>
+        <div className="overflow-x-auto">
+          <table className="w-full text-[12px]">
+            <thead>
+              <tr style={{ background: T.bg, color: T.muted }} className="text-left text-[10px] font-bold uppercase tracking-[0.14em]">
+                <th className="px-4 py-2.5">Key</th>
+                <th className="px-2 py-2.5">Category</th>
+                <th className="px-2 py-2.5">Description</th>
+                <th className="px-4 py-2.5 text-right w-[180px]">Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan={4} className="py-16 text-center" style={{ color: T.muted }}>
+                    <Loader2 className="size-5 animate-spin inline-block" />
+                  </td>
+                </tr>
+              ) : rows.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="py-12 text-center text-[12px]" style={{ color: T.muted }}>
+                    No fee rules configured.
+                  </td>
+                </tr>
+              ) : (
+                rows.map((r, i) => {
+                  const changed = r.value !== saved[i]?.value;
+                  const category = feeCategory(r.key);
+                  return (
+                    <tr key={r.key} style={{ borderTop: `1px solid ${T.border}` }}>
+                      <td className="px-4 py-3 font-semibold font-mono" style={{ color: T.ink }}>
+                        {r.key}
+                      </td>
+                      <td className="px-2 py-3">
+                        <span
+                          className="inline-flex px-2 h-5 rounded-md text-[10px] font-bold uppercase tracking-wider"
+                          style={{
+                            background: category === "FX" ? `${T.info}12` : category === "Platform" ? `${T.success}12` : `${T.muted}14`,
+                            color: category === "FX" ? T.info : category === "Platform" ? T.success : T.sub,
+                          }}
+                        >
+                          {category}
+                        </span>
+                      </td>
+                      <td className="px-2 py-3" style={{ color: T.sub }}>
+                        {feeHint(r.key)}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <input
+                          value={r.value}
+                          onChange={(e) => updateValue(i, e.target.value.replace(/[^\d-]/g, ""))}
+                          inputMode="numeric"
+                          aria-label={`Value for ${r.key}`}
+                          className="h-8 w-full max-w-[140px] ml-auto px-2.5 rounded-md text-[12px] font-bold font-mono tabular-nums text-right outline-none"
+                          style={{
+                            background: changed ? `${T.accent}08` : T.bg,
+                            border: `1px solid ${changed ? T.accent : T.border}`,
+                            color: T.accent,
+                          }}
+                        />
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
+      {dirty ? (
+        <p className="mt-3 text-[11px] font-semibold" style={{ color: T.warn }}>
+          You have unsaved changes — click Save fees to apply on the next transaction.
+        </p>
+      ) : null}
     </AdminShell>
   );
 }
