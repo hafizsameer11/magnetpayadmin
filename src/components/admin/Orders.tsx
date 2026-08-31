@@ -24,7 +24,7 @@ export type Order = {
   subtotalNGN: number;
   shippingNGN: number;
   totalNGN: number;
-  currency: "CNYΓåÆNGN" | "CNYΓåÆGHS" | "CNYΓåÆKES";
+  currency: "CNY\u2192NGN" | "CNY\u2192GHS" | "CNY\u2192KES";
   payment: "Wallet" | "Card" | "Bank transfer" | "USSD";
   status: OrderStatus;
   escrowId: string;
@@ -36,7 +36,9 @@ export type Order = {
   eta?: string;
   exception?: string;
   refundedNGN?: number;
-  notes?: number;
+  itemTitle?: string;
+  itemImage?: string;
+  updatedAt?: string;
 };
 
 const L = (idx: number) => LISTINGS[idx % LISTINGS.length];
@@ -45,7 +47,7 @@ export const ORDERS: Order[] = [
   { id: "ORD-528104", buyer: "Adaeze Okafor", buyerId: "USR-10241", buyerCountry: "NG",
     seller: LISTINGS[0].seller, sellerId: LISTINGS[0].sellerId, sellerCountry: "CN",
     listingId: LISTINGS[0].id, qty: 80, subtotalCNY: 6880, subtotalNGN: 1576000,
-    shippingNGN: 42000, totalNGN: 1618000, currency: "CNYΓåÆNGN", payment: "Wallet",
+    shippingNGN: 42000, totalNGN: 1618000, currency: "CNY→NGN", payment: "Wallet",
     status: "processing", escrowId: "ESC-77120", shipmentId: "SHP-44120",
     carrier: "MagnetExpress Air", tracking: "MEX1Z9920411NG",
     placed: "Jun 24, 09:14", updated: "12 min ago", eta: "Jul 04", notes: 2 },
@@ -53,7 +55,7 @@ export const ORDERS: Order[] = [
   { id: "ORD-528098", buyer: "Tolu Bankole", buyerId: "USR-10182", buyerCountry: "NG",
     seller: LISTINGS[1].seller, sellerId: LISTINGS[1].sellerId, sellerCountry: "CN",
     listingId: LISTINGS[1].id, qty: 24, subtotalCNY: 3408, subtotalNGN: 780600,
-    shippingNGN: 28500, totalNGN: 809100, currency: "CNYΓåÆNGN", payment: "Card",
+    shippingNGN: 28500, totalNGN: 809100, currency: "CNY→NGN", payment: "Card",
     status: "shipped", escrowId: "ESC-77108", shipmentId: "SHP-44108",
     carrier: "CN-Post Sea", tracking: "CNP552980411NG",
     placed: "Jun 22, 14:02", updated: "1 hr ago", eta: "Jul 09", notes: 0 },
@@ -61,7 +63,7 @@ export const ORDERS: Order[] = [
   { id: "ORD-528077", buyer: "Kwame Asante", buyerId: "USR-09812", buyerCountry: "GH",
     seller: LISTINGS[3].seller, sellerId: LISTINGS[3].sellerId, sellerCountry: "CN",
     listingId: LISTINGS[3].id, qty: 12, subtotalCNY: 7344, subtotalNGN: 1683000,
-    shippingNGN: 51000, totalNGN: 1734000, currency: "CNYΓåÆGHS", payment: "Bank transfer",
+    shippingNGN: 51000, totalNGN: 1734000, currency: "CNY→GHS", payment: "Bank transfer",
     status: "delivered", escrowId: "ESC-77091", shipmentId: "SHP-44091",
     carrier: "DHL Express", tracking: "DHL44102239GH",
     placed: "Jun 18, 11:42", updated: "2 days ago", eta: "Jun 27", notes: 1 },
@@ -69,23 +71,23 @@ export const ORDERS: Order[] = [
   { id: "ORD-528060", buyer: "Ngozi Eze", buyerId: "USR-09701", buyerCountry: "NG",
     seller: LISTINGS[4].seller, sellerId: LISTINGS[4].sellerId, sellerCountry: "CN",
     listingId: LISTINGS[4].id, qty: 2, subtotalCNY: 5680, subtotalNGN: 1302000,
-    shippingNGN: 78000, totalNGN: 1380000, currency: "CNYΓåÆNGN", payment: "Wallet",
+    shippingNGN: 78000, totalNGN: 1380000, currency: "CNY→NGN", payment: "Wallet",
     status: "exception", escrowId: "ESC-77074", shipmentId: "SHP-44074",
     carrier: "MagnetExpress Sea", tracking: "MEX2X8810044NG",
     placed: "Jun 14, 08:00", updated: "3 hr ago", eta: "Jul 12", notes: 4,
-    exception: "Customs hold ΓÇö NCC compliance docs requested" },
+    exception: "Customs hold — NCC compliance docs requested" },
 
   { id: "ORD-528041", buyer: "Femi Adeyemi", buyerId: "USR-09584", buyerCountry: "NG",
     seller: LISTINGS[5].seller, sellerId: LISTINGS[5].sellerId, sellerCountry: "CN",
     listingId: LISTINGS[5].id, qty: 60, subtotalCNY: 3240, subtotalNGN: 742800,
-    shippingNGN: 22000, totalNGN: 764800, currency: "CNYΓåÆNGN", payment: "USSD",
+    shippingNGN: 22000, totalNGN: 764800, currency: "CNY→NGN", payment: "USSD",
     status: "pending", escrowId: "ESC-77055",
     placed: "Jun 28, 06:48", updated: "8 min ago", notes: 0 },
 
   { id: "ORD-528022", buyer: "Mary Wanjiru", buyerId: "USR-09410", buyerCountry: "KE",
     seller: LISTINGS[6].seller, sellerId: LISTINGS[6].sellerId, sellerCountry: "CN",
     listingId: LISTINGS[6].id, qty: 15, subtotalCNY: 2970, subtotalNGN: 681000,
-    shippingNGN: 34000, totalNGN: 715000, currency: "CNYΓåÆKES", payment: "Card",
+    shippingNGN: 34000, totalNGN: 715000, currency: "CNY→KES", payment: "Card",
     status: "delivered", escrowId: "ESC-77036", shipmentId: "SHP-44036",
     carrier: "DHL Express", tracking: "DHL44102241KE",
     placed: "Jun 10, 16:30", updated: "5 days ago", eta: "Jun 22", notes: 0 },
@@ -93,31 +95,31 @@ export const ORDERS: Order[] = [
   { id: "ORD-527990", buyer: "Ibrahim Yusuf", buyerId: "USR-09221", buyerCountry: "NG",
     seller: LISTINGS[7].seller, sellerId: LISTINGS[7].sellerId, sellerCountry: "CN",
     listingId: LISTINGS[7].id, qty: 8, subtotalCNY: 2496, subtotalNGN: 572400,
-    shippingNGN: 31000, totalNGN: 603400, currency: "CNYΓåÆNGN", payment: "Wallet",
+    shippingNGN: 31000, totalNGN: 603400, currency: "CNY→NGN", payment: "Wallet",
     status: "cancelled", escrowId: "ESC-77011",
     placed: "Jun 20, 10:14", updated: "4 days ago", notes: 1,
-    exception: "Cancelled by buyer ΓÇö wrong language variant" },
+    exception: "Cancelled by buyer — wrong language variant" },
 
   { id: "ORD-527964", buyer: "Chiamaka Obi", buyerId: "USR-09080", buyerCountry: "NG",
     seller: LISTINGS[2].seller, sellerId: LISTINGS[2].sellerId, sellerCountry: "CN",
     listingId: LISTINGS[2].id, qty: 100, subtotalCNY: 3800, subtotalNGN: 871000,
-    shippingNGN: 38000, totalNGN: 909000, currency: "CNYΓåÆNGN", payment: "Card",
+    shippingNGN: 38000, totalNGN: 909000, currency: "CNY→NGN", payment: "Card",
     status: "refunded", escrowId: "ESC-76988", shipmentId: "SHP-43988",
     carrier: "CN-Post Sea", tracking: "CNP552980388NG",
     placed: "May 30, 09:00", updated: "1 wk ago", notes: 3,
-    refundedNGN: 909000, exception: "Full refund ΓÇö items damaged on arrival" },
+    refundedNGN: 909000, exception: "Full refund — items damaged on arrival" },
 
   { id: "ORD-527940", buyer: "Aisha Bello", buyerId: "USR-08902", buyerCountry: "NG",
     seller: LISTINGS[0].seller, sellerId: LISTINGS[0].sellerId, sellerCountry: "CN",
     listingId: LISTINGS[0].id, qty: 200, subtotalCNY: 17200, subtotalNGN: 3940000,
-    shippingNGN: 88000, totalNGN: 4028000, currency: "CNYΓåÆNGN", payment: "Bank transfer",
+    shippingNGN: 88000, totalNGN: 4028000, currency: "CNY→NGN", payment: "Bank transfer",
     status: "processing", escrowId: "ESC-76960",
     placed: "Jun 26, 12:48", updated: "44 min ago", notes: 0 },
 
   { id: "ORD-527918", buyer: "Joy Mensah", buyerId: "USR-08741", buyerCountry: "GH",
     seller: LISTINGS[3].seller, sellerId: LISTINGS[3].sellerId, sellerCountry: "CN",
     listingId: LISTINGS[3].id, qty: 4, subtotalCNY: 2448, subtotalNGN: 561000,
-    shippingNGN: 24000, totalNGN: 585000, currency: "CNYΓåÆGHS", payment: "Wallet",
+    shippingNGN: 24000, totalNGN: 585000, currency: "CNY→GHS", payment: "Wallet",
     status: "pending", escrowId: "ESC-76940",
     placed: "Jun 28, 04:20", updated: "22 min ago", notes: 0 },
 ];
@@ -157,7 +159,13 @@ export function KPI({ label, value, hint, tone = T.ink }: { label: string; value
 }
 
 export function FlagEmoji({ c }: { c: "NG" | "GH" | "KE" | "CN" }) {
-  const m = { NG: "≡ƒç│≡ƒç¼", GH: "≡ƒç¼≡ƒç¡", KE: "≡ƒç░≡ƒç¬", CN: "≡ƒç¿≡ƒç│" };
+  // Regional-indicator pairs (avoids mojibake if the file encoding is wrong)
+  const m = {
+    NG: "\u{1F1F3}\u{1F1EC}",
+    GH: "\u{1F1EC}\u{1F1ED}",
+    KE: "\u{1F1F0}\u{1F1EA}",
+    CN: "\u{1F1E8}\u{1F1F3}",
+  };
   return <span className="text-[12px] leading-none">{m[c]}</span>;
 }
 
@@ -185,11 +193,14 @@ export function OrderTable({ rows, dense = false }: { rows: Order[]; dense?: boo
           </thead>
           <tbody>
             {pager.slice.map((o) => {
-              const l = findListing(o.listingId);
+              const l = o.itemTitle
+                ? { title: o.itemTitle, image: o.itemImage ?? LISTINGS[0]?.image }
+                : findListing(o.listingId);
+              const displayId = o.id.startsWith("ORD-") ? o.id : `ORD-${o.id.slice(0, 6).toUpperCase()}`;
               return (
                 <tr key={o.id} className="border-t hover:bg-black/[0.015] transition" style={{ borderColor: T.border }}>
                   <td className="px-2 py-3 pl-4">
-                    <Link to="/admin/orders/$id" params={{ id: o.id }} className="font-bold tabular-nums hover:underline" style={{ color: T.ink, fontFamily: "'JetBrains Mono', monospace" }}>{o.id}</Link>
+                    <Link to="/admin/orders/$id" params={{ id: o.id }} className="font-bold tabular-nums hover:underline" style={{ color: T.ink, fontFamily: "'JetBrains Mono', monospace" }}>{displayId}</Link>
                     <p className="text-[10.5px]" style={{ color: T.muted }}>{o.placed}</p>
                   </td>
                   <td className="px-2 py-3">
@@ -197,7 +208,7 @@ export function OrderTable({ rows, dense = false }: { rows: Order[]; dense?: boo
                       <Thumb src={l.image} alt={l.title} size={dense ? 28 : 32} />
                       <div className="min-w-0">
                         <p className="font-medium truncate max-w-[220px]" style={{ color: T.ink }}>{l.title}</p>
-                        <p className="text-[10.5px] tabular-nums" style={{ color: T.muted, fontFamily: "'JetBrains Mono', monospace" }}>Qty {o.qty} ┬╖ {o.payment}</p>
+                        <p className="text-[10.5px] tabular-nums" style={{ color: T.muted, fontFamily: "'JetBrains Mono', monospace" }}>Qty {o.qty} · {o.payment}</p>
                       </div>
                     </div>
                   </td>
@@ -217,7 +228,7 @@ export function OrderTable({ rows, dense = false }: { rows: Order[]; dense?: boo
                   <td className="px-2 py-3 text-[11px] tabular-nums" style={{ color: T.sub, fontFamily: "'JetBrains Mono', monospace" }}>{o.updated}</td>
                   <TableActionTd>
                     <ActionMenu
-                      label={`Actions for order ${o.id}`}
+                      label={`Actions for order ${displayId}`}
                       items={[
                         {
                           id: "view",
@@ -226,6 +237,18 @@ export function OrderTable({ rows, dense = false }: { rows: Order[]; dense?: boo
                             window.location.href = `/admin/orders/${o.id}`;
                           },
                         },
+                        ...(o.status !== "cancelled" && o.status !== "delivered" && o.status !== "refunded"
+                          ? [
+                              {
+                                id: "cancel",
+                                label: "Cancel order",
+                                danger: true,
+                                onClick: () => {
+                                  window.location.href = `/admin/orders/${o.id}/cancel`;
+                                },
+                              },
+                            ]
+                          : []),
                       ]}
                     />
                   </TableActionTd>

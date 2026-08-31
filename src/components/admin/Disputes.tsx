@@ -325,7 +325,7 @@ export function disputesStats() {
 }
 
 export function evidenceKindIcon(k: DisputeEvidence["kind"]): ReactNode {
-  const map = { photo: "≡ƒô╖", doc: "≡ƒôä", video: "≡ƒÄ¼", message: "≡ƒÆ¼", tracking: "≡ƒôª" };
+  const map = { photo: "\u{1F4F7}", doc: "\u{1F4C4}", video: "\u{1F3AC}", message: "\u{1F4AC}", tracking: "\u{1F4E6}" };
   return <span className="text-[14px] leading-none">{map[k]}</span>;
 }
 

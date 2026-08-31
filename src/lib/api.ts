@@ -191,6 +191,7 @@ export type AdminEscrow = {
   amountMinor: string | number;
   title?: string;
   createdAt: string;
+  orderId?: string | null;
   inspectorId?: string | null;
   autoReleaseHours?: number | null;
   feeSplit?: string | null;

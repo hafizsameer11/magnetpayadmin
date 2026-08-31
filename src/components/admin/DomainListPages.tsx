@@ -1,9 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, Search } from "lucide-react";
+import { AlertTriangle, Clock, Gavel, Loader2, Search } from "lucide-react";
 import { AdminShell, T } from "./AdminShell";
 import { Pill } from "./UserProfile";
-import { KPI, FilterBar, Card } from "./Orders";
+import { KPI, FilterBar, Card, fmtNGN } from "./Orders";
 import { FilterSelect, applyAllFilter, uniqueOptions } from "./ListFilters";
 import { EscrowTable, type EscrowContract } from "./Escrow";
 import { DisputeTable, type Dispute } from "./Disputes";
@@ -19,6 +19,7 @@ import {
   fetchAdminWithdrawals,
   fetchAdminWallets,
   fmtMoney,
+  fromMinor,
   resolveApiFileUrl,
   fetchAdminReconciliation,
   fetchAdminSellerTiers,
@@ -94,9 +95,12 @@ export function BrandsListPage() {
 export function EscrowListPage({ filter }: { filter?: string }) {
   const [rows, setRows] = useState<AdminEscrow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState("__all__");
+  const [currency, setCurrency] = useState("__all__");
   const [country, setCountry] = useState("__all__");
   const [seller, setSeller] = useState("__all__");
   const [template, setTemplate] = useState("__all__");
+  const [dateRange, setDateRange] = useState("30d");
 
   useEffect(() => {
     void fetchAdminEscrows()
@@ -105,73 +109,239 @@ export function EscrowListPage({ filter }: { filter?: string }) {
       .finally(() => setLoading(false));
   }, []);
 
-  const mapped: EscrowContract[] = rows.map((e) => {
-    const heldNGN = Math.round(Number(e.amountMinor) / 100 * 229);
-    const ms = (e.milestones ?? []) as { id: string; title: string; amountMinor: string | number; amountBps: number; status: string }[];
-    const released = ms.filter((m) => m.status === "RELEASED").reduce((s, m) => s + Number(m.amountMinor), 0);
-    return {
-      id: e.id,
-      orderId: e.id.slice(0, 8).toUpperCase(),
-      listingId: e.id.slice(0, 8).toUpperCase(),
-      buyer: e.buyer?.name ?? "Buyer",
-      buyerId: e.buyer?.id ?? "—",
-      buyerCountry: "NG",
-      seller: e.seller?.name ?? "Seller",
-      sellerId: e.seller?.id ?? "—",
-      sellerCountry: "CN",
-      totalNGN: heldNGN,
-      totalCNY: Number(e.amountMinor) / 100,
-      heldNGN,
-      releasedNGN: Math.round(released / 100 * 229),
-      refundedNGN: 0,
-      feeNGN: Math.round(heldNGN * 0.015),
-      status: (e.status === "DISPUTED" ? "disputed" : e.status === "ACTIVE" ? "in_transit" : "pending_release") as EscrowContract["status"],
-      template: "Standard 3-milestone",
-      fundedAt: new Date(e.createdAt).toLocaleDateString(),
-      autoReleaseAt: "—",
-      daysLeft: Math.max(0, 30 - Math.floor((Date.now() - new Date(e.createdAt).getTime()) / 86_400_000)),
-      milestones: ms.map((m) => ({
-        id: m.id,
-        label: m.title,
-        amountNGN: Math.round(Number(m.amountMinor) / 100 * 229),
-        pct: m.amountBps / 100,
-        status: (m.status === "RELEASED" ? "released" : m.status === "DISPUTED" ? "disputed" : "pending") as "released" | "disputed" | "pending",
-      })),
-    };
-  });
+  const mapped: EscrowContract[] = useMemo(() => {
+    return rows.map((e) => {
+      const currencyCode = (e.currency ?? "CNY").toUpperCase();
+      const major = fromMinor(e.amountMinor);
+      // Display corridor totals in NGN (CNY ≈ 229 NGN for admin overview)
+      const totalNGN = currencyCode === "NGN" ? major : Math.round(major * 229);
+      const totalCNY = currencyCode === "CNY" ? major : Math.round(major / 229);
+      const ms = (e.milestones ?? []) as {
+        id: string;
+        title: string;
+        amountMinor: string | number;
+        amountBps: number;
+        status: string;
+      }[];
+      const releasedMinor = ms.filter((m) => m.status === "RELEASED").reduce((s, m) => s + Number(m.amountMinor), 0);
+      const releasedNGN =
+        currencyCode === "NGN" ? Math.round(releasedMinor / 100) : Math.round((releasedMinor / 100) * 229);
+      const closed = ["COMPLETED", "CANCELLED", "RESOLVED"].includes(e.status.toUpperCase());
+      const heldNGN = closed ? 0 : Math.max(0, totalNGN - releasedNGN);
+      const feeBps = 150;
+      const feeNGN = Math.round(totalNGN * (feeBps / 10_000));
+
+      const raw = e.status.toUpperCase();
+      let uiStatus: EscrowContract["status"] = "in_transit";
+      if (raw === "DISPUTED") uiStatus = "disputed";
+      else if (raw === "COMPLETED" || raw === "RESOLVED") uiStatus = "released";
+      else if (raw === "CANCELLED") uiStatus = "refunded";
+      else if (raw === "AWAITING_FUNDS" || raw === "DRAFT" || raw === "AWAITING_SELLER") uiStatus = "funded";
+      else if (raw === "ACTIVE") {
+        const hasFundedMs = ms.some((m) => m.status === "FUNDED");
+        uiStatus = hasFundedMs ? "pending_release" : "in_transit";
+      }
+
+      const autoHours = e.autoReleaseHours ?? 24 * 30;
+      const releaseAt = new Date(e.createdAt).getTime() + autoHours * 3_600_000;
+      const daysLeft = Math.ceil((releaseAt - Date.now()) / 86_400_000);
+      if (daysLeft < 0 && heldNGN > 0 && uiStatus !== "disputed" && uiStatus !== "released" && uiStatus !== "refunded") {
+        uiStatus = "expired";
+      }
+
+      const n = ms.length || 1;
+      const templateLabel =
+        n === 1 ? "Goods · single release" : `Goods · ${n}-milestone`;
+
+      const phone = e.buyer?.phone ?? "";
+      const buyerCountry: EscrowContract["buyerCountry"] =
+        phone.startsWith("+233") || phone.startsWith("233")
+          ? "GH"
+          : phone.startsWith("+254") || phone.startsWith("254")
+            ? "KE"
+            : "NG";
+
+      return {
+        id: e.id,
+        orderId: e.orderId ?? "—",
+        listingId: e.id.slice(0, 8).toUpperCase(),
+        buyer: e.buyer?.name ?? "Buyer",
+        buyerId: `USR-${(e.buyer?.id ?? e.id).slice(0, 5).toUpperCase()}`,
+        buyerCountry,
+        seller: e.seller?.name ?? "Seller",
+        sellerId: `SLR-${(e.seller?.id ?? "0000").slice(0, 4).toUpperCase()}`,
+        sellerCountry: "CN" as const,
+        totalNGN,
+        totalCNY,
+        heldNGN,
+        releasedNGN,
+        refundedNGN: uiStatus === "refunded" ? totalNGN : 0,
+        feeNGN,
+        status: uiStatus,
+        template: templateLabel,
+        fundedAt: new Date(e.createdAt).toLocaleString("en-US", {
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        autoReleaseAt: new Date(releaseAt).toLocaleString(),
+        daysLeft,
+        milestones: ms.map((m) => ({
+          id: m.id,
+          label: m.title,
+          amountNGN:
+            currencyCode === "NGN"
+              ? Math.round(Number(m.amountMinor) / 100)
+              : Math.round((Number(m.amountMinor) / 100) * 229),
+          pct: (m.amountBps ?? 0) / 100,
+          status: (m.status === "RELEASED"
+            ? "released"
+            : m.status === "DISPUTED"
+              ? "disputed"
+              : "pending") as "released" | "disputed" | "pending",
+        })),
+        _currency: currencyCode,
+        _createdAt: e.createdAt,
+      } as EscrowContract & { _currency?: string; _createdAt?: string };
+    });
+  }, [rows]);
 
   const filtered = useMemo(() => {
     let list = filter
-      ? mapped.filter((r) => r.status === filter || (filter === "pending-release" && r.status === "pending_release"))
+      ? mapped.filter(
+          (r) =>
+            r.status === filter ||
+            (filter === "pending-release" && r.status === "pending_release") ||
+            (filter === "expired" && r.status === "expired"),
+        )
       : mapped;
+
+    if (dateRange === "7d" || dateRange === "30d") {
+      const days = dateRange === "7d" ? 7 : 30;
+      list = list.filter((r) => {
+        const created = (r as EscrowContract & { _createdAt?: string })._createdAt;
+        if (!created) return true;
+        return Date.now() - new Date(created).getTime() <= days * 86_400_000;
+      });
+    }
+
+    if (status !== "__all__") list = list.filter((r) => r.status === status);
+    if (currency !== "__all__") {
+      list = list.filter((r) => ((r as EscrowContract & { _currency?: string })._currency ?? "CNY") === currency);
+    }
     list = applyAllFilter(list, country, (r) => r.buyerCountry);
     list = applyAllFilter(list, seller, (r) => r.seller);
     list = applyAllFilter(list, template, (r) => r.template);
     return list;
-  }, [mapped, filter, country, seller, template]);
+  }, [mapped, filter, country, seller, template, status, currency, dateRange]);
 
-  const held = filtered.reduce((s, e) => s + e.heldNGN, 0);
-  const stats = {
-    contracts: filtered.length,
-    heldLabel: `₦${held.toLocaleString()}`,
-    avgDays: filtered.length ? Math.round(filtered.reduce((s, e) => s + e.daysLeft, 0) / filtered.length) : 0,
-    oldest: filtered[0]?.fundedAt ?? "—",
-  };
+  const kpis = useMemo(() => {
+    const active = mapped.filter((e) => e.heldNGN > 0);
+    const held = active.reduce((s, e) => s + e.heldNGN, 0);
+    const released = mapped.reduce((s, e) => s + e.releasedNGN, 0);
+    const refunded = mapped.reduce((s, e) => s + e.refundedNGN, 0);
+    const fees = mapped.reduce((s, e) => s + e.feeNGN, 0);
+    const pending = mapped.filter((e) => e.status === "pending_release").length;
+    const disputed = mapped.filter((e) => e.status === "disputed").length;
+    const expired = mapped.filter((e) => e.status === "expired").length;
+    return { held, activeCount: active.length, released, refunded, fees, pending, disputed, expired };
+  }, [mapped]);
 
   return (
-    <AdminShell title="Escrow contracts" description="Funded escrow awaiting milestone release." breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Escrow" }]}>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
-        <KPI label="Contracts" value={String(stats.contracts)} />
-        <KPI label="Funds held" value={stats.heldLabel} tone="warn" />
-        <KPI label="Avg held" value={`${stats.avgDays}d`} tone="info" />
-        <KPI label="Oldest" value={stats.oldest} tone="danger" />
+    <AdminShell
+      title="Escrow contracts"
+      description="Funded escrow awaiting milestone release."
+      breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Escrow contracts" }]}
+    >
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
+        <KPI label="Funds held" value={fmtNGN(kpis.held)} hint={`${kpis.activeCount} active contracts`} tone={T.ink} />
+        <KPI label="Released (lifetime)" value={fmtNGN(kpis.released)} tone={T.success} />
+        <KPI label="Refunded (lifetime)" value={fmtNGN(kpis.refunded)} tone={T.danger} />
+        <KPI label="Escrow fees collected" value={fmtNGN(kpis.fees)} tone={T.info} />
       </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+        <Link
+          to="/admin/escrow/pending-release"
+          className="rounded-xl px-4 py-3 flex items-center justify-between transition hover:bg-black/[0.02]"
+          style={{ background: T.surface, border: `1px solid ${T.border}` }}
+        >
+          <div className="flex items-center gap-2.5">
+            <Clock className="size-4" style={{ color: T.warn }} />
+            <span className="text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: T.ink }}>Pending release</span>
+          </div>
+          <span className="text-[18px] font-bold tabular-nums" style={{ fontFamily: "'JetBrains Mono', monospace", color: T.ink }}>{kpis.pending}</span>
+        </Link>
+        <Link
+          to="/admin/escrow/disputed"
+          className="rounded-xl px-4 py-3 flex items-center justify-between transition hover:bg-black/[0.02]"
+          style={{ background: T.surface, border: `1px solid ${T.border}` }}
+        >
+          <div className="flex items-center gap-2.5">
+            <Gavel className="size-4" style={{ color: T.danger }} />
+            <span className="text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: T.ink }}>Disputed</span>
+          </div>
+          <span className="text-[18px] font-bold tabular-nums" style={{ fontFamily: "'JetBrains Mono', monospace", color: T.ink }}>{kpis.disputed}</span>
+        </Link>
+        <Link
+          to="/admin/escrow/expired"
+          className="rounded-xl px-4 py-3 flex items-center justify-between transition hover:bg-black/[0.02]"
+          style={{ background: T.surface, border: `1px solid ${T.border}` }}
+        >
+          <div className="flex items-center gap-2.5">
+            <AlertTriangle className="size-4" style={{ color: T.warn }} />
+            <span className="text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: T.ink }}>Expired (needs review)</span>
+          </div>
+          <span className="text-[18px] font-bold tabular-nums" style={{ fontFamily: "'JetBrains Mono', monospace", color: T.ink }}>{kpis.expired}</span>
+        </Link>
+      </div>
+
       <FilterBar>
+        <FilterSelect
+          label="Status"
+          value={status}
+          onChange={setStatus}
+          options={[
+            { value: "__all__", label: "All" },
+            { value: "funded", label: "Funded" },
+            { value: "in_transit", label: "In transit" },
+            { value: "pending_release", label: "Pending release" },
+            { value: "released", label: "Released" },
+            { value: "disputed", label: "Disputed" },
+            { value: "expired", label: "Expired" },
+            { value: "refunded", label: "Refunded" },
+          ]}
+        />
+        <FilterSelect
+          label="Currency"
+          value={currency}
+          onChange={setCurrency}
+          options={[
+            { value: "__all__", label: "All" },
+            { value: "NGN", label: "NGN" },
+            { value: "CNY", label: "CNY" },
+          ]}
+        />
         <FilterSelect label="Country" value={country} onChange={setCountry} options={uniqueOptions(mapped.map((r) => r.buyerCountry), "All")} />
         <FilterSelect label="Seller" value={seller} onChange={setSeller} options={uniqueOptions(mapped.map((r) => r.seller), "Any")} />
         <FilterSelect label="Template" value={template} onChange={setTemplate} options={uniqueOptions(mapped.map((r) => r.template), "All")} />
+        <FilterSelect
+          label="Date"
+          value={dateRange}
+          onChange={setDateRange}
+          options={[
+            { value: "7d", label: "Last 7d" },
+            { value: "30d", label: "Last 30d" },
+            { value: "__all__", label: "All time" },
+          ]}
+        />
       </FilterBar>
-      {loading ? <Loader2 className="size-5 animate-spin mx-auto my-16" style={{ color: T.muted }} /> : <EscrowTable rows={filtered} />}
+      {loading ? (
+        <Loader2 className="size-5 animate-spin mx-auto my-16" style={{ color: T.muted }} />
+      ) : (
+        <EscrowTable rows={filtered} />
+      )}
     </AdminShell>
   );
 }

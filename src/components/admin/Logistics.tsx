@@ -170,7 +170,7 @@ export function ShipmentTable({ rows }: { rows: Shipment[] }) {
           <thead>
             <tr style={{ background: T.bg, color: T.muted }} className="text-left text-[10px] font-bold uppercase tracking-[0.14em]">
               <th className="px-2 py-2.5 pl-4">Shipment</th>
-              <th className="px-2 py-2.5">Carrier ┬╖ Service</th>
+              <th className="px-2 py-2.5">Carrier · Service</th>
               <th className="px-2 py-2.5">Route</th>
               <th className="px-2 py-2.5 text-right">Weight</th>
               <th className="px-2 py-2.5">Status</th>
@@ -190,9 +190,9 @@ export function ShipmentTable({ rows }: { rows: Shipment[] }) {
                   <p className="text-[10.5px]" style={{ color: T.muted }}>{s.service}</p>
                 </td>
                 <td className="px-2 py-3">
-                  <p className="text-[11.5px] font-medium">{s.origin} ΓåÆ {s.destination}</p>
+                  <p className="text-[11.5px] font-medium">{s.origin} {"\u2192"} {s.destination}</p>
                   <p className="text-[10.5px] flex items-center gap-1" style={{ color: T.muted }}>
-                    <FlagEmoji c={"CN"} /> ΓåÆ <FlagEmoji c={s.buyerCountry} /> {s.buyer}
+                    <FlagEmoji c={"CN"} /> {"\u2192"} <FlagEmoji c={s.buyerCountry} /> {s.buyer}
                   </p>
                 </td>
                 <td className="px-2 py-3 text-right">

@@ -128,7 +128,7 @@ export function fmtCNY(n: number) {
   return "CNY " + n.toLocaleString("en-US");
 }
 export function fmtNGN(n: number) {
-  return "Γéª" + n.toLocaleString("en-US");
+  return "\u20A6" + n.toLocaleString("en-US");
 }
 
 export function statusPillCatalog(s: Listing["status"]) {
