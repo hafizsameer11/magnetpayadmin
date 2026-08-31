@@ -1,17 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Loader2, XCircle } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
-import { Pill } from "@/components/admin/UserProfile";
-import {
-  canCancelOrder,
-  OrderHeader,
-  OrderItemsTable,
-  OrderKPIs,
-  OrderLinkedEntities,
-  toneForOrderStatus,
-  type AdminOrderRow,
-} from "@/components/admin/OrderProfile";
+import { OrderDetailView, type AdminOrderRow } from "@/components/admin/OrderProfile";
 import { cancelAdminOrder, fetchAdminOrder } from "@/lib/api";
 import { toast } from "sonner";
 
@@ -57,9 +48,14 @@ function Page() {
     }
   };
 
+  const displayId = row ? (row.id.startsWith("ORD-") ? row.id : `ORD-${row.id.slice(0, 6).toUpperCase()}`) : id.slice(0, 8);
+
   if (loading) {
     return (
-      <AdminShell title="Order" breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Orders", to: "/admin/orders" }, { label: id.slice(0, 8) }]}>
+      <AdminShell
+        title="Order"
+        breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Orders", to: "/admin/orders" }, { label: displayId }]}
+      >
         <div className="py-16 grid place-items-center" style={{ color: T.muted }}>
           <Loader2 className="size-5 animate-spin" />
         </div>
@@ -69,40 +65,23 @@ function Page() {
 
   if (!row) {
     return (
-      <AdminShell title="Order" breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Orders", to: "/admin/orders" }, { label: id.slice(0, 8) }]}>
-        <p className="text-[13px]" style={{ color: T.muted }}>Order not found.</p>
+      <AdminShell
+        title="Order"
+        breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Orders", to: "/admin/orders" }, { label: displayId }]}
+      >
+        <p className="text-[13px]" style={{ color: T.muted }}>
+          Order not found.
+        </p>
       </AdminShell>
     );
   }
 
-  const status = String(row.status);
-
   return (
     <AdminShell
       title=" "
-      breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Orders", to: "/admin/orders" }, { label: row.id.slice(0, 8) }]}
+      breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Orders", to: "/admin/orders" }, { label: displayId }]}
     >
-      <OrderHeader
-        row={row}
-        actions={
-          <>
-            <Pill tone={toneForOrderStatus(status)}>{status}</Pill>
-            {canCancelOrder(status) ? (
-              <button
-                disabled={busy}
-                onClick={() => void cancel()}
-                className="h-9 px-3 rounded-lg text-[12px] font-semibold text-white flex items-center gap-1.5 disabled:opacity-50"
-                style={{ background: T.danger }}
-              >
-                <XCircle className="size-3.5" /> Cancel
-              </button>
-            ) : null}
-          </>
-        }
-      />
-      <OrderKPIs row={row} />
-      <OrderLinkedEntities row={row} />
-      <OrderItemsTable row={row} />
+      <OrderDetailView row={row} onCancel={() => void cancel()} busy={busy} />
     </AdminShell>
   );
 }

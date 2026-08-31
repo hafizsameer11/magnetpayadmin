@@ -196,11 +196,29 @@ export type AdminEscrow = {
   autoReleaseHours?: number | null;
   feeSplit?: string | null;
   requiredDocs?: { id: string; label: string; required: boolean }[] | null;
-  milestones?: unknown[];
+  milestones?: {
+    id: string;
+    label?: string;
+    title?: string;
+    amountMinor?: string | number;
+    amountBps?: number;
+    status?: string;
+    sortOrder?: number;
+    releaseRequestedAt?: string | null;
+  }[];
   disputes?: { id: string; outcome?: string | null }[];
+  documents?: { id: string; name: string; url: string }[];
   inspections?: AdminInspection[];
   buyer?: { id: string; name: string; phone: string };
   seller?: { id: string; name: string; phone: string };
+  fxCnyNgn?: number;
+  order?: {
+    id: string;
+    items?: {
+      title?: string;
+      product?: { id?: string; title?: string; imageUrl?: string | null };
+    }[];
+  } | null;
 };
 
 export type AdminInspection = {
@@ -638,6 +656,12 @@ export async function fetchAdminEscrow(id: string) {
 }
 export async function resolveEscrow(id: string, outcome: string) {
   return api(`/admin/escrows/${id}/resolve`, { method: "POST", body: JSON.stringify({ outcome }) });
+}
+export async function releaseAdminEscrowMilestone(escrowId: string, milestoneId: string) {
+  return api<AdminEscrow>(`/admin/escrows/${escrowId}/milestones/${milestoneId}/release`, {
+    method: "POST",
+    body: "{}",
+  });
 }
 export async function fetchAdminInspections(status?: string) {
   const q = status ? `?status=${encodeURIComponent(status)}` : "";
@@ -1232,6 +1256,38 @@ export async function putAdminFees(rows: { key: string; value: string | number; 
 }
 export async function fetchAdminFxRates() {
   return api<AdminFee[]>("/admin/fx/rates");
+}
+export type AdminFxPair = {
+  pair: string;
+  pairKey: string;
+  mid: number;
+  buy: number;
+  sell: number;
+  spreadPct: number;
+  source: string;
+  override: boolean;
+  updatedAt: string;
+};
+export async function fetchAdminFxPairs() {
+  return api<{ pairs: AdminFxPair[]; halted: boolean }>("/admin/fx/pairs");
+}
+export async function refreshAdminFxPairs() {
+  return api<{ pairs: AdminFxPair[]; synced: number }>("/admin/fx/refresh", { method: "POST" });
+}
+export async function patchAdminFxPair(
+  pairKey: string,
+  body: { mid?: number; spreadBps?: number; override?: boolean },
+) {
+  return api<AdminFxPair>(`/admin/fx/pairs/${encodeURIComponent(pairKey)}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+}
+export async function setAdminFxHalted(halted: boolean) {
+  return api<{ halted: boolean }>("/admin/fx/halt", {
+    method: "POST",
+    body: JSON.stringify({ halted }),
+  });
 }
 export async function putAdminFxRates(rates: { key: string; value: string | number }[]) {
   return api("/admin/fx/rates", { method: "PUT", body: JSON.stringify({ rates }) });

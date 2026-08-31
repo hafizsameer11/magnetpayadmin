@@ -145,14 +145,14 @@ export const STATUS_META: Record<OrderStatus, { c: string; label: string }> = {
 
 export function statusPillOrder(s: OrderStatus) {
   const m = STATUS_META[s];
-  return <StatusBadgeCustom color={m.c} label={m.label} />;
+  return <StatusBadgeCustom color={m.c} label={m.label.toUpperCase()} />;
 }
 
 export function KPI({ label, value, hint, tone = T.ink }: { label: string; value: ReactNode; hint?: string; tone?: string }) {
   return (
     <Card>
-      <p className="text-[10px] font-bold uppercase tracking-[0.16em]" style={{ color: T.ink }}>{label}</p>
-      <p className="mt-1.5 text-[20px] font-bold tabular-nums" style={{ color: T.ink, fontFamily: "'JetBrains Mono', monospace" }}>{value}</p>
+      <p className="text-[10px] font-bold uppercase tracking-[0.16em]" style={{ color: T.muted }}>{label}</p>
+      <p className="mt-1.5 text-[20px] font-bold tabular-nums" style={{ color: tone, fontFamily: "'JetBrains Mono', monospace" }}>{value}</p>
       {hint && <p className="mt-0.5 text-[11px]" style={{ color: T.muted }}>{hint}</p>}
     </Card>
   );
@@ -200,24 +200,24 @@ export function OrderTable({ rows, dense = false }: { rows: Order[]; dense?: boo
               return (
                 <tr key={o.id} className="border-t hover:bg-black/[0.015] transition" style={{ borderColor: T.border }}>
                   <td className="px-2 py-3 pl-4">
-                    <Link to="/admin/orders/$id" params={{ id: o.id }} className="font-bold tabular-nums hover:underline" style={{ color: T.ink, fontFamily: "'JetBrains Mono', monospace" }}>{displayId}</Link>
-                    <p className="text-[10.5px]" style={{ color: T.muted }}>{o.placed}</p>
+                    <Link to="/admin/orders/$id" params={{ id: o.id }} className="font-bold hover:underline" style={{ color: T.ink, fontFamily: "'JetBrains Mono', monospace" }}>{displayId}</Link>
+                    <p className="text-[10.5px] mt-0.5" style={{ color: T.muted }}>{o.placed}</p>
                   </td>
                   <td className="px-2 py-3">
                     <div className="flex items-center gap-2 min-w-0">
                       <Thumb src={l.image} alt={l.title} size={dense ? 28 : 32} />
                       <div className="min-w-0">
-                        <p className="font-medium truncate max-w-[220px]" style={{ color: T.ink }}>{l.title}</p>
-                        <p className="text-[10.5px] tabular-nums" style={{ color: T.muted, fontFamily: "'JetBrains Mono', monospace" }}>Qty {o.qty} · {o.payment}</p>
+                        <p className="font-semibold text-[12px] truncate max-w-[220px]" style={{ color: T.ink }}>{l.title}</p>
+                        <p className="text-[10.5px] tabular-nums mt-0.5" style={{ color: T.muted, fontFamily: "'JetBrains Mono', monospace" }}>Qty {o.qty} · {o.payment}</p>
                       </div>
                     </div>
                   </td>
                   <td className="px-2 py-3">
-                    <p className="font-medium flex items-center gap-1"><FlagEmoji c={o.buyerCountry} /> {o.buyer}</p>
+                    <p className="font-semibold text-[12px] flex items-center gap-1"><FlagEmoji c={o.buyerCountry} /> {o.buyer}</p>
                     <p className="text-[10.5px] tabular-nums" style={{ color: T.muted, fontFamily: "'JetBrains Mono', monospace" }}>{o.buyerId}</p>
                   </td>
                   <td className="px-2 py-3">
-                    <p className="font-medium truncate max-w-[140px]">{o.seller}</p>
+                    <p className="font-semibold text-[12px] truncate max-w-[140px]">{o.seller}</p>
                     <p className="text-[10.5px] tabular-nums" style={{ color: T.muted, fontFamily: "'JetBrains Mono', monospace" }}>{o.sellerId}</p>
                   </td>
                   <td className="px-2 py-3 text-right">
