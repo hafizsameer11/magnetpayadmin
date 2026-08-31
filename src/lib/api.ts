@@ -1127,6 +1127,10 @@ export async function postAdminConversationMessage(conversationId: string, body:
   });
 }
 
+export async function closeAdminSupportConversation(conversationId: string) {
+  return api<{ closed: boolean }>(`/admin/conversations/${conversationId}/close`, { method: "POST" });
+}
+
 export async function postAdminTicketMessage(ticketId: string, body: string, author?: string) {
   return api<AdminRecord>(`/admin/tickets/${ticketId}/messages`, {
     method: "POST",

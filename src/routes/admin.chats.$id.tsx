@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ChevronLeft, FileText, Loader2, Paperclip, Send, X } from "lucide-react";
+import { ChevronLeft, FileText, Loader2, Lock, Paperclip, Send, X } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
-import { fetchAdminConversation, postAdminConversationMessage, resolveApiFileUrl, uploadAdminFile } from "@/lib/api";
+import { closeAdminSupportConversation, fetchAdminConversation, postAdminConversationMessage, resolveApiFileUrl, uploadAdminFile } from "@/lib/api";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/chats/$id")({
@@ -64,6 +64,9 @@ function Page() {
   const [pending, setPending] = useState<{ url: string; name: string; preview?: string } | null>(null);
   const [uploading, setUploading] = useState(false);
   const [sending, setSending] = useState(false);
+  const [closing, setClosing] = useState(false);
+
+  const isSupport = Boolean(row?.subject?.startsWith("Support ·"));
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -113,6 +116,21 @@ function Page() {
     }
   };
 
+  const closeChat = async () => {
+    if (!isSupport || closing) return;
+    if (!window.confirm("Close this support chat? The customer won't be able to send new messages.")) return;
+    setClosing(true);
+    try {
+      await closeAdminSupportConversation(id);
+      toast.success("Support chat closed");
+      await load();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Close failed");
+    } finally {
+      setClosing(false);
+    }
+  };
+
   if (loading) {
     return (
       <AdminShell title="Chat" breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Chats", to: "/admin/chats" }, { label: id.slice(0, 8) }]}>
@@ -138,7 +156,21 @@ function Page() {
         <ChevronLeft className="size-3.5" /> Chats
       </Link>
       <div className="rounded-xl p-4 mb-4" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
-        <p className="text-[10px] font-bold uppercase tracking-[0.14em]" style={{ color: T.muted }}>Participants</p>
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="text-[10px] font-bold uppercase tracking-[0.14em]" style={{ color: T.muted }}>Participants</p>
+          {isSupport ? (
+            <button
+              type="button"
+              disabled={closing}
+              onClick={() => void closeChat()}
+              className="ml-auto inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-[11px] font-semibold disabled:opacity-50"
+              style={{ background: `${T.danger}12`, color: T.danger, border: `1px solid ${T.danger}30` }}
+            >
+              <Lock className="size-3.5" />
+              {closing ? "Closing…" : "Close chat"}
+            </button>
+          ) : null}
+        </div>
         <p className="mt-1 text-[13px] font-semibold">{names}</p>
         {row.subject ? <p className="mt-2 text-[12px]" style={{ color: T.sub }}>{row.subject}</p> : null}
       </div>
