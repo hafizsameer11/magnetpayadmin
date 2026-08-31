@@ -1,6 +1,7 @@
-﻿import type { ReactNode } from "react";
+﻿import type { CSSProperties, ReactNode } from "react";
 import { T } from "@/components/admin/AdminShell";
 import { StatusBadge, StatusBadgeCustom, formatStatusLabel, type BadgeTone } from "./StatusBadge";
+import { isVideoMediaUrl, resolveApiFileUrl } from "@/lib/api";
 import imgCharger from "@/assets/listings/charger.jpg";
 import imgAnkara from "@/assets/listings/ankara.jpg";
 import imgSurge from "@/assets/listings/surge.jpg";
@@ -175,6 +176,45 @@ export function Thumb({ src, alt = "", size = 36 }: { src: string; alt?: string;
       style={{
         width: size, height: size,
         background: T.bg, border: `1px solid ${T.border}`,
+      }}
+    />
+  );
+}
+
+export function ProductMediaPreview({
+  url,
+  alt = "",
+  className = "",
+  style,
+}: {
+  url: string;
+  alt?: string;
+  className?: string;
+  style?: CSSProperties;
+}) {
+  const src = resolveApiFileUrl(url);
+  if (isVideoMediaUrl(url)) {
+    return (
+      <video
+        src={src}
+        className={className}
+        style={style}
+        muted
+        playsInline
+        controls
+        preload="metadata"
+      />
+    );
+  }
+  return (
+    <img
+      src={src}
+      alt={alt}
+      loading="lazy"
+      className={className}
+      style={style}
+      onError={(e) => {
+        e.currentTarget.style.opacity = "0.35";
       }}
     />
   );

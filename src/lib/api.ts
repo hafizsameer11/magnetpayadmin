@@ -697,9 +697,32 @@ export async function markAdminOrderShipped(
 }
 export function resolveApiFileUrl(url: string) {
   if (!url) return url;
-  if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:")) return url;
+  const trimmed = url.trim();
+  if (!trimmed) return trimmed;
+  if (trimmed.startsWith("http://") || trimmed.startsWith("https://") || trimmed.startsWith("data:")) return trimmed;
+  if (trimmed.startsWith("//")) return `https:${trimmed}`;
   const base = API_URL.replace(/\/$/, "");
-  return `${base}${url.startsWith("/") ? url : `/${url}`}`;
+  return `${base}${trimmed.startsWith("/") ? trimmed : `/${trimmed}`}`;
+}
+
+export function isVideoMediaUrl(url: string) {
+  return /\.(mp4|mov|m4v|webm)(\?|$)/i.test(url) || /\/video\//i.test(url);
+}
+
+/** Pick the first non-video image for listing thumbnails. */
+export function firstProductImageUrl(input: {
+  imageUrl?: string | null;
+  media?: { url: string; sortOrder: number }[];
+  variants?: { imageUrl?: string | null }[];
+}) {
+  const ordered = [...(input.media ?? [])].sort((a, b) => a.sortOrder - b.sortOrder).map((m) => m.url);
+  const candidates = ordered.length ? ordered : input.imageUrl ? [input.imageUrl] : [];
+  for (const url of candidates) {
+    if (url && !isVideoMediaUrl(url)) return resolveApiFileUrl(url);
+  }
+  if (input.imageUrl && !isVideoMediaUrl(input.imageUrl)) return resolveApiFileUrl(input.imageUrl);
+  const variant = input.variants?.find((v) => v.imageUrl && !isVideoMediaUrl(v.imageUrl))?.imageUrl;
+  return variant ? resolveApiFileUrl(variant) : "";
 }
 
 export async function uploadAdminFile(filename: string, contentBase64: string, mimeType?: string) {

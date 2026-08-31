@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ChevronLeft, ChevronRight, ImagePlus, Loader2, Save, Star, Trash2, Upload } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
-import { Card, SectionLabel, statusPillCatalog, Thumb } from "@/components/admin/Catalog";
+import { Card, ProductMediaPreview, SectionLabel, statusPillCatalog, Thumb } from "@/components/admin/Catalog";
 import {
   ListingPageActions,
   listingRefId,
@@ -13,9 +13,10 @@ import {
   fetchAdminCategories,
   fetchAdminLogisticsEstimateConfig,
   fetchAdminProduct,
+  firstProductImageUrl,
   fmtMoney,
   fromMinor,
-  resolveApiFileUrl,
+  isVideoMediaUrl,
   updateAdminProduct,
   uploadAdminFile,
   type AdminProduct,
@@ -239,7 +240,7 @@ function Page() {
         stock: stockNum,
         categoryId: form.categoryId || null,
         mediaUrls: form.mediaUrls,
-        imageUrl: form.mediaUrls[0] ?? null,
+        imageUrl: form.mediaUrls.find((u) => !isVideoMediaUrl(u)) ?? form.mediaUrls[0] ?? null,
         moderationStatus: form.moderationStatus,
         flagReason: form.moderationStatus === "REPORTED" ? form.flagReason.trim() || null : null,
         active: form.moderationStatus === "ACTIVE",
@@ -359,7 +360,7 @@ function Page() {
     );
   }
 
-  const headerImg = form.mediaUrls[0] ? resolveApiFileUrl(form.mediaUrls[0]) : "";
+  const headerImg = product ? firstProductImageUrl({ imageUrl: form.mediaUrls[0] ?? null, media: form.mediaUrls.map((url, sortOrder) => ({ url, sortOrder })) }) : "";
 
   return (
     <AdminShell
@@ -419,13 +420,21 @@ function Page() {
                     className="relative rounded-xl overflow-hidden group"
                     style={{ border: `1px solid ${index === 0 ? T.navy : T.border}` }}
                   >
-                    <img
-                      src={resolveApiFileUrl(url)}
+                    <ProductMediaPreview
+                      url={url}
                       alt=""
                       className="w-full aspect-square object-cover"
                       style={{ background: T.bg }}
                     />
-                    {index === 0 ? (
+                    {isVideoMediaUrl(url) ? (
+                      <span
+                        className="absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded"
+                        style={{ background: "rgba(0,0,0,0.65)", color: "#fff" }}
+                      >
+                        Video
+                      </span>
+                    ) : null}
+                    {index === 0 && !isVideoMediaUrl(url) ? (
                       <span
                         className="absolute top-2 left-2 text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded"
                         style={{ background: T.navy, color: "#fff" }}
@@ -441,7 +450,7 @@ function Page() {
                         <IconBtn title="Move right" disabled={index === form.mediaUrls.length - 1} onClick={() => moveMedia(index, 1)}>
                           <ChevronRight className="size-3.5" />
                         </IconBtn>
-                        {index !== 0 ? (
+                        {index !== 0 && !isVideoMediaUrl(url) ? (
                           <IconBtn title="Set as cover" onClick={() => setPrimaryMedia(index)}>
                             <Star className="size-3.5" />
                           </IconBtn>

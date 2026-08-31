@@ -18,7 +18,7 @@ import { listingCatalogStatus, listingRefId, sellerRefId } from "@/components/ad
 import { FilterSelect, applyAllFilter, uniqueOptions } from "@/components/admin/ListFilters";
 import { FilterTabs, ListEmpty } from "@/components/admin/ListPageKit";
 import type { AdminProduct } from "@/lib/api";
-import { fetchAdminProducts, fmtMoney, fromMinor, moderateProduct, resolveApiFileUrl } from "@/lib/api";
+import { fetchAdminProducts, fmtMoney, fromMinor, firstProductImageUrl, moderateProduct } from "@/lib/api";
 import { downloadClientCsv } from "@/lib/csv";
 import { toast } from "sonner";
 
@@ -38,11 +38,7 @@ function primarySku(p: AdminProduct) {
 }
 
 function productImage(p: AdminProduct) {
-  if (p.imageUrl) return resolveApiFileUrl(p.imageUrl);
-  const media = p.media?.[0]?.url;
-  if (media) return resolveApiFileUrl(media);
-  const variant = p.variants?.find((v) => v.imageUrl)?.imageUrl;
-  return variant ? resolveApiFileUrl(variant) : "";
+  return firstProductImageUrl(p);
 }
 
 function orders30d(p: AdminProduct) {

@@ -18,7 +18,7 @@ import { toast } from "sonner";
 import { T } from "./AdminShell";
 import { Pill, flaggedPill } from "./UserProfile";
 import { StatusBadge, StatusBadgeFromRaw, formatStatusLabel } from "./StatusBadge";
-import { fmtMoney, fromMinor, resolveApiFileUrl, type AdminProduct, type AdminProductStats } from "@/lib/api";
+import { fmtMoney, fromMinor, firstProductImageUrl, isVideoMediaUrl, resolveApiFileUrl, type AdminProduct, type AdminProductStats } from "@/lib/api";
 import { fmtCNY, fmtNGN, statusPillCatalog, Thumb, Card, SectionLabel } from "./Catalog";
 
 const WEB_BASE = import.meta.env.VITE_WEB_URL ?? import.meta.env.VITE_API_URL ?? "https://magnetpay.amctraders.online";
@@ -54,11 +54,7 @@ function copyText(label: string, value: string) {
 }
 
 function productImage(product: AdminProduct) {
-  if (product.imageUrl) return resolveApiFileUrl(product.imageUrl);
-  const media = product.media?.[0]?.url;
-  if (media) return resolveApiFileUrl(media);
-  const variant = product.variants?.find((v) => v.imageUrl)?.imageUrl;
-  return variant ? resolveApiFileUrl(variant) : "";
+  return firstProductImageUrl(product);
 }
 
 function primarySku(product: AdminProduct) {
