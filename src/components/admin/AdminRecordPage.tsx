@@ -323,6 +323,11 @@ export function AdminRecordDetailPage({ domain, id }: { domain: string; id: stri
   const [editTitle, setEditTitle] = useState("");
   const [editSubtitle, setEditSubtitle] = useState("");
   const [editStatus, setEditStatus] = useState("");
+  const [editSlug, setEditSlug] = useState("");
+  const [editVersionLabel, setEditVersionLabel] = useState("");
+  const [editIcon, setEditIcon] = useState("");
+  const [editBody, setEditBody] = useState("");
+  const isLegal = domain === "legal-page";
 
   useEffect(() => {
     void (async () => {
@@ -334,6 +339,11 @@ export function AdminRecordDetailPage({ domain, id }: { domain: string; id: stri
         setEditTitle(data.title);
         setEditSubtitle(data.subtitle ?? "");
         setEditStatus(data.status ?? "");
+        const p = (data.payload ?? {}) as Record<string, unknown>;
+        setEditSlug(String(p.slug ?? ""));
+        setEditVersionLabel(String(p.versionLabel ?? data.subtitle ?? ""));
+        setEditIcon(String(p.icon ?? "file-text"));
+        setEditBody(String(p.body ?? ""));
       } catch (e) {
         toast.error(e instanceof Error ? e.message : "Failed to load");
         setRow(null);
@@ -347,10 +357,22 @@ export function AdminRecordDetailPage({ domain, id }: { domain: string; id: stri
     if (!row) return;
     setSaving(true);
     try {
+      const payload = (row.payload ?? {}) as Record<string, unknown>;
       const updated = await patchAdminRecord(row.id, {
         title: editTitle.trim() || row.title,
         subtitle: editSubtitle.trim() || undefined,
         status: editStatus.trim() || undefined,
+        ...(isLegal
+          ? {
+              payload: {
+                ...payload,
+                slug: editSlug.trim() || payload.slug,
+                versionLabel: editVersionLabel.trim() || editSubtitle.trim() || undefined,
+                icon: editIcon.trim() || payload.icon,
+                body: editBody,
+              },
+            }
+          : {}),
       });
       setRow(updated);
       toast.success("Saved");
@@ -432,6 +454,50 @@ export function AdminRecordDetailPage({ domain, id }: { domain: string; id: stri
                 style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.ink }}
               />
             </label>
+            {isLegal ? (
+              <>
+                <label className="block">
+                  <span style={{ color: T.sub }}>Slug (URL key)</span>
+                  <input
+                    value={editSlug}
+                    onChange={(e) => setEditSlug(e.target.value)}
+                    placeholder="terms"
+                    className="mt-1 w-full h-9 px-3 rounded-lg"
+                    style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.ink }}
+                  />
+                </label>
+                <label className="block">
+                  <span style={{ color: T.sub }}>Version label (shown in app)</span>
+                  <input
+                    value={editVersionLabel}
+                    onChange={(e) => setEditVersionLabel(e.target.value)}
+                    placeholder="Updated 4 Jun 2026"
+                    className="mt-1 w-full h-9 px-3 rounded-lg"
+                    style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.ink }}
+                  />
+                </label>
+                <label className="block">
+                  <span style={{ color: T.sub }}>Icon key</span>
+                  <input
+                    value={editIcon}
+                    onChange={(e) => setEditIcon(e.target.value)}
+                    placeholder="file-text, shield-check, scale, cookie, globe"
+                    className="mt-1 w-full h-9 px-3 rounded-lg"
+                    style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.ink }}
+                  />
+                </label>
+                <label className="block">
+                  <span style={{ color: T.sub }}>Document body</span>
+                  <textarea
+                    value={editBody}
+                    onChange={(e) => setEditBody(e.target.value)}
+                    rows={16}
+                    className="mt-1 w-full px-3 py-2 rounded-lg resize-y font-mono text-[11px] leading-relaxed"
+                    style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.ink }}
+                  />
+                </label>
+              </>
+            ) : null}
           </div>
         </div>
         <div className="rounded-xl p-4" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
