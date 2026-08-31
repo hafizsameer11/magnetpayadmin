@@ -483,7 +483,7 @@ export type AdminConversation = {
   createdAt: string;
   updatedAt: string;
   participants?: { user: { id: string; name: string; phone: string } }[];
-  messages?: { id: string; body: string; createdAt: string; senderId?: string }[];
+  messages?: { id: string; body: string; createdAt: string; senderId?: string; attachmentUrl?: string | null }[];
 };
 
 export type AdminAnnouncement = {
@@ -1117,13 +1117,13 @@ export async function fetchAdminReview(id: string) {
   return api<Record<string, unknown>>(`/admin/reviews/${id}`);
 }
 export async function fetchAdminConversation(id: string) {
-  return api<AdminConversation & { messages?: { id: string; body: string; createdAt: string; senderId?: string }[] }>(`/admin/conversations/${id}`);
+  return api<AdminConversation & { messages?: { id: string; body: string; createdAt: string; senderId?: string; attachmentUrl?: string | null }[] }>(`/admin/conversations/${id}`);
 }
 
-export async function postAdminConversationMessage(conversationId: string, body: string) {
-  return api<{ id: string; body: string; createdAt: string }>(`/admin/conversations/${conversationId}/messages`, {
+export async function postAdminConversationMessage(conversationId: string, body: string, attachmentUrl?: string) {
+  return api<{ id: string; body: string; createdAt: string; attachmentUrl?: string | null }>(`/admin/conversations/${conversationId}/messages`, {
     method: "POST",
-    body: JSON.stringify({ body }),
+    body: JSON.stringify({ body, ...(attachmentUrl ? { attachmentUrl } : {}) }),
   });
 }
 
