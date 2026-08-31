@@ -289,8 +289,8 @@ export function ListingSidebar({
           />
           <QuickAction
             I={Pause}
-            label="Pause"
-            disabled={busy || !product.active || !onModerate}
+            label="Hide"
+            disabled={busy || !onModerate}
             onClick={() => onModerate?.("HIDDEN")}
           />
           <QuickAction
@@ -315,7 +315,18 @@ export function ListingSidebar({
             className="mt-3 w-full h-9 rounded-lg text-[12px] font-semibold text-white flex items-center justify-center gap-1.5 disabled:opacity-50"
             style={{ background: T.success }}
           >
-            <Check className="size-3.5" /> Approve listing
+            <Check className="size-3.5" /> Publish listing
+          </button>
+        ) : null}
+        {product.active && onModerate ? (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => onModerate("HIDDEN")}
+            className="mt-3 w-full h-9 rounded-lg text-[12px] font-semibold flex items-center justify-center gap-1.5 disabled:opacity-50"
+            style={{ background: T.surface, border: `1px solid ${T.border}`, color: T.ink }}
+          >
+            <Pause className="size-3.5" /> Hide listing
           </button>
         ) : null}
       </Card>

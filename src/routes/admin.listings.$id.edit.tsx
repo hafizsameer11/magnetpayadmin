@@ -401,6 +401,56 @@ function Page() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 pb-24">
         <div className="lg:col-span-2 space-y-4">
+          <FormSection title="Visibility" hint="Control whether buyers can see this listing in the mobile marketplace.">
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setField("moderationStatus", "ACTIVE")}
+                className="h-10 px-4 rounded-lg text-[12px] font-semibold"
+                style={{
+                  background: form.moderationStatus === "ACTIVE" ? T.success : T.surface,
+                  color: form.moderationStatus === "ACTIVE" ? "#fff" : T.ink,
+                  border: `1px solid ${form.moderationStatus === "ACTIVE" ? T.success : T.border}`,
+                }}
+              >
+                Published
+              </button>
+              <button
+                type="button"
+                onClick={() => setField("moderationStatus", "HIDDEN")}
+                className="h-10 px-4 rounded-lg text-[12px] font-semibold"
+                style={{
+                  background: form.moderationStatus === "HIDDEN" ? T.navy : T.surface,
+                  color: form.moderationStatus === "HIDDEN" ? "#fff" : T.ink,
+                  border: `1px solid ${form.moderationStatus === "HIDDEN" ? T.navy : T.border}`,
+                }}
+              >
+                Hidden
+              </button>
+              <button
+                type="button"
+                onClick={() => setField("moderationStatus", "PENDING")}
+                className="h-10 px-4 rounded-lg text-[12px] font-semibold"
+                style={{
+                  background: form.moderationStatus === "PENDING" ? T.warn : T.surface,
+                  color: form.moderationStatus === "PENDING" ? "#fff" : T.ink,
+                  border: `1px solid ${form.moderationStatus === "PENDING" ? T.warn : T.border}`,
+                }}
+              >
+                Pending review
+              </button>
+            </div>
+            <p className="mt-2 text-[11px]" style={{ color: T.muted }}>
+              {form.moderationStatus === "ACTIVE"
+                ? "Live on marketplace — buyers can browse and order."
+                : form.moderationStatus === "HIDDEN"
+                  ? "Hidden from marketplace — only visible to admins and the seller."
+                  : form.moderationStatus === "PENDING"
+                    ? "Awaiting approval before going live."
+                    : MODERATION_OPTIONS.find((o) => o.value === form.moderationStatus)?.hint}
+            </p>
+          </FormSection>
+
           <FormSection title="Product images" hint="First image is the marketplace cover. Upload, reorder, or remove photos.">
             <input
               ref={fileInputRef}
@@ -489,7 +539,7 @@ function Page() {
             </button>
           </FormSection>
 
-          <FormSection title="Moderation status" hint="Controls whether this listing is live, queued, flagged, or delisted.">
+          <FormSection title="Advanced moderation" hint="Use for flagged, rejected, or compliance workflows.">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Field label="Listing status" className="md:col-span-2">
                 <Select
