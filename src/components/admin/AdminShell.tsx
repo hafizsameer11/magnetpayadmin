@@ -1,6 +1,6 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
-  LayoutDashboard, Users, ShieldCheck, Store, Tag, ClipboardList, Wallet,
+  LayoutDashboard, Users, ShieldCheck, Store, HandCoins, Tag, ClipboardList, Wallet,
   ArrowLeftRight, ArrowDownToLine, ArrowUpFromLine, Coins, Lock, Gavel, Truck,
   Calculator, Handshake, MessageSquare, AlertTriangle, Megaphone, Gauge, Percent,
   BookOpen, FileSearch, Search, Bell, ChevronRight,
@@ -80,6 +80,7 @@ const NAV: NavItem[] = [
   { label: "KYC", to: "/admin/kyc", I: ShieldCheck },
   { label: "KYB", to: "/admin/kyb", I: Building2 },
   { label: "Sellers", to: "/admin/sellers", I: Store },
+  { label: "Merchants", to: "/admin/merchants", I: HandCoins },
   { label: "Listings", to: "/admin/listings", I: Tag },
   { label: "Orders", to: "/admin/orders", I: ClipboardList },
   { label: "Wallets", to: "/admin/wallets", I: Wallet },

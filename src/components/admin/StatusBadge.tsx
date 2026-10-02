@@ -51,13 +51,18 @@ export function StatusBadge({
   className?: string;
 }) {
   const c = TONE_COLOR[tone];
+  const plainText = typeof children === "string" || typeof children === "number";
   return (
     <span
       className={`inline-flex w-fit max-w-full items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold leading-none whitespace-nowrap justify-self-start self-center ${className}`}
       style={{ background: `${c}12`, color: c, border: `1px solid ${c}24` }}
     >
       {dot ? <span className="size-1.5 shrink-0 rounded-full" style={{ background: c }} aria-hidden /> : null}
-      <span className="truncate">{children}</span>
+      {plainText ? (
+        <span className="truncate">{children}</span>
+      ) : (
+        <span className="inline-flex items-center gap-1 min-w-0 [&_svg]:shrink-0">{children}</span>
+      )}
     </span>
   );
 }

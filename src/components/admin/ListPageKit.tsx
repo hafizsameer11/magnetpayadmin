@@ -127,14 +127,17 @@ export function ListToolbar({
 
 export function ListTableShell({
   columns,
+  template,
   children,
   minWidth,
 }: {
   columns: string[];
+  /** CSS grid-template-columns; defaults to equal `1fr` tracks per column. */
+  template?: string;
   children: ReactNode;
   minWidth?: number;
 }) {
-  const grid = columns.map((c) => c).join(" ");
+  const grid = template ?? columns.map(() => "1fr").join(" ");
   return (
     <div className="rounded-xl overflow-x-auto" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
       <div style={{ minWidth: minWidth ?? undefined }}>

@@ -110,6 +110,21 @@ import { Route as AdminListingsIndexRouteImport } from './routes/admin.listings.
 import { Route as AdminListingsPendingRouteImport } from './routes/admin.listings.pending'
 import { Route as AdminListingsReportedRouteImport } from './routes/admin.listings.reported'
 import { Route as AdminLogisticsPricingRouteImport } from './routes/admin.logistics.pricing'
+import { Route as AdminMerchantsIndexRouteImport } from './routes/admin.merchants.index'
+import { Route as AdminMerchantsIdRouteImport } from './routes/admin.merchants.$id'
+import { Route as AdminMerchantsAuditRouteImport } from './routes/admin.merchants.audit'
+import { Route as AdminMerchantsBillersRouteImport } from './routes/admin.merchants.billers'
+import { Route as AdminMerchantsBroadcastsRouteImport } from './routes/admin.merchants.broadcasts'
+import { Route as AdminMerchantsDirectoryRouteImport } from './routes/admin.merchants.directory'
+import { Route as AdminMerchantsDisputesRouteImport } from './routes/admin.merchants.disputes'
+import { Route as AdminMerchantsFeesRouteImport } from './routes/admin.merchants.fees'
+import { Route as AdminMerchantsFloatRouteImport } from './routes/admin.merchants.float'
+import { Route as AdminMerchantsKybRouteImport } from './routes/admin.merchants.kyb'
+import { Route as AdminMerchantsListRouteImport } from './routes/admin.merchants.list'
+import { Route as AdminMerchantsReferralsRouteImport } from './routes/admin.merchants.referrals'
+import { Route as AdminMerchantsReportsRouteImport } from './routes/admin.merchants.reports'
+import { Route as AdminMerchantsSettlementsRouteImport } from './routes/admin.merchants.settlements'
+import { Route as AdminMerchantsTiersRouteImport } from './routes/admin.merchants.tiers'
 import { Route as AdminOrdersIndexRouteImport } from './routes/admin.orders.index'
 import { Route as AdminOrdersCancelledRouteImport } from './routes/admin.orders.cancelled'
 import { Route as AdminOrdersDeliveredRouteImport } from './routes/admin.orders.delivered'
@@ -164,6 +179,8 @@ import { Route as AdminListingsIdEditRouteImport } from './routes/admin.listings
 import { Route as AdminListingsIdHistoryRouteImport } from './routes/admin.listings.$id.history'
 import { Route as AdminLogisticsPartnersIndexRouteImport } from './routes/admin.logistics.partners.index'
 import { Route as AdminLogisticsPartnersIdRouteImport } from './routes/admin.logistics.partners.$id'
+import { Route as AdminMerchantsTransactionsIndexRouteImport } from './routes/admin.merchants.transactions.index'
+import { Route as AdminMerchantsTransactionsRefRouteImport } from './routes/admin.merchants.transactions.$ref'
 import { Route as AdminOrdersIdIndexRouteImport } from './routes/admin.orders.$id.index'
 import { Route as AdminOrdersIdCancelRouteImport } from './routes/admin.orders.$id.cancel'
 import { Route as AdminOrdersIdNotesRouteImport } from './routes/admin.orders.$id.notes'
@@ -683,6 +700,83 @@ const AdminLogisticsPricingRoute = AdminLogisticsPricingRouteImport.update({
   path: '/admin/logistics/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminMerchantsIndexRoute = AdminMerchantsIndexRouteImport.update({
+  id: '/admin/merchants/',
+  path: '/admin/merchants/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminMerchantsIdRoute = AdminMerchantsIdRouteImport.update({
+  id: '/admin/merchants/$id',
+  path: '/admin/merchants/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminMerchantsAuditRoute = AdminMerchantsAuditRouteImport.update({
+  id: '/admin/merchants/audit',
+  path: '/admin/merchants/audit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminMerchantsBillersRoute = AdminMerchantsBillersRouteImport.update({
+  id: '/admin/merchants/billers',
+  path: '/admin/merchants/billers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminMerchantsBroadcastsRoute =
+  AdminMerchantsBroadcastsRouteImport.update({
+    id: '/admin/merchants/broadcasts',
+    path: '/admin/merchants/broadcasts',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AdminMerchantsDirectoryRoute = AdminMerchantsDirectoryRouteImport.update({
+  id: '/admin/merchants/directory',
+  path: '/admin/merchants/directory',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminMerchantsDisputesRoute = AdminMerchantsDisputesRouteImport.update({
+  id: '/admin/merchants/disputes',
+  path: '/admin/merchants/disputes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminMerchantsFeesRoute = AdminMerchantsFeesRouteImport.update({
+  id: '/admin/merchants/fees',
+  path: '/admin/merchants/fees',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminMerchantsFloatRoute = AdminMerchantsFloatRouteImport.update({
+  id: '/admin/merchants/float',
+  path: '/admin/merchants/float',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminMerchantsKybRoute = AdminMerchantsKybRouteImport.update({
+  id: '/admin/merchants/kyb',
+  path: '/admin/merchants/kyb',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminMerchantsListRoute = AdminMerchantsListRouteImport.update({
+  id: '/admin/merchants/list',
+  path: '/admin/merchants/list',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminMerchantsReferralsRoute = AdminMerchantsReferralsRouteImport.update({
+  id: '/admin/merchants/referrals',
+  path: '/admin/merchants/referrals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminMerchantsReportsRoute = AdminMerchantsReportsRouteImport.update({
+  id: '/admin/merchants/reports',
+  path: '/admin/merchants/reports',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminMerchantsSettlementsRoute =
+  AdminMerchantsSettlementsRouteImport.update({
+    id: '/admin/merchants/settlements',
+    path: '/admin/merchants/settlements',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AdminMerchantsTiersRoute = AdminMerchantsTiersRouteImport.update({
+  id: '/admin/merchants/tiers',
+  path: '/admin/merchants/tiers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminOrdersIndexRoute = AdminOrdersIndexRouteImport.update({
   id: '/admin/orders/',
   path: '/admin/orders/',
@@ -959,6 +1053,18 @@ const AdminLogisticsPartnersIdRoute =
     path: '/admin/logistics/partners/$id',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AdminMerchantsTransactionsIndexRoute =
+  AdminMerchantsTransactionsIndexRouteImport.update({
+    id: '/admin/merchants/transactions/',
+    path: '/admin/merchants/transactions/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AdminMerchantsTransactionsRefRoute =
+  AdminMerchantsTransactionsRefRouteImport.update({
+    id: '/admin/merchants/transactions/$ref',
+    path: '/admin/merchants/transactions/$ref',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AdminOrdersIdIndexRoute = AdminOrdersIdIndexRouteImport.update({
   id: '/admin/orders/$id/',
   path: '/admin/orders/$id/',
@@ -1105,6 +1211,20 @@ export interface FileRoutesByFullPath {
   '/admin/listings/pending': typeof AdminListingsPendingRoute
   '/admin/listings/reported': typeof AdminListingsReportedRoute
   '/admin/logistics/pricing': typeof AdminLogisticsPricingRoute
+  '/admin/merchants/$id': typeof AdminMerchantsIdRoute
+  '/admin/merchants/audit': typeof AdminMerchantsAuditRoute
+  '/admin/merchants/billers': typeof AdminMerchantsBillersRoute
+  '/admin/merchants/broadcasts': typeof AdminMerchantsBroadcastsRoute
+  '/admin/merchants/directory': typeof AdminMerchantsDirectoryRoute
+  '/admin/merchants/disputes': typeof AdminMerchantsDisputesRoute
+  '/admin/merchants/fees': typeof AdminMerchantsFeesRoute
+  '/admin/merchants/float': typeof AdminMerchantsFloatRoute
+  '/admin/merchants/kyb': typeof AdminMerchantsKybRoute
+  '/admin/merchants/list': typeof AdminMerchantsListRoute
+  '/admin/merchants/referrals': typeof AdminMerchantsReferralsRoute
+  '/admin/merchants/reports': typeof AdminMerchantsReportsRoute
+  '/admin/merchants/settlements': typeof AdminMerchantsSettlementsRoute
+  '/admin/merchants/tiers': typeof AdminMerchantsTiersRoute
   '/admin/orders/cancelled': typeof AdminOrdersCancelledRoute
   '/admin/orders/delivered': typeof AdminOrdersDeliveredRoute
   '/admin/orders/exceptions': typeof AdminOrdersExceptionsRoute
@@ -1155,6 +1275,7 @@ export interface FileRoutesByFullPath {
   '/admin/kyb/': typeof AdminKybIndexRoute
   '/admin/kyc/': typeof AdminKycIndexRoute
   '/admin/listings/': typeof AdminListingsIndexRoute
+  '/admin/merchants/': typeof AdminMerchantsIndexRoute
   '/admin/orders/': typeof AdminOrdersIndexRoute
   '/admin/promotions/': typeof AdminPromotionsIndexRoute
   '/admin/reports/': typeof AdminReportsIndexRoute
@@ -1173,6 +1294,7 @@ export interface FileRoutesByFullPath {
   '/admin/listings/$id/edit': typeof AdminListingsIdEditRoute
   '/admin/listings/$id/history': typeof AdminListingsIdHistoryRoute
   '/admin/logistics/partners/$id': typeof AdminLogisticsPartnersIdRoute
+  '/admin/merchants/transactions/$ref': typeof AdminMerchantsTransactionsRefRoute
   '/admin/orders/$id/cancel': typeof AdminOrdersIdCancelRoute
   '/admin/orders/$id/notes': typeof AdminOrdersIdNotesRoute
   '/admin/orders/$id/refund': typeof AdminOrdersIdRefundRoute
@@ -1186,6 +1308,7 @@ export interface FileRoutesByFullPath {
   '/admin/fx/orders/': typeof AdminFxOrdersIndexRoute
   '/admin/listings/$id/': typeof AdminListingsIdIndexRoute
   '/admin/logistics/partners/': typeof AdminLogisticsPartnersIndexRoute
+  '/admin/merchants/transactions/': typeof AdminMerchantsTransactionsIndexRoute
   '/admin/orders/$id/': typeof AdminOrdersIdIndexRoute
   '/admin/settings/webhooks/': typeof AdminSettingsWebhooksIndexRoute
   '/admin/users/$id/': typeof AdminUsersIdIndexRoute
@@ -1274,6 +1397,20 @@ export interface FileRoutesByTo {
   '/admin/listings/pending': typeof AdminListingsPendingRoute
   '/admin/listings/reported': typeof AdminListingsReportedRoute
   '/admin/logistics/pricing': typeof AdminLogisticsPricingRoute
+  '/admin/merchants/$id': typeof AdminMerchantsIdRoute
+  '/admin/merchants/audit': typeof AdminMerchantsAuditRoute
+  '/admin/merchants/billers': typeof AdminMerchantsBillersRoute
+  '/admin/merchants/broadcasts': typeof AdminMerchantsBroadcastsRoute
+  '/admin/merchants/directory': typeof AdminMerchantsDirectoryRoute
+  '/admin/merchants/disputes': typeof AdminMerchantsDisputesRoute
+  '/admin/merchants/fees': typeof AdminMerchantsFeesRoute
+  '/admin/merchants/float': typeof AdminMerchantsFloatRoute
+  '/admin/merchants/kyb': typeof AdminMerchantsKybRoute
+  '/admin/merchants/list': typeof AdminMerchantsListRoute
+  '/admin/merchants/referrals': typeof AdminMerchantsReferralsRoute
+  '/admin/merchants/reports': typeof AdminMerchantsReportsRoute
+  '/admin/merchants/settlements': typeof AdminMerchantsSettlementsRoute
+  '/admin/merchants/tiers': typeof AdminMerchantsTiersRoute
   '/admin/orders/cancelled': typeof AdminOrdersCancelledRoute
   '/admin/orders/delivered': typeof AdminOrdersDeliveredRoute
   '/admin/orders/exceptions': typeof AdminOrdersExceptionsRoute
@@ -1324,6 +1461,7 @@ export interface FileRoutesByTo {
   '/admin/kyb': typeof AdminKybIndexRoute
   '/admin/kyc': typeof AdminKycIndexRoute
   '/admin/listings': typeof AdminListingsIndexRoute
+  '/admin/merchants': typeof AdminMerchantsIndexRoute
   '/admin/orders': typeof AdminOrdersIndexRoute
   '/admin/promotions': typeof AdminPromotionsIndexRoute
   '/admin/reports': typeof AdminReportsIndexRoute
@@ -1342,6 +1480,7 @@ export interface FileRoutesByTo {
   '/admin/listings/$id/edit': typeof AdminListingsIdEditRoute
   '/admin/listings/$id/history': typeof AdminListingsIdHistoryRoute
   '/admin/logistics/partners/$id': typeof AdminLogisticsPartnersIdRoute
+  '/admin/merchants/transactions/$ref': typeof AdminMerchantsTransactionsRefRoute
   '/admin/orders/$id/cancel': typeof AdminOrdersIdCancelRoute
   '/admin/orders/$id/notes': typeof AdminOrdersIdNotesRoute
   '/admin/orders/$id/refund': typeof AdminOrdersIdRefundRoute
@@ -1355,6 +1494,7 @@ export interface FileRoutesByTo {
   '/admin/fx/orders': typeof AdminFxOrdersIndexRoute
   '/admin/listings/$id': typeof AdminListingsIdIndexRoute
   '/admin/logistics/partners': typeof AdminLogisticsPartnersIndexRoute
+  '/admin/merchants/transactions': typeof AdminMerchantsTransactionsIndexRoute
   '/admin/orders/$id': typeof AdminOrdersIdIndexRoute
   '/admin/settings/webhooks': typeof AdminSettingsWebhooksIndexRoute
   '/admin/users/$id': typeof AdminUsersIdIndexRoute
@@ -1444,6 +1584,20 @@ export interface FileRoutesById {
   '/admin/listings/pending': typeof AdminListingsPendingRoute
   '/admin/listings/reported': typeof AdminListingsReportedRoute
   '/admin/logistics/pricing': typeof AdminLogisticsPricingRoute
+  '/admin/merchants/$id': typeof AdminMerchantsIdRoute
+  '/admin/merchants/audit': typeof AdminMerchantsAuditRoute
+  '/admin/merchants/billers': typeof AdminMerchantsBillersRoute
+  '/admin/merchants/broadcasts': typeof AdminMerchantsBroadcastsRoute
+  '/admin/merchants/directory': typeof AdminMerchantsDirectoryRoute
+  '/admin/merchants/disputes': typeof AdminMerchantsDisputesRoute
+  '/admin/merchants/fees': typeof AdminMerchantsFeesRoute
+  '/admin/merchants/float': typeof AdminMerchantsFloatRoute
+  '/admin/merchants/kyb': typeof AdminMerchantsKybRoute
+  '/admin/merchants/list': typeof AdminMerchantsListRoute
+  '/admin/merchants/referrals': typeof AdminMerchantsReferralsRoute
+  '/admin/merchants/reports': typeof AdminMerchantsReportsRoute
+  '/admin/merchants/settlements': typeof AdminMerchantsSettlementsRoute
+  '/admin/merchants/tiers': typeof AdminMerchantsTiersRoute
   '/admin/orders/cancelled': typeof AdminOrdersCancelledRoute
   '/admin/orders/delivered': typeof AdminOrdersDeliveredRoute
   '/admin/orders/exceptions': typeof AdminOrdersExceptionsRoute
@@ -1494,6 +1648,7 @@ export interface FileRoutesById {
   '/admin/kyb/': typeof AdminKybIndexRoute
   '/admin/kyc/': typeof AdminKycIndexRoute
   '/admin/listings/': typeof AdminListingsIndexRoute
+  '/admin/merchants/': typeof AdminMerchantsIndexRoute
   '/admin/orders/': typeof AdminOrdersIndexRoute
   '/admin/promotions/': typeof AdminPromotionsIndexRoute
   '/admin/reports/': typeof AdminReportsIndexRoute
@@ -1512,6 +1667,7 @@ export interface FileRoutesById {
   '/admin/listings/$id/edit': typeof AdminListingsIdEditRoute
   '/admin/listings/$id/history': typeof AdminListingsIdHistoryRoute
   '/admin/logistics/partners/$id': typeof AdminLogisticsPartnersIdRoute
+  '/admin/merchants/transactions/$ref': typeof AdminMerchantsTransactionsRefRoute
   '/admin/orders/$id/cancel': typeof AdminOrdersIdCancelRoute
   '/admin/orders/$id/notes': typeof AdminOrdersIdNotesRoute
   '/admin/orders/$id/refund': typeof AdminOrdersIdRefundRoute
@@ -1525,6 +1681,7 @@ export interface FileRoutesById {
   '/admin/fx/orders/': typeof AdminFxOrdersIndexRoute
   '/admin/listings/$id/': typeof AdminListingsIdIndexRoute
   '/admin/logistics/partners/': typeof AdminLogisticsPartnersIndexRoute
+  '/admin/merchants/transactions/': typeof AdminMerchantsTransactionsIndexRoute
   '/admin/orders/$id/': typeof AdminOrdersIdIndexRoute
   '/admin/settings/webhooks/': typeof AdminSettingsWebhooksIndexRoute
   '/admin/users/$id/': typeof AdminUsersIdIndexRoute
@@ -1615,6 +1772,20 @@ export interface FileRouteTypes {
     | '/admin/listings/pending'
     | '/admin/listings/reported'
     | '/admin/logistics/pricing'
+    | '/admin/merchants/$id'
+    | '/admin/merchants/audit'
+    | '/admin/merchants/billers'
+    | '/admin/merchants/broadcasts'
+    | '/admin/merchants/directory'
+    | '/admin/merchants/disputes'
+    | '/admin/merchants/fees'
+    | '/admin/merchants/float'
+    | '/admin/merchants/kyb'
+    | '/admin/merchants/list'
+    | '/admin/merchants/referrals'
+    | '/admin/merchants/reports'
+    | '/admin/merchants/settlements'
+    | '/admin/merchants/tiers'
     | '/admin/orders/cancelled'
     | '/admin/orders/delivered'
     | '/admin/orders/exceptions'
@@ -1665,6 +1836,7 @@ export interface FileRouteTypes {
     | '/admin/kyb/'
     | '/admin/kyc/'
     | '/admin/listings/'
+    | '/admin/merchants/'
     | '/admin/orders/'
     | '/admin/promotions/'
     | '/admin/reports/'
@@ -1683,6 +1855,7 @@ export interface FileRouteTypes {
     | '/admin/listings/$id/edit'
     | '/admin/listings/$id/history'
     | '/admin/logistics/partners/$id'
+    | '/admin/merchants/transactions/$ref'
     | '/admin/orders/$id/cancel'
     | '/admin/orders/$id/notes'
     | '/admin/orders/$id/refund'
@@ -1696,6 +1869,7 @@ export interface FileRouteTypes {
     | '/admin/fx/orders/'
     | '/admin/listings/$id/'
     | '/admin/logistics/partners/'
+    | '/admin/merchants/transactions/'
     | '/admin/orders/$id/'
     | '/admin/settings/webhooks/'
     | '/admin/users/$id/'
@@ -1784,6 +1958,20 @@ export interface FileRouteTypes {
     | '/admin/listings/pending'
     | '/admin/listings/reported'
     | '/admin/logistics/pricing'
+    | '/admin/merchants/$id'
+    | '/admin/merchants/audit'
+    | '/admin/merchants/billers'
+    | '/admin/merchants/broadcasts'
+    | '/admin/merchants/directory'
+    | '/admin/merchants/disputes'
+    | '/admin/merchants/fees'
+    | '/admin/merchants/float'
+    | '/admin/merchants/kyb'
+    | '/admin/merchants/list'
+    | '/admin/merchants/referrals'
+    | '/admin/merchants/reports'
+    | '/admin/merchants/settlements'
+    | '/admin/merchants/tiers'
     | '/admin/orders/cancelled'
     | '/admin/orders/delivered'
     | '/admin/orders/exceptions'
@@ -1834,6 +2022,7 @@ export interface FileRouteTypes {
     | '/admin/kyb'
     | '/admin/kyc'
     | '/admin/listings'
+    | '/admin/merchants'
     | '/admin/orders'
     | '/admin/promotions'
     | '/admin/reports'
@@ -1852,6 +2041,7 @@ export interface FileRouteTypes {
     | '/admin/listings/$id/edit'
     | '/admin/listings/$id/history'
     | '/admin/logistics/partners/$id'
+    | '/admin/merchants/transactions/$ref'
     | '/admin/orders/$id/cancel'
     | '/admin/orders/$id/notes'
     | '/admin/orders/$id/refund'
@@ -1865,6 +2055,7 @@ export interface FileRouteTypes {
     | '/admin/fx/orders'
     | '/admin/listings/$id'
     | '/admin/logistics/partners'
+    | '/admin/merchants/transactions'
     | '/admin/orders/$id'
     | '/admin/settings/webhooks'
     | '/admin/users/$id'
@@ -1953,6 +2144,20 @@ export interface FileRouteTypes {
     | '/admin/listings/pending'
     | '/admin/listings/reported'
     | '/admin/logistics/pricing'
+    | '/admin/merchants/$id'
+    | '/admin/merchants/audit'
+    | '/admin/merchants/billers'
+    | '/admin/merchants/broadcasts'
+    | '/admin/merchants/directory'
+    | '/admin/merchants/disputes'
+    | '/admin/merchants/fees'
+    | '/admin/merchants/float'
+    | '/admin/merchants/kyb'
+    | '/admin/merchants/list'
+    | '/admin/merchants/referrals'
+    | '/admin/merchants/reports'
+    | '/admin/merchants/settlements'
+    | '/admin/merchants/tiers'
     | '/admin/orders/cancelled'
     | '/admin/orders/delivered'
     | '/admin/orders/exceptions'
@@ -2003,6 +2208,7 @@ export interface FileRouteTypes {
     | '/admin/kyb/'
     | '/admin/kyc/'
     | '/admin/listings/'
+    | '/admin/merchants/'
     | '/admin/orders/'
     | '/admin/promotions/'
     | '/admin/reports/'
@@ -2021,6 +2227,7 @@ export interface FileRouteTypes {
     | '/admin/listings/$id/edit'
     | '/admin/listings/$id/history'
     | '/admin/logistics/partners/$id'
+    | '/admin/merchants/transactions/$ref'
     | '/admin/orders/$id/cancel'
     | '/admin/orders/$id/notes'
     | '/admin/orders/$id/refund'
@@ -2034,6 +2241,7 @@ export interface FileRouteTypes {
     | '/admin/fx/orders/'
     | '/admin/listings/$id/'
     | '/admin/logistics/partners/'
+    | '/admin/merchants/transactions/'
     | '/admin/orders/$id/'
     | '/admin/settings/webhooks/'
     | '/admin/users/$id/'
@@ -2123,6 +2331,20 @@ export interface RootRouteChildren {
   AdminListingsPendingRoute: typeof AdminListingsPendingRoute
   AdminListingsReportedRoute: typeof AdminListingsReportedRoute
   AdminLogisticsPricingRoute: typeof AdminLogisticsPricingRoute
+  AdminMerchantsIdRoute: typeof AdminMerchantsIdRoute
+  AdminMerchantsAuditRoute: typeof AdminMerchantsAuditRoute
+  AdminMerchantsBillersRoute: typeof AdminMerchantsBillersRoute
+  AdminMerchantsBroadcastsRoute: typeof AdminMerchantsBroadcastsRoute
+  AdminMerchantsDirectoryRoute: typeof AdminMerchantsDirectoryRoute
+  AdminMerchantsDisputesRoute: typeof AdminMerchantsDisputesRoute
+  AdminMerchantsFeesRoute: typeof AdminMerchantsFeesRoute
+  AdminMerchantsFloatRoute: typeof AdminMerchantsFloatRoute
+  AdminMerchantsKybRoute: typeof AdminMerchantsKybRoute
+  AdminMerchantsListRoute: typeof AdminMerchantsListRoute
+  AdminMerchantsReferralsRoute: typeof AdminMerchantsReferralsRoute
+  AdminMerchantsReportsRoute: typeof AdminMerchantsReportsRoute
+  AdminMerchantsSettlementsRoute: typeof AdminMerchantsSettlementsRoute
+  AdminMerchantsTiersRoute: typeof AdminMerchantsTiersRoute
   AdminOrdersCancelledRoute: typeof AdminOrdersCancelledRoute
   AdminOrdersDeliveredRoute: typeof AdminOrdersDeliveredRoute
   AdminOrdersExceptionsRoute: typeof AdminOrdersExceptionsRoute
@@ -2173,6 +2395,7 @@ export interface RootRouteChildren {
   AdminKybIndexRoute: typeof AdminKybIndexRoute
   AdminKycIndexRoute: typeof AdminKycIndexRoute
   AdminListingsIndexRoute: typeof AdminListingsIndexRoute
+  AdminMerchantsIndexRoute: typeof AdminMerchantsIndexRoute
   AdminOrdersIndexRoute: typeof AdminOrdersIndexRoute
   AdminPromotionsIndexRoute: typeof AdminPromotionsIndexRoute
   AdminReportsIndexRoute: typeof AdminReportsIndexRoute
@@ -2191,6 +2414,7 @@ export interface RootRouteChildren {
   AdminListingsIdEditRoute: typeof AdminListingsIdEditRoute
   AdminListingsIdHistoryRoute: typeof AdminListingsIdHistoryRoute
   AdminLogisticsPartnersIdRoute: typeof AdminLogisticsPartnersIdRoute
+  AdminMerchantsTransactionsRefRoute: typeof AdminMerchantsTransactionsRefRoute
   AdminOrdersIdCancelRoute: typeof AdminOrdersIdCancelRoute
   AdminOrdersIdNotesRoute: typeof AdminOrdersIdNotesRoute
   AdminOrdersIdRefundRoute: typeof AdminOrdersIdRefundRoute
@@ -2204,6 +2428,7 @@ export interface RootRouteChildren {
   AdminFxOrdersIndexRoute: typeof AdminFxOrdersIndexRoute
   AdminListingsIdIndexRoute: typeof AdminListingsIdIndexRoute
   AdminLogisticsPartnersIndexRoute: typeof AdminLogisticsPartnersIndexRoute
+  AdminMerchantsTransactionsIndexRoute: typeof AdminMerchantsTransactionsIndexRoute
   AdminOrdersIdIndexRoute: typeof AdminOrdersIdIndexRoute
   AdminSettingsWebhooksIndexRoute: typeof AdminSettingsWebhooksIndexRoute
   AdminUsersIdIndexRoute: typeof AdminUsersIdIndexRoute
@@ -2918,6 +3143,111 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLogisticsPricingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/merchants/': {
+      id: '/admin/merchants/'
+      path: '/admin/merchants'
+      fullPath: '/admin/merchants/'
+      preLoaderRoute: typeof AdminMerchantsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/merchants/$id': {
+      id: '/admin/merchants/$id'
+      path: '/admin/merchants/$id'
+      fullPath: '/admin/merchants/$id'
+      preLoaderRoute: typeof AdminMerchantsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/merchants/audit': {
+      id: '/admin/merchants/audit'
+      path: '/admin/merchants/audit'
+      fullPath: '/admin/merchants/audit'
+      preLoaderRoute: typeof AdminMerchantsAuditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/merchants/billers': {
+      id: '/admin/merchants/billers'
+      path: '/admin/merchants/billers'
+      fullPath: '/admin/merchants/billers'
+      preLoaderRoute: typeof AdminMerchantsBillersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/merchants/broadcasts': {
+      id: '/admin/merchants/broadcasts'
+      path: '/admin/merchants/broadcasts'
+      fullPath: '/admin/merchants/broadcasts'
+      preLoaderRoute: typeof AdminMerchantsBroadcastsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/merchants/directory': {
+      id: '/admin/merchants/directory'
+      path: '/admin/merchants/directory'
+      fullPath: '/admin/merchants/directory'
+      preLoaderRoute: typeof AdminMerchantsDirectoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/merchants/disputes': {
+      id: '/admin/merchants/disputes'
+      path: '/admin/merchants/disputes'
+      fullPath: '/admin/merchants/disputes'
+      preLoaderRoute: typeof AdminMerchantsDisputesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/merchants/fees': {
+      id: '/admin/merchants/fees'
+      path: '/admin/merchants/fees'
+      fullPath: '/admin/merchants/fees'
+      preLoaderRoute: typeof AdminMerchantsFeesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/merchants/float': {
+      id: '/admin/merchants/float'
+      path: '/admin/merchants/float'
+      fullPath: '/admin/merchants/float'
+      preLoaderRoute: typeof AdminMerchantsFloatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/merchants/kyb': {
+      id: '/admin/merchants/kyb'
+      path: '/admin/merchants/kyb'
+      fullPath: '/admin/merchants/kyb'
+      preLoaderRoute: typeof AdminMerchantsKybRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/merchants/list': {
+      id: '/admin/merchants/list'
+      path: '/admin/merchants/list'
+      fullPath: '/admin/merchants/list'
+      preLoaderRoute: typeof AdminMerchantsListRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/merchants/referrals': {
+      id: '/admin/merchants/referrals'
+      path: '/admin/merchants/referrals'
+      fullPath: '/admin/merchants/referrals'
+      preLoaderRoute: typeof AdminMerchantsReferralsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/merchants/reports': {
+      id: '/admin/merchants/reports'
+      path: '/admin/merchants/reports'
+      fullPath: '/admin/merchants/reports'
+      preLoaderRoute: typeof AdminMerchantsReportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/merchants/settlements': {
+      id: '/admin/merchants/settlements'
+      path: '/admin/merchants/settlements'
+      fullPath: '/admin/merchants/settlements'
+      preLoaderRoute: typeof AdminMerchantsSettlementsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/merchants/tiers': {
+      id: '/admin/merchants/tiers'
+      path: '/admin/merchants/tiers'
+      fullPath: '/admin/merchants/tiers'
+      preLoaderRoute: typeof AdminMerchantsTiersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/orders/': {
       id: '/admin/orders/'
       path: '/admin/orders'
@@ -3296,6 +3626,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLogisticsPartnersIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/merchants/transactions/': {
+      id: '/admin/merchants/transactions/'
+      path: '/admin/merchants/transactions'
+      fullPath: '/admin/merchants/transactions/'
+      preLoaderRoute: typeof AdminMerchantsTransactionsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/merchants/transactions/$ref': {
+      id: '/admin/merchants/transactions/$ref'
+      path: '/admin/merchants/transactions/$ref'
+      fullPath: '/admin/merchants/transactions/$ref'
+      preLoaderRoute: typeof AdminMerchantsTransactionsRefRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/orders/$id/': {
       id: '/admin/orders/$id/'
       path: '/admin/orders/$id'
@@ -3467,6 +3811,20 @@ const rootRouteChildren: RootRouteChildren = {
   AdminListingsPendingRoute: AdminListingsPendingRoute,
   AdminListingsReportedRoute: AdminListingsReportedRoute,
   AdminLogisticsPricingRoute: AdminLogisticsPricingRoute,
+  AdminMerchantsIdRoute: AdminMerchantsIdRoute,
+  AdminMerchantsAuditRoute: AdminMerchantsAuditRoute,
+  AdminMerchantsBillersRoute: AdminMerchantsBillersRoute,
+  AdminMerchantsBroadcastsRoute: AdminMerchantsBroadcastsRoute,
+  AdminMerchantsDirectoryRoute: AdminMerchantsDirectoryRoute,
+  AdminMerchantsDisputesRoute: AdminMerchantsDisputesRoute,
+  AdminMerchantsFeesRoute: AdminMerchantsFeesRoute,
+  AdminMerchantsFloatRoute: AdminMerchantsFloatRoute,
+  AdminMerchantsKybRoute: AdminMerchantsKybRoute,
+  AdminMerchantsListRoute: AdminMerchantsListRoute,
+  AdminMerchantsReferralsRoute: AdminMerchantsReferralsRoute,
+  AdminMerchantsReportsRoute: AdminMerchantsReportsRoute,
+  AdminMerchantsSettlementsRoute: AdminMerchantsSettlementsRoute,
+  AdminMerchantsTiersRoute: AdminMerchantsTiersRoute,
   AdminOrdersCancelledRoute: AdminOrdersCancelledRoute,
   AdminOrdersDeliveredRoute: AdminOrdersDeliveredRoute,
   AdminOrdersExceptionsRoute: AdminOrdersExceptionsRoute,
@@ -3517,6 +3875,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminKybIndexRoute: AdminKybIndexRoute,
   AdminKycIndexRoute: AdminKycIndexRoute,
   AdminListingsIndexRoute: AdminListingsIndexRoute,
+  AdminMerchantsIndexRoute: AdminMerchantsIndexRoute,
   AdminOrdersIndexRoute: AdminOrdersIndexRoute,
   AdminPromotionsIndexRoute: AdminPromotionsIndexRoute,
   AdminReportsIndexRoute: AdminReportsIndexRoute,
@@ -3535,6 +3894,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminListingsIdEditRoute: AdminListingsIdEditRoute,
   AdminListingsIdHistoryRoute: AdminListingsIdHistoryRoute,
   AdminLogisticsPartnersIdRoute: AdminLogisticsPartnersIdRoute,
+  AdminMerchantsTransactionsRefRoute: AdminMerchantsTransactionsRefRoute,
   AdminOrdersIdCancelRoute: AdminOrdersIdCancelRoute,
   AdminOrdersIdNotesRoute: AdminOrdersIdNotesRoute,
   AdminOrdersIdRefundRoute: AdminOrdersIdRefundRoute,
@@ -3548,6 +3908,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminFxOrdersIndexRoute: AdminFxOrdersIndexRoute,
   AdminListingsIdIndexRoute: AdminListingsIdIndexRoute,
   AdminLogisticsPartnersIndexRoute: AdminLogisticsPartnersIndexRoute,
+  AdminMerchantsTransactionsIndexRoute: AdminMerchantsTransactionsIndexRoute,
   AdminOrdersIdIndexRoute: AdminOrdersIdIndexRoute,
   AdminSettingsWebhooksIndexRoute: AdminSettingsWebhooksIndexRoute,
   AdminUsersIdIndexRoute: AdminUsersIdIndexRoute,
@@ -3555,13 +3916,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

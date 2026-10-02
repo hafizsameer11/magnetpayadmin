@@ -186,7 +186,7 @@ function AdminUsersList() {
     { id: "all", label: "All", count: stats.total },
     { id: "buyers", label: "Importers" },
     { id: "sellers", label: "Suppliers" },
-    { id: "both", label: "Merchants" },
+    { id: "both", label: "Buyer+Seller" },
     { id: "pending", label: "Pending KYC", count: stats.pending, tone: T.warn },
     { id: "rejected", label: "Rejected", count: stats.rejected, tone: T.danger },
   ];
