@@ -6,9 +6,11 @@ import { StatusBadge } from "@/components/admin/StatusBadge";
 import { MerchantsSubnav } from "@/components/admin/merchants/MerchantsSubnav";
 import { capitalize } from "@/components/admin/merchants/merchantUi";
 import {
+  fetchMerchantReferralConfig,
   fetchMerchantReferrals,
   fmtNgn,
   payoutMerchantReferral,
+  updateMerchantReferralConfig,
   type AdminMerchantReferral,
 } from "@/lib/merchant-admin-api";
 
@@ -17,27 +19,28 @@ export function MerchantsReferralsPage() {
   const [query, setQuery] = useState("");
   const [rows, setRows] = useState<AdminMerchantReferral[]>([]);
   const [loading, setLoading] = useState(true);
-  const rewardAmount = 2_500_000; // ₦25,000 minor display reference
+  const [rewardMinor, setRewardMinor] = useState(500_000);
+  const [editingRule, setEditingRule] = useState(false);
+  const [draftReward, setDraftReward] = useState("5000");
+  const [savingRule, setSavingRule] = useState(false);
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const [refs, cfg] = await Promise.all([fetchMerchantReferrals(), fetchMerchantReferralConfig()]);
+      setRows(refs);
+      setRewardMinor(cfg.rewardMinor);
+      setDraftReward(String(Math.round(cfg.rewardMinor / 100)));
+    } catch (e) {
+      setRows([]);
+      toast.error(e instanceof Error ? e.message : "Failed to load referrals");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    fetchMerchantReferrals()
-      .then((d) => {
-        if (!cancelled) setRows(d);
-      })
-      .catch((e) => {
-        if (!cancelled) {
-          setRows([]);
-          toast.error(e instanceof Error ? e.message : "Failed to load referrals");
-        }
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
+    void load();
   }, []);
 
   const filtered = rows.filter((r) => {
@@ -69,18 +72,79 @@ export function MerchantsReferralsPage() {
           <p className="text-[10px] font-bold uppercase tracking-[0.16em]" style={{ color: T.muted }}>
             Reward rule
           </p>
-          <p className="text-[14px] font-bold mt-1">
-            {fmtNgn(rewardAmount)} per successful referred merchant (after KYB approval)
-          </p>
+          {editingRule ? (
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <span className="text-[12px] font-semibold">₦</span>
+              <input
+                value={draftReward}
+                onChange={(e) => setDraftReward(e.target.value.replace(/[^\d]/g, ""))}
+                className="h-9 w-32 px-3 rounded-lg text-[12px] outline-none tabular-nums"
+                style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.ink, fontFamily: "'JetBrains Mono', monospace" }}
+                inputMode="numeric"
+              />
+              <span className="text-[11px]" style={{ color: T.muted }}>
+                major naira (saved as kobo)
+              </span>
+            </div>
+          ) : (
+            <p className="text-[14px] font-bold mt-1">
+              {fmtNgn(rewardMinor)} per successful referred merchant (after KYB approval)
+            </p>
+          )}
         </div>
-        <button
-          type="button"
-          className="h-9 px-3 rounded-lg text-[12px] font-semibold"
-          style={{ background: T.bg, border: `1px solid ${T.border}` }}
-          onClick={() => toast.message("Reward rule is configured server-side")}
-        >
-          Edit rule
-        </button>
+        <div className="flex gap-2">
+          {editingRule ? (
+            <>
+              <button
+                type="button"
+                disabled={savingRule}
+                className="h-9 px-3 rounded-lg text-[12px] font-semibold"
+                style={{ background: T.bg, border: `1px solid ${T.border}` }}
+                onClick={() => {
+                  setEditingRule(false);
+                  setDraftReward(String(Math.round(rewardMinor / 100)));
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={savingRule || !draftReward}
+                className="h-9 px-3 rounded-lg text-[12px] font-bold text-white disabled:opacity-50"
+                style={{ background: T.navy }}
+                onClick={async () => {
+                  const major = Number(draftReward);
+                  if (!Number.isFinite(major) || major <= 0) {
+                    toast.error("Enter a valid reward amount");
+                    return;
+                  }
+                  setSavingRule(true);
+                  try {
+                    const next = await updateMerchantReferralConfig(Math.round(major * 100));
+                    setRewardMinor(next.rewardMinor);
+                    setEditingRule(false);
+                    toast.success("Referral reward rule updated");
+                  } catch (e) {
+                    toast.error(e instanceof Error ? e.message : "Could not update reward rule");
+                  } finally {
+                    setSavingRule(false);
+                  }
+                }}
+              >
+                {savingRule ? "Saving…" : "Save rule"}
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              className="h-9 px-3 rounded-lg text-[12px] font-semibold"
+              style={{ background: T.bg, border: `1px solid ${T.border}` }}
+              onClick={() => setEditingRule(true)}
+            >
+              Edit rule
+            </button>
+          )}
+        </div>
       </div>
 
       <FilterTabs

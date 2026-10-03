@@ -595,10 +595,37 @@ export async function sendMerchantBroadcast(body: {
   tier?: MerchantTier;
   state?: string;
   status?: MerchantStatus;
+  channels?: Array<"push" | "sms">;
 }) {
-  return api<{ sent: number }>("/admin/merchants/broadcasts", {
+  return api<{ sent: number; channels: string[] }>("/admin/merchants/broadcasts", {
     method: "POST",
     body: JSON.stringify(body),
+  });
+}
+
+export type AdminMerchantBroadcast = {
+  id: string;
+  title: string;
+  body: string;
+  sent: number;
+  channels: string[];
+  tier?: string | null;
+  state?: string | null;
+  createdAt: string;
+};
+
+export async function fetchMerchantBroadcasts() {
+  return api<AdminMerchantBroadcast[]>("/admin/merchants/broadcasts");
+}
+
+export async function fetchMerchantReferralConfig() {
+  return api<{ rewardMinor: number }>("/admin/merchants/referral-config");
+}
+
+export async function updateMerchantReferralConfig(rewardMinor: number) {
+  return api<{ rewardMinor: number }>("/admin/merchants/referral-config", {
+    method: "PUT",
+    body: JSON.stringify({ rewardMinor }),
   });
 }
 
@@ -608,4 +635,57 @@ export async function fetchMerchantReports(days?: number) {
 
 export async function fetchMerchantAudit() {
   return api<AdminMerchantAudit[]>("/admin/merchants/audit");
+}
+
+export async function patchMerchantDispute(
+  id: string,
+  body: { status?: string; assigneeId?: string | null; note?: string },
+) {
+  return api(`/admin/merchants/disputes/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+}
+
+export async function fetchMerchantNotes(id: string) {
+  return api<{ id: string; meta?: { note?: string }; createdAt: string; actorId?: string | null }[]>(
+    `/admin/merchants/${encodeURIComponent(id)}/notes`,
+  );
+}
+
+export async function addMerchantNote(id: string, note: string) {
+  return api(`/admin/merchants/${encodeURIComponent(id)}/notes`, {
+    method: "POST",
+    body: JSON.stringify({ note }),
+  });
+}
+
+export async function forceMerchantPasscodeReset(id: string) {
+  return api(`/admin/merchants/${encodeURIComponent(id)}/force-passcode-reset`, {
+    method: "POST",
+    body: "{}",
+  });
+}
+
+export async function logoutMerchantSessions(id: string) {
+  return api<{ cleared: number }>(`/admin/merchants/${encodeURIComponent(id)}/logout-sessions`, {
+    method: "POST",
+    body: "{}",
+  });
+}
+
+export function downloadCsv(filename: string, headers: string[], rows: (string | number)[][]) {
+  const esc = (v: string | number) => {
+    const s = String(v ?? "");
+    if (/[",\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+    return s;
+  };
+  const csv = [headers.map(esc).join(","), ...rows.map((r) => r.map(esc).join(","))].join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
 }

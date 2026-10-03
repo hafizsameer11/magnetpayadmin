@@ -8,6 +8,7 @@ import { StatusBadge, StatusCell } from "@/components/admin/StatusBadge";
 import { MerchantsSubnav } from "@/components/admin/merchants/MerchantsSubnav";
 import { capitalize, merchantStatusTone, tierTone } from "@/components/admin/merchants/merchantUi";
 import {
+  downloadCsv,
   fetchMerchants,
   floatTotalMinor,
   fmtNgn,
@@ -74,7 +75,22 @@ export function MerchantsListPage() {
       actions={
         <button
           type="button"
-          onClick={() => toast.message(`Export ${rows.length} merchants (CSV coming soon)`)}
+          onClick={() => {
+            downloadCsv(
+              `merchants-${new Date().toISOString().slice(0, 10)}.csv`,
+              ["agentId", "businessName", "status", "tier", "state", "phone", "floatMinor"],
+              rows.map((m) => [
+                m.agentId,
+                m.businessName,
+                m.status,
+                m.tier,
+                m.state ?? "",
+                m.phone ?? "",
+                floatTotalMinor(m),
+              ]),
+            );
+            toast.success(`Exported ${rows.length} merchants`);
+          }}
           className="h-9 px-3 rounded-lg flex items-center gap-1.5 text-[12px] font-bold text-white"
           style={{ background: T.navy }}
         >

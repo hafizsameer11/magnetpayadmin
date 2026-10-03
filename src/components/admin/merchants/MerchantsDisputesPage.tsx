@@ -5,7 +5,7 @@ import { FilterTabs, ListEmpty, ListToolbar } from "@/components/admin/ListPageK
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { MerchantsSubnav } from "@/components/admin/merchants/MerchantsSubnav";
 import { capitalize, disputeTone } from "@/components/admin/merchants/merchantUi";
-import { fetchMerchantDisputes, type AdminMerchantDispute } from "@/lib/merchant-admin-api";
+import { fetchMerchantDisputes, patchMerchantDispute, type AdminMerchantDispute } from "@/lib/merchant-admin-api";
 
 export function MerchantsDisputesPage() {
   const [query, setQuery] = useState("");
@@ -98,7 +98,27 @@ export function MerchantsDisputesPage() {
                   type="button"
                   className="h-8 px-2.5 rounded-lg text-[11px] font-semibold"
                   style={{ background: T.bg, border: `1px solid ${T.border}` }}
-                  onClick={() => toast.message("Dispute assign/update API not exposed yet — status is read-only")}
+                  onClick={() => {
+                    void (async () => {
+                      try {
+                        const who = window.prompt("Assignee admin user id", d.assigneeId ?? "") ?? "";
+                        await patchMerchantDispute(d.id, {
+                          status: "assigned",
+                          assigneeId: who.trim() || null,
+                        });
+                        toast.success("Dispute assigned");
+                        setRows((prev) =>
+                          prev.map((x) =>
+                            x.id === d.id
+                              ? { ...x, status: "assigned", assigneeId: who.trim() || null }
+                              : x,
+                          ),
+                        );
+                      } catch (e) {
+                        toast.error(e instanceof Error ? e.message : "Assign failed");
+                      }
+                    })();
+                  }}
                 >
                   Assign
                 </button>
@@ -106,7 +126,18 @@ export function MerchantsDisputesPage() {
                   type="button"
                   className="h-8 px-2.5 rounded-lg text-[11px] font-semibold"
                   style={{ background: T.bg, border: `1px solid ${T.border}` }}
-                  onClick={() => toast.message("Messaging not available via API yet")}
+                  onClick={() => {
+                    void (async () => {
+                      const msg = window.prompt("Internal note for this dispute");
+                      if (!msg?.trim()) return;
+                      try {
+                        await patchMerchantDispute(d.id, { note: msg.trim() });
+                        toast.success("Note saved on dispute");
+                      } catch (e) {
+                        toast.error(e instanceof Error ? e.message : "Could not save note");
+                      }
+                    })();
+                  }}
                 >
                   Message
                 </button>
@@ -114,7 +145,19 @@ export function MerchantsDisputesPage() {
                   type="button"
                   className="h-8 px-2.5 rounded-lg text-[11px] font-bold text-white"
                   style={{ background: T.navy }}
-                  onClick={() => toast.message("Resolve endpoint not available yet")}
+                  onClick={() => {
+                    void (async () => {
+                      try {
+                        await patchMerchantDispute(d.id, { status: "resolved" });
+                        toast.success("Dispute resolved");
+                        setRows((prev) =>
+                          prev.map((x) => (x.id === d.id ? { ...x, status: "resolved" } : x)),
+                        );
+                      } catch (e) {
+                        toast.error(e instanceof Error ? e.message : "Resolve failed");
+                      }
+                    })();
+                  }}
                 >
                   Resolve
                 </button>

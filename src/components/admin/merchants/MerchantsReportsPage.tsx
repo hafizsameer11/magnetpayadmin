@@ -5,6 +5,7 @@ import { AdminShell, T } from "@/components/admin/AdminShell";
 import { FilterTabs, KpiStrip, ListEmpty } from "@/components/admin/ListPageKit";
 import { MerchantsSubnav } from "@/components/admin/merchants/MerchantsSubnav";
 import {
+  downloadCsv,
   fetchMerchantReports,
   fmtNgn,
   kindLabel,
@@ -73,7 +74,27 @@ export function MerchantsReportsPage() {
       actions={
         <button
           type="button"
-          onClick={() => toast.message("CSV export not wired yet")}
+          onClick={() => {
+            if (!data) {
+              toast.message("Nothing to export yet");
+              return;
+            }
+            const byService = Object.entries(data.byService ?? {});
+            downloadCsv(
+              `merchant-reports-${range}.csv`,
+              ["metric", "value"],
+              [
+                ["days", data.days],
+                ["totalTx", data.totalTx],
+                ...byService.map(([k, v]) => [`${k}.count`, v.count]),
+                ...byService.map(([k, v]) => [`${k}.volume`, v.volume]),
+                ...byService.map(([k, v]) => [`${k}.platformFee`, v.platformFee]),
+                ...byService.map(([k, v]) => [`${k}.agentFee`, v.agentFee]),
+                ...(data.byState ?? []).map((s) => [`state.${s.state ?? "unknown"}`, s._count.id]),
+              ],
+            );
+            toast.success("Report CSV downloaded");
+          }}
           className="h-9 px-3 rounded-lg flex items-center gap-1.5 text-[12px] font-bold text-white"
           style={{ background: T.navy }}
         >

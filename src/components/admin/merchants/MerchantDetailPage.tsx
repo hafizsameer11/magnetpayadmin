@@ -15,15 +15,19 @@ import {
   settlementTone,
 } from "@/components/admin/merchants/merchantUi";
 import {
+  addMerchantNote,
   approveMerchant,
   decideMerchantKybDoc,
   docLabel,
   fetchMerchant,
   fetchMerchantAudit,
+  fetchMerchantNotes,
   fetchMerchantTransactions,
   floatTotalMinor,
   fmtNgn,
+  forceMerchantPasscodeReset,
   kindLabel,
+  logoutMerchantSessions,
   patchMerchant,
   requestFloatAdjustment,
   type AdminMerchantAudit,
@@ -58,11 +62,18 @@ export function MerchantDetailPage({ id, tab = "overview" }: { id: string; tab?:
     try {
       const m = await fetchMerchant(id);
       setMerchant(m);
-      const [txRows, auditRows] = await Promise.all([
+      const [txRows, auditRows, noteRows] = await Promise.all([
         fetchMerchantTransactions({ merchantId: m.id }).catch(() => [] as AdminMerchantTx[]),
         fetchMerchantAudit().catch(() => [] as AdminMerchantAudit[]),
+        fetchMerchantNotes(m.id).catch(() => []),
       ]);
       setTxs(txRows);
+      setNotes(
+        noteRows.map((n) => {
+          const meta = n.meta as { note?: string } | null;
+          return `${meta?.note ?? "Note"} · ${new Date(n.createdAt).toLocaleString()}`;
+        }),
+      );
       setAudit(
         auditRows.filter(
           (a) =>
@@ -260,7 +271,16 @@ export function MerchantDetailPage({ id, tab = "overview" }: { id: string; tab?:
               type="button"
               className="h-8 px-2.5 rounded-lg text-[11px] font-semibold inline-flex items-center gap-1"
               style={{ background: T.bg, border: `1px solid ${T.border}` }}
-              onClick={() => toast.message("Till passcode reset is not available via API yet")}
+              onClick={() => {
+                void (async () => {
+                  try {
+                    await forceMerchantPasscodeReset(merchant.id);
+                    toast.success("Till passcode cleared — merchant must set a new one");
+                  } catch (e) {
+                    toast.error(e instanceof Error ? e.message : "Reset failed");
+                  }
+                })();
+              }}
             >
               <KeyRound className="size-3" /> Force passcode reset
             </button>
@@ -268,7 +288,16 @@ export function MerchantDetailPage({ id, tab = "overview" }: { id: string; tab?:
               type="button"
               className="h-8 px-2.5 rounded-lg text-[11px] font-semibold inline-flex items-center gap-1"
               style={{ background: T.bg, border: `1px solid ${T.border}` }}
-              onClick={() => toast.message("Device logout is not available via API yet")}
+              onClick={() => {
+                void (async () => {
+                  try {
+                    const r = await logoutMerchantSessions(merchant.id);
+                    toast.success(`Logged out ${r.cleared} session(s)`);
+                  } catch (e) {
+                    toast.error(e instanceof Error ? e.message : "Logout failed");
+                  }
+                })();
+              }}
             >
               <LogOut className="size-3" /> Log out devices
             </button>
@@ -369,7 +398,7 @@ export function MerchantDetailPage({ id, tab = "overview" }: { id: string; tab?:
                 Notes
               </p>
               <ul className="space-y-1.5 text-[12px] mb-3" style={{ color: T.sub }}>
-                {notes.length ? notes.map((n) => <li key={n}>• {n}</li>) : <li style={{ color: T.muted }}>No notes yet (local only).</li>}
+                {notes.length ? notes.map((n) => <li key={n}>• {n}</li>) : <li style={{ color: T.muted }}>No notes yet.</li>}
               </ul>
               <div className="flex gap-2">
                 <input
@@ -384,10 +413,17 @@ export function MerchantDetailPage({ id, tab = "overview" }: { id: string; tab?:
                   className="h-8 px-2.5 rounded-lg text-[11px] font-bold text-white"
                   style={{ background: T.navy }}
                   onClick={() => {
-                    if (!note.trim()) return;
-                    setNotes((prev) => [...prev, note.trim()]);
-                    setNote("");
-                    toast.success("Note added (local)");
+                    void (async () => {
+                      if (!note.trim()) return;
+                      try {
+                        await addMerchantNote(merchant.id, note.trim());
+                        setNote("");
+                        toast.success("Note saved");
+                        await load();
+                      } catch (e) {
+                        toast.error(e instanceof Error ? e.message : "Could not save note");
+                      }
+                    })();
                   }}
                 >
                   Add

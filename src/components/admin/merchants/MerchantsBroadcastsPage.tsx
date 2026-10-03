@@ -1,18 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Megaphone } from "lucide-react";
 import { AdminShell, T } from "@/components/admin/AdminShell";
 import { MerchantsSubnav } from "@/components/admin/merchants/MerchantsSubnav";
-import { sendMerchantBroadcast, type MerchantStatus, type MerchantTier } from "@/lib/merchant-admin-api";
-
-type HistoryRow = {
-  id: string;
-  title: string;
-  segment: string;
-  channels: string;
-  at: string;
-  sent?: number;
-};
+import {
+  fetchMerchantBroadcasts,
+  sendMerchantBroadcast,
+  type AdminMerchantBroadcast,
+  type MerchantStatus,
+  type MerchantTier,
+} from "@/lib/merchant-admin-api";
 
 export function MerchantsBroadcastsPage() {
   const [title, setTitle] = useState("");
@@ -22,7 +19,24 @@ export function MerchantsBroadcastsPage() {
   const [push, setPush] = useState(true);
   const [sms, setSms] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [history, setHistory] = useState<HistoryRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [history, setHistory] = useState<AdminMerchantBroadcast[]>([]);
+
+  const loadHistory = async () => {
+    setLoading(true);
+    try {
+      setHistory(await fetchMerchantBroadcasts());
+    } catch (e) {
+      setHistory([]);
+      toast.error(e instanceof Error ? e.message : "Failed to load broadcast history");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void loadHistory();
+  }, []);
 
   return (
     <AdminShell
@@ -101,28 +115,21 @@ export function MerchantsBroadcastsPage() {
             onClick={async () => {
               setBusy(true);
               try {
+                const channels: Array<"push" | "sms"> = [];
+                if (push) channels.push("push");
+                if (sms) channels.push("sms");
                 const result = await sendMerchantBroadcast({
                   title: title.trim(),
                   body: body.trim(),
                   tier: tier === "all" ? undefined : (tier as MerchantTier),
                   state: state === "all" ? undefined : state,
                   status: "ACTIVE" as MerchantStatus,
+                  channels,
                 });
-                const channels = [push ? "Push" : null, sms ? "SMS" : null].filter(Boolean).join(" + ");
-                setHistory((h) => [
-                  {
-                    id: `bc-${Date.now()}`,
-                    title,
-                    segment: `${tier === "all" ? "All tiers" : tier} · ${state === "all" ? "All states" : state}`,
-                    channels,
-                    at: new Date().toISOString(),
-                    sent: result.sent,
-                  },
-                  ...h,
-                ]);
                 toast.success(`Broadcast sent to ${result.sent} merchants`);
                 setTitle("");
                 setBody("");
+                await loadHistory();
               } catch (e) {
                 toast.error(e instanceof Error ? e.message : "Broadcast failed");
               } finally {
@@ -136,26 +143,31 @@ export function MerchantsBroadcastsPage() {
 
         <div className="rounded-xl p-4" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
           <p className="text-[10px] font-bold uppercase tracking-[0.16em] mb-3" style={{ color: T.muted }}>
-            Recent (this session)
+            Recent broadcasts
           </p>
-          {history.length ? (
+          {loading ? (
+            <p className="text-[12px]" style={{ color: T.muted }}>
+              Loading…
+            </p>
+          ) : history.length ? (
             <ul className="space-y-3">
               {history.map((h) => (
                 <li key={h.id} className="text-[12px]">
                   <p className="font-semibold">{h.title}</p>
                   <p style={{ color: T.sub }}>
-                    {h.segment} · {h.channels}
-                    {h.sent != null ? ` · ${h.sent} sent` : ""}
+                    {h.tier ? String(h.tier) : "All tiers"} · {h.state ? String(h.state) : "All states"} ·{" "}
+                    {(h.channels ?? []).map((c) => String(c).toUpperCase()).join(" + ") || "PUSH"}
+                    {` · ${h.sent} sent`}
                   </p>
                   <p className="text-[10px] tabular-nums" style={{ color: T.muted, fontFamily: "'JetBrains Mono', monospace" }}>
-                    {new Date(h.at).toLocaleString()}
+                    {new Date(h.createdAt).toLocaleString()}
                   </p>
                 </li>
               ))}
             </ul>
           ) : (
             <p className="text-[12px]" style={{ color: T.muted }}>
-              No broadcasts sent this session.
+              No broadcasts yet.
             </p>
           )}
         </div>
